@@ -20,12 +20,14 @@
 ##
 golem::fill_desc(
   pkg_name = "DISCOURSE", # The name of the golem package containing the app (typically lowercase, no underscore or periods)
-  pkg_title = "PKG_TITLE", # What the Package Does (One Line, Title Case, No Period)
-  pkg_description = "PKG_DESC.", # What the package does (one paragraph).
+  pkg_title = "Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates", # What the Package Does (One Line, Title Case, No Period)
+  pkg_description = "We introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates.
+  This algorithmic framework is designed to reconstruct complete data sets solely from summary statistics.
+  It provides researchers with a tool to inform the discourse when raw data are unavailable, thereby informing decision‑making in replication studies.", # What the package does (one paragraph).
   authors = person(
-    given = "AUTHOR_FIRST", # Your First Name
-    family = "AUTHOR_LAST", # Your Last Name
-    email = "AUTHOR@MAIL.COM", # Your email
+    given = "Sebastian A. J.", # Your First Name
+    family = "Lortz", # Your Last Name
+    email = "s.a.j.lortz@gmail.com", # Your email
     role = c("aut", "cre") # Your role (here author/creator)
   ),
   repo_url = NULL, # The URL of the GitHub repo (optional),
