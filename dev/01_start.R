@@ -30,7 +30,7 @@ golem::fill_desc(
     email = "s.a.j.lortz@gmail.com", # Your email
     role = c("aut", "cre") # Your role (here author/creator)
   ),
-  repo_url = NULL, # The URL of the GitHub repo (optional),
+  repo_url = "https://github.com/sebastian-lortz/DISCOURSE", # The URL of the GitHub repo (optional),
   pkg_version = "0.0.0.9000", # The version of the package containing the app
   set_options = TRUE # Set the global golem options
 )
@@ -40,12 +40,12 @@ golem::install_dev_deps()
 
 ## Create Common Files ----
 ## See ?usethis for more information
-usethis::use_mit_license("Golem User") # You can set another license here
+usethis::use_mit_license("GPL (>= 2)") # You can set another license here
 golem::use_readme_rmd(open = FALSE)
 devtools::build_readme()
 # Note that `contact` is required since usethis version 2.1.5
 # If your {usethis} version is older, you can remove that param
-usethis::use_code_of_conduct(contact = "Golem User")
+usethis::use_code_of_conduct(contact = "s.a.j.lortz@gmail.com")
 usethis::use_lifecycle_badge("Experimental")
 usethis::use_news_md(open = FALSE)
 
