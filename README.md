@@ -4,6 +4,11 @@
 # `{DISCOURSE}`
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/sebastian-lortz/DISCOURSE/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/DISCOURSE)
 <!-- badges: end -->
 
 ## Installation
@@ -30,18 +35,16 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-04-17 14:00:36 CEST"
+#> [1] "2025-04-19 18:42:53 CEST"
 ```
 
 Here are the tests results and package coverage:
 
 ``` r
 devtools::check(quiet = TRUE)
-#> ══ Documenting ═════════════════════════════════════════════════════════════════
-#> ℹ Installed roxygen2 version (7.3.2) doesn't match required (7.1.1)
-#> ✖ `check()` will not re-document this package
-#> ── R CMD check results ─────────────────────────────── DISCOURSE 0.0.0.9000 ────
-#> Duration: 7.2s
+#> ℹ Loading discourse
+#> ── R CMD check results ─────────────────────────────── discourse 0.0.0.9000 ────
+#> Duration: 18.4s
 #> 
 #> ❯ checking for future file timestamps ... NOTE
 #>   unable to verify current time

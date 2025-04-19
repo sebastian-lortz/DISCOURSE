@@ -1,5 +1,5 @@
 default:
-  golem_name: DISCOURSE
+  golem_name: discourse
   golem_version: 0.0.0.9000
   app_prod: no
 production:

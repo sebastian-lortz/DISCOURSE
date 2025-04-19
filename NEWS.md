@@ -1,3 +1,5 @@
 # DISCOURSE (development version)
 
-* Initial CRAN submission.
+## discourse 0.0.0.9000
+
+* Initial version ...

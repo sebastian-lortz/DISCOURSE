@@ -1,23 +1,52 @@
-Package: DISCOURSE
-Title: Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates
+Package: discourse
+Title: Data-simulation via Iterative Stochastic Combinatorial Optimization
+    Using Reported Summary Estimates
 Version: 0.0.0.9000
-Authors@R: 
-    person("Sebastian A. J.", "Lortz", , "s.a.j.lortz@gmail.com", role = c("aut", "cre"))
-Description: We introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates.
-  This algorithmic framework is designed to reconstruct complete data sets solely from summary statistics.
-  It provides researchers with a tool to inform the discourse when raw data are unavailable, thereby informing decision‑making in replication studies.
+Authors@R:
+    person("Sebastian A. J.", "Lortz", , "s.a.j.lortz@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0007-0281-7996"))
+Description: We introduce the DISCOURSE framework – this algorithmic
+    framework is designed to reconstruct complete data sets solely from
+    summary statistics.  It provides researchers with a tool to inform the
+    discourse in replication study decision-making when raw data are
+    unavailable.
 License: MIT + file LICENSE
-Imports: 
-    config,
-    golem,
-    shiny
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.1.1
 URL: https://github.com/sebastian-lortz/DISCOURSE
 BugReports: https://github.com/sebastian-lortz/DISCOURSE/issues
+Imports: 
+    afex,
+    car,
+    config,
+    doSNOW,
+    dplyr,
+    emmeans,
+    foreach,
+    ggplot2,
+    golem,
+    lme4,
+    magrittr,
+    parallel,
+    pso,
+    Rcpp,
+    rlang,
+    shiny,
+    sn,
+    stats,
+    tidyr,
+    tidyselect,
+    utils
 Suggests: 
+    knitr,
+    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+VignetteBuilder: 
+    knitr
 Config/testthat/edition: 3
+Encoding: UTF-8
 Language: en-US
+LazyData: true
+RoxygenNote: 7.3.2

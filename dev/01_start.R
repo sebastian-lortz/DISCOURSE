@@ -19,7 +19,7 @@
 ## to change the name in the app_sys() function in app_config.R /!\
 ##
 golem::fill_desc(
-  pkg_name = "DISCOURSE", # The name of the golem package containing the app (typically lowercase, no underscore or periods)
+  pkg_name = "discourse", # The name of the golem package containing the app (typically lowercase, no underscore or periods)
   pkg_title = "Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates", # What the Package Does (One Line, Title Case, No Period)
   pkg_description = "We introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates.
   This algorithmic framework is designed to reconstruct complete data sets solely from summary statistics.
@@ -66,8 +66,8 @@ golem::use_utils_server(with_test = TRUE)
 usethis::use_git()
 ## Sets the remote associated with 'name' to 'url'
 usethis::use_git_remote(
-  name = "origin",
-  url = "https://github.com/<OWNER>/<REPO>.git"
+  name = "DISCOURSE",
+  url = "https://github.com/sebastian-lortz/DISCOURSE"
 )
 
 # You're now set! ----

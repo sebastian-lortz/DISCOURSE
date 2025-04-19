@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(DISCOURSE)
+library(discourse)
 
-test_check("DISCOURSE")
+test_check("discourse")
