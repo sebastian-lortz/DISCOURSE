@@ -1,61 +1,114 @@
-#’ @import shiny shinyjs
-#’ @importFrom rhandsontable rHandsontableOutput renderRHandsontable hot_to_r hot_col
+#' @import shiny shinyjs
+#' @importFrom rhandsontable rhandsontable rHandsontableOutput renderRHandsontable hot_to_r hot_col hot_table
 NULL
 
 mod_optim_vec_ui <- function(id) {
   ns <- NS(id)
   tagList(
     shinyjs::useShinyjs(),
-    fluidRow(
-      column(width = 4,
-             wellPanel(
-               h4("Reported Summary Statistics"),
-               numericInput(ns("N"), "Sample Size:", value = 864, min = 5, step = 1),
-               p("Enter one row per variable below:"),
-               div(style = "width:100%; overflow-x:auto;",
-                   rhandsontable::rHandsontableOutput(ns("param_table"), width = "100%")
-               ),
-               fluidRow(
-                 column(6, actionButton(ns("add_row"),    "Add row",    class = "btn-sm btn-block")),
-                 column(6, actionButton(ns("remove_row"), "Remove row", class = "btn-sm btn-block"))
-               )
-             ),
-             wellPanel(
-               h4("Algorithm Hyperparameters"),
-               numericInput(ns("tolerance"),    "Tolerance:",      value = 0.001,       min = 0,    step = 1e-4),
-               numericInput(ns("max_iter"),     "Max Iterations:", value = 1e5,         min = 1,    step = 1000),
-               numericInput(ns("init_temp"),    "Initial Temp.:",  value = 1,           step = 0.1),
-               numericInput(ns("cooling_rate"), "Cooling Rate:",   value = (1e5-10)/1e5,step = 0.01),
-               numericInput(ns("max_starts"),   "Max Starts:",     value = 3,           min = 1,    step = 1),
-               checkboxInput(ns("parallel"),    "Run in parallel?",value = FALSE),
-               tags$hr(),
-               h5("Objective Weights"),
-               div(style = "width:100%; overflow-x:auto;",
-                   rhandsontable::rHandsontableOutput(ns("weight_table"), width = "100%")
-               ),
-               actionButton(ns("estimate_weights"), "Estimate Weights", class = "btn-info btn-block")
-             ),
-             tags$hr(),
-             actionButton(ns("run"), "Run Optimization", class = "btn-primary btn-block")
-      ),
+    # Wrap both panels in a no-wrap container
+    div(style = "white-space: nowrap;",
 
-      column(width = 8,
-             h4("Optimization Output"),
-             tableOutput(ns("best_errors")),
-             fluidRow(
-               column(12,
-                      actionButton(ns("show_error_traj"), "Error trajectory", class = "btn-sm"),
-                      actionButton(ns("show_rmse"),       "Inspect RMSE",     class = "btn-sm"),
-                      actionButton(ns("show_summary"),    "Inspect variables",class = "btn-sm"),
-                      actionButton(ns("show_cooling"),    "Inspect cooling",  class = "btn-sm"),
-                      actionButton(ns("display_data"),    "Display data",     class = "btn-sm"),
-                      actionButton(ns("download"),        "Download",         class = "btn-sm")
-               )
-             ),
-             br(),
-             uiOutput(ns("main_output"))
-      )
-    )
+        # LEFT PANEL: inline-block shrink‑wrap to table width
+        div(style = "display:inline-block; vertical-align:top;",
+            wellPanel(
+              h4("Reported Summary Statistics"),
+              numericInput(ns("N"),  name_with_info(
+                "Sample Size",
+                "The length of the target vectors.")
+                , 864, min = 5, step = 1),
+              p(name_with_info(
+                "Descriptive Statistics",
+                "The variables' name, mean, minimum, maximum, and if integer/continous")),
+              div(style = "width:100%; overflow-x:auto;",
+                  rHandsontableOutput(ns("param_table"), width = "100%")
+              ),
+              fluidRow(
+                column(6, actionButton(ns("add_row"),    "Add row",    class = "btn-sm btn-block")),
+                column(6, actionButton(ns("remove_row"), "Remove row", class = "btn-sm btn-block"))
+              )
+            ),
+            wellPanel(
+              h4("Algorithm Hyperparameters"),
+              numericInput(
+                ns("tolerance"),
+                name_with_info(
+                  "Tolerance",
+                  "The threshold for the weighted objective function value below which the optimization will stop."),
+                value = 1e-12,
+                min   = 0,
+                step  = 1e-12,
+                width = "100%"
+              ),
+              numericInput(ns("max_iter"), name_with_info(
+                "Max Iterations",
+                "The maximum number of iterations the algorithm will run each time it restarts and for each variable."), 1e5,   min = 1,    step = 1000),
+              numericInput(ns("init_temp"), name_with_info(
+                "Initial Temperature",
+                "The starting temperature for the simulated annealing, which sets the initial likelihood of accepting worse solutions in the first start."),
+                1,     step = 0.1),
+              numericInput(ns("cooling_rate"), name_with_info(
+                "Max Iterations",
+                "The factor by which the temperature is multiplied after each iteration, governing how quickly the algorithm reduces its acceptance of worse solutions."),   (1e5-10)/1e5, step = 0.01),
+              numericInput(ns("max_starts"), name_with_info(
+                "Max Starts",
+                "The maximum number of times the optimization algorithm will restart from the current best solution using reduced inital temperatures."),     3,     min = 1,    step = 1),
+              checkboxInput(ns("parallel"), name_with_info(
+                "Run in Parallel",
+                "Enable the algorithm to execute on a parallel backend for improved performance."), TRUE),
+              tags$hr(),
+              h5(name_with_info(
+                "Objective Weights",
+                "The  weights multiplied with each term in the objective function; adjusting these values can steer the optimization toward preferred trade‑offs and improve performance.")),
+              div(style = "width:100%; overflow-x:auto;",
+                  rHandsontableOutput(ns("weight_table"), width = "100%")
+              ),
+              actionButton(ns("estimate_weights"), name_with_info(
+                "Estimate Weights",
+                "Automatically compute the objective function weights from each term’s initial contribution, using their means and standard deviations."), class = "btn-info btn-block")
+            )
+        ), # end left panel
+
+        # RIGHT PANEL: inline-block, sits next to left until wrapping necessary
+        div(style = "display:inline-block; vertical-align:top; margin-left:20px; width: calc(100% - auto);",
+            div(style = "margin-bottom:10px;",
+                actionButton(ns("run"), name_with_info(
+                  "Run Optimization",
+                  "Executes DISCOURSE: Data-Simulation via iterative stochastic combinatorial optimization using reported summary estimates."), class = "btn-primary")
+            ),
+
+            h4("Optimization Output"),
+            textOutput(ns("status_text")),
+
+            h5(name_with_info(
+                "Objective Function Value",
+                "The minimum weighted value of the objective function attained by the optimization.")),
+            tableOutput(ns("best_errors")),
+
+            fluidRow(
+              column(12,
+                     actionButton(ns("show_error_traj"), name_with_info(
+                       "Plot Errors",
+                       "Displays the evolution of the objective function value across the iterations for the last restart."),  class = "btn-sm"),
+                     actionButton(ns("show_rmse"), name_with_info(
+                       "Get RMSE",
+                       "Calculate the unweighted Root Mean Square Error between the reported summary statistics and those derived from the simulated data."),      class = "btn-sm"),
+                     actionButton(ns("show_summary"), name_with_info(
+                       "Plot Summary",
+                       "Displays the (un)standardized differences between the reported summary statistics and those derived from the simulated data."), class = "btn-sm"),
+                     actionButton(ns("show_cooling"), name_with_info("Plot Cooling",
+                                                                     "Displays the temperature evolution of the simualted annealing across the iterations for the last restart."),   class = "btn-sm"),
+                     actionButton(ns("display_data"),    name_with_info("Display data",
+                                                                        "Displays the head of the simulated data frame."),      class = "btn-sm"),
+                     actionButton(ns("download"), name_with_info("Download",
+                                                                 "Downloads either the simulated data frame or the full discourse.object including all inputs/outputs."),          class = "btn-sm")
+              )
+            ),
+            br(),
+            div(style = "overflow:auto;", uiOutput(ns("main_output")))
+        ) # end right panel
+
+    ) # end no‑wrap container
   )
 }
 
@@ -63,7 +116,7 @@ mod_optim_vec_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # default 5‑row parameter table
+    # INITIAL PARAMETERS
     initial_df <- data.frame(
       Variable = paste0("V", 1:5),
       Mean     = c(10.53, 0.27, 2.49, -0.64, 0.03),
@@ -76,56 +129,69 @@ mod_optim_vec_server <- function(id) {
     rv <- reactiveValues(
       params = initial_df,
       result = NULL,
-      last   = NULL,
-      status = "hold"
+      status = "ready",  # "ready", "running", "done"
+      last   = NULL
     )
 
-    # render & sync param table
-    output$param_table <- rhandsontable::renderRHandsontable({
-      tbl <- rhandsontable::rhandsontable(rv$params, rowHeaders = NULL)
-      rhandsontable::hot_col(tbl, "Integer", type = "checkbox")
+    # PARAMETER TABLE
+    output$param_table <- renderRHandsontable({
+      tbl <- rhandsontable(rv$params, rowHeaders = NULL)
+      hot_col(tbl, "Integer", type = "checkbox")
     })
     observeEvent(input$param_table, {
-      req(input$param_table)
-      rv$params <- rhandsontable::hot_to_r(input$param_table)
+      rv$params <- hot_to_r(input$param_table)
     })
 
-    # add / remove rows
+    # ADD / REMOVE ROWS
     observeEvent(input$add_row, {
       n <- nrow(rv$params) + 1
       rv$params <- rbind(rv$params, data.frame(
         Variable = paste0("V", n),
-        Mean     = 0,
+        Mean     = 4,
         SD       = 1,
         Min      = 0,
-        Max      = 1,
-        Integer  = FALSE,
+        Max      = 9,
+        Integer  = TRUE,
         stringsAsFactors = FALSE
       ))
     })
     observeEvent(input$remove_row, {
-      if (nrow(rv$params) > 1) {
-        rv$params <- rv$params[-nrow(rv$params), , drop = FALSE]
-      }
+      if (nrow(rv$params) > 1)
+        rv$params <- rv$params[-nrow(rv$params), ]
     })
 
-    # dynamic cooling_rate default
+    # DYNAMIC COOLING RATE
     observeEvent(input$max_iter, {
-      default_cool <- (input$max_iter - 10) / input$max_iter
-      updateNumericInput(session, "cooling_rate", value = default_cool)
+      updateNumericInput(session, "cooling_rate",
+                         value = (input$max_iter - 10) / input$max_iter
+      )
     })
 
-    # placeholder weights table
+    # WEIGHTS TABLE
     weight_df <- reactiveVal(data.frame(
       Variable   = paste0("V", 1:5),
-      WeightMean = rep(1,5),
-      WeightSD   = rep(1,5),
+      WeightMean = rep(1.00, 5),
+      WeightSD   = rep(1.00, 5),
       stringsAsFactors = FALSE
     ))
-    output$weight_table <- rhandsontable::renderRHandsontable({
-      tbl <- rhandsontable::rhandsontable(weight_df(), rowHeaders = NULL)
-      rhandsontable::hot_col(tbl, "WeightMean", format = "0.000")
-      rhandsontable::hot_col(tbl, "WeightSD",   format = "0.000")
+    observeEvent(rv$params, {
+      df_p  <- rv$params
+      old_w <- weight_df()                       # existing weights
+      # build a new frame with exactly the same Variables
+      new_w <- data.frame(Variable   = df_p$Variable,
+                          stringsAsFactors = FALSE)
+      # merge in any old weights; leave new ones as NA
+      new_w <- merge(new_w, old_w, by = "Variable", all.x = TRUE)
+      # fill any brand‑new rows with defaults
+      new_w$WeightMean[is.na(new_w$WeightMean)] <- 1
+      new_w$WeightSD  [is.na(new_w$WeightSD)]   <- 1
+      weight_df(new_w)
+    })
+    output$weight_table <- renderRHandsontable({
+      tbl <- rhandsontable(weight_df(), rowHeaders = NULL, width = "100%")
+      tbl <- hot_table(tbl, stretchH = "all")
+      hot_col(tbl, "WeightMean", format = "0.000")
+      hot_col(tbl, "WeightSD",   format = "0.000")
     })
     observeEvent(input$estimate_weights, {
       df <- rv$params; req(df)
@@ -134,8 +200,11 @@ mod_optim_vec_server <- function(id) {
         target_mean = df$Mean,
         target_sd   = df$SD,
         range       = rbind(df$Min, df$Max),
-        init_distr  = "uniform", skew = 0, kurt = 1,
-        obj_weight  = c(1,1), prior_weight = 0.5,
+        init_distr  = "uniform",
+        skew        = 0,
+        kurt        = 1,
+        obj_weight  = c(1,1),
+        prior_weight= 0.5,
         integer     = df$Integer
       )
       w_mat <- do.call(rbind, w_list)
@@ -147,11 +216,13 @@ mod_optim_vec_server <- function(id) {
       ))
     })
 
-    # disable Run & action buttons until params are valid
+    # INITIAL BUTTON STATES
     shinyjs::disable("run")
     lapply(c("show_error_traj","show_rmse","show_summary","show_cooling","display_data","download"),
-           function(btn) shinyjs::disable(btn))
+           shinyjs::disable
+    )
 
+    # ENABLE RUN WHEN PARAMS VALID
     observe({
       df <- rv$params
       ok <- all(
@@ -162,15 +233,16 @@ mod_optim_vec_server <- function(id) {
       if (ok) shinyjs::enable("run") else shinyjs::disable("run")
     })
 
-    # run optimization
+    # RUN OPTIMIZATION
     observeEvent(input$run, {
-      # indicate in-progress
-      rv$status <- "in progress..."
-      # disable run during execution
+      rv$status <- "running"
       shinyjs::disable("run")
+      lapply(c("show_error_traj","show_rmse","show_summary","show_cooling","display_data","download"),
+             shinyjs::disable
+      )
 
       df  <- rv$params
-      wdf <- rhandsontable::hot_to_r(input$weight_table)
+      wdf <- hot_to_r(input$weight_table)
       rv$result <- optim_vec(
         N            = input$N,
         target_mean  = setNames(df$Mean, df$Variable),
@@ -186,44 +258,49 @@ mod_optim_vec_server <- function(id) {
           c(wdf$WeightMean[i], wdf$WeightSD[i])),
         parallel     = input$parallel
       )
-      # mark done
+
       rv$status <- "done"
-      # enable action buttons
       lapply(c("show_error_traj","show_rmse","show_summary","show_cooling","display_data","download"),
-             function(btn) shinyjs::enable(btn))
+             shinyjs::enable
+      )
     })
 
-    # best‑errors horizontal table, showing status until done
+    # STATUS TEXT
+    output$status_text <- renderText({
+      if (rv$status == "running") "Optimization is running..." else ""
+    })
+
+    # BEST‑ERRORS TABLE
     output$best_errors <- renderTable({
       vars <- rv$params$Variable
       if (rv$status != "done") {
-        df <- as.data.frame(as.list(rep(rv$status, length(vars))), stringsAsFactors = FALSE)
+        df <- as.data.frame(as.list(rep("hold", length(vars))), stringsAsFactors = FALSE)
         colnames(df) <- vars
         return(df)
       }
       bes  <- unlist(rv$result$best_error)
       disp <- ifelse(bes < input$tolerance, "converged", format(bes))
       df <- as.data.frame(as.list(disp), stringsAsFactors = FALSE)
-      colnames(df) <- names(bes)
+      colnames(df) <- rv$params$Variable[seq_along(disp)]
       df
     }, rownames = FALSE)
 
-    # track which button clicked
-    observeEvent(input$show_error_traj,  rv$last <- reactive("traj"))
-    observeEvent(input$show_rmse,        rv$last <- reactive("rmse"))
-    observeEvent(input$show_summary,     rv$last <- reactive("summary"))
-    observeEvent(input$show_cooling,     rv$last <- reactive("cooling"))
-    observeEvent(input$display_data,     rv$last <- reactive("data"))
+    # ACTION BUTTONS
+    observeEvent(input$show_error_traj, rv$last <- reactive("traj"))
+    observeEvent(input$show_rmse,       rv$last <- reactive("rmse"))
+    observeEvent(input$show_summary,    rv$last <- reactive("summary"))
+    observeEvent(input$show_cooling,    rv$last <- reactive("cooling"))
+    observeEvent(input$display_data,    rv$last <- reactive("data"))
     observeEvent(input$download, {
       showModal(modalDialog(
-        title = "Download options",
-        downloadButton(ns("dl_object"), "Download full object"),
-        downloadButton(ns("dl_data"),   "Download data (CSV)"),
+        title = "Download",
+        downloadButton(ns("dl_object"), "Full object"),
+        downloadButton(ns("dl_data"),   "Data CSV"),
         easyClose = TRUE
       ))
     })
 
-    # single output placeholder
+    # MAIN OUTPUT
     output$main_output <- renderUI({
       req(rv$last)
       switch(rv$last(),
@@ -235,7 +312,7 @@ mod_optim_vec_server <- function(id) {
       )
     })
 
-    # plot/render handlers
+    # RENDER HANDLERS
     output$error_plot   <- renderPlot({ plot_error(rv$result) })
     output$rmse_out     <- renderPrint({ get_rmse(rv$result) })
     output$summary_plot <- renderPlot({ plot_summary(rv$result) })
@@ -244,7 +321,7 @@ mod_optim_vec_server <- function(id) {
       head(as.data.frame(rv$result$data), 10)
     }, rownames = TRUE)
 
-    # download handlers
+    # DOWNLOAD HANDLERS
     output$dl_object <- downloadHandler(
       filename = "discourse_object.rds",
       content  = function(file) saveRDS(rv$result, file)
@@ -255,7 +332,6 @@ mod_optim_vec_server <- function(id) {
     )
   })
 }
-
 ## Use in your app:
 # ui     <- fluidPage(mod_optim_vec_ui("optim_vec"))
 # server <- function(input, output, session) mod_optim_vec_server("optim_vec")

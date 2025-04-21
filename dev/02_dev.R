@@ -53,7 +53,7 @@ golem::add_fct("plot_error_ratio", with_test = TRUE)
 
 golem::add_utils("helpers", with_test = TRUE)
 golem::add_utils("discourse-package", with_test = TRUE)
-
+golem::add_utils("server", with_test = TRUE)
 ## Rcpp
 # regenerate Rcpp bindings and NAMESPACE
 Rcpp::compileAttributes()

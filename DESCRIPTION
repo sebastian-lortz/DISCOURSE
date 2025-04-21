@@ -31,6 +31,8 @@ Imports:
     rhandsontable,
     rlang,
     shiny,
+    shinyjs,
+    shinyWidgets,
     sn,
     stats,
     tidyr,

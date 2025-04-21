@@ -115,5 +115,5 @@ weights_vec <- function(N, target_mean, target_sd, range,
       metric      = metric
     )
   }
-  return(weights)
+  return(round(weights, 3))
 }
