@@ -12,7 +12,6 @@
 #' @param tol        Error tolerance for convergence
 #' @param prob_global_move Prob of global move vs local swap
 #' @param progress_bar  Show progress bar if TRUE
-#' @param rcpp       Use Rcpp back-ends if TRUE
 #' @param starts     Number of annealing restarts
 #' @param hill_climbs Optional hill-climbing iterations for refinement
 #' @return A "discourse.object" with best error, data, inputs, and trace
@@ -30,27 +29,18 @@ optim_lm <- function(
     tol = 1e-6,
     prob_global_move = 0.1,
     progress_bar = TRUE,
-    rcpp = TRUE,
     starts = 1,
     hill_climbs = NA
 ) {
-  # flag missing targets
-  NA_cor <- is.na(target_cor)
-  NA_reg <- is.na(target_reg)
-  if (!is.null(target_se)) {
-    NA_se <- is.na(target_se)
-  }
 
   # determine rounding precision
   cor_dec <- max(count_decimals(target_cor))
   reg_dec <- max(count_decimals(target_reg))
-  if (!is.null(target_se)) {
-    se_dec <- max(count_decimals(target_se))
-  }
 
   # derive term positions for C++ error functions
   terms_obj  <- stats::terms(stats::as.formula(reg_equation))
   design_cpp <- get_design(sim_data, reg_equation, terms_obj)$positions
+  names(target_reg) <- get_design(sim_data, reg_equation, terms_obj)$target_names
   num_cols   <- ncol(sim_data)
   col_names  <- colnames(sim_data)
 
@@ -62,7 +52,7 @@ optim_lm <- function(
   N          <- nrow(predictors)
 
   # define error function based on rcpp and target_se
-  if (rcpp && is.null(target_se)) {
+  if (is.null(target_se)) {
     error_function <- function(candidate) {
       error_function_cpp(
         candidate,
@@ -75,7 +65,7 @@ optim_lm <- function(
         reg_dec
       )
     }
-  } else if (rcpp) {
+  } else {
     target_reg_se <- cbind(target_reg, target_se)
     error_function <- function(candidate) {
       error_function_cpp_se(
@@ -88,26 +78,6 @@ optim_lm <- function(
         cor_dec,
         reg_dec
       )
-    }
-  } else {
-    # pure R implementations
-    candidate_cor <- function(candidate) {
-      C    <- stats::cor(cbind(candidate, outcome))
-      C[upper.tri(C)]
-    }
-    candidate_reg <- function(candidate) {
-      full_data <- stats::setNames(data.frame(candidate, outcome), col_names)
-      model     <- stats::lm(reg_equation, data = full_data)
-      stats::coef(model)
-    }
-    error_function <- function(candidate) {
-      cor_vec   <- candidate_cor(candidate)
-      cor_error <- sqrt(mean((round(cor_vec[!NA_cor], cor_dec) - target_cor[!NA_cor])^2))
-      reg_vec   <- candidate_reg(candidate)
-      reg_error <- sqrt(mean((round(reg_vec[!NA_reg], reg_dec) - target_reg[!NA_reg])^2))
-      total_error <- cor_error * weight[1] + reg_error * weight[2]
-      error_ratio <- cor_error / reg_error
-      list(total_error = total_error, error_ratio = error_ratio)
     }
   }
 

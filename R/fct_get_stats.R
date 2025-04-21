@@ -10,11 +10,8 @@ get_stats <- function(result) {
   # regression-based branch
   if (!is.null(result$inputs$target_reg)) {
     eq <- result$inputs$reg_equation
-    if (!is.null(result$inputs$pnumber)) {
+    if (!is.null(result$inputs$prob_within_move)) {
       # mixed-effects model
-      if (!requireNamespace("lme4", quietly = TRUE)) {
-        stop("Package 'lme4' required for mixed-effects models.")
-      }
       model <- lme4::lmer(eq, data = data_df,
                           control = lme4::lmerControl(check.conv.singular = "ignore"))
       fe      <- lme4::fixef(model)

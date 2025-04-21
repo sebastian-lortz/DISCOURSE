@@ -11,13 +11,11 @@ optim_aov(
   target_group_means,
   target_f_vec,
   df_effects,
-  marginal_means = NULL,
   MSE = NULL,
   range,
   formula,
   tolerance,
   mixedmodel = FALSE,
-  lme = FALSE,
   factor_type = NULL,
   balanced = FALSE,
   typeSS = 3,
@@ -25,7 +23,6 @@ optim_aov(
   init_temp = 1,
   cooling_rate = NA,
   pb_update_interval = NA,
-  rcpp = TRUE,
   integer = TRUE,
   max_starts = 3,
   checkGrim = TRUE
@@ -48,8 +45,6 @@ optim_aov(
 
 \item{df_effects}{Degrees of freedom for each effect}
 
-\item{marginal_means}{(unused) precomputed marginal means}
-
 \item{MSE}{Optional mean square error; computed if NULL}
 
 \item{range}{Numeric vector length 2 specifying allowed candidate range}
@@ -59,8 +54,6 @@ optim_aov(
 \item{tolerance}{Convergence tolerance for optimization}
 
 \item{mixedmodel}{Logical; TRUE for mixed‑model (long format)}
-
-\item{lme}{Logical; use lme4::lmer if TRUE (mixedmodel only)}
 
 \item{factor_type}{Factor types ("between"/"within") for mixed models}
 
@@ -76,13 +69,13 @@ optim_aov(
 
 \item{pb_update_interval}{Progress bar update interval; auto if NA}
 
-\item{rcpp}{Logical; use Rcpp back‑ends if available}
-
 \item{integer}{Logical; treat candidate values as integers}
 
 \item{max_starts}{Number of annealing restarts}
 
 \item{checkGrim}{Logical; perform GRIM checks on target means}
+
+\item{marginal_means}{(unused) precomputed marginal means}
 }
 \value{
 A "discourse.object" list with optimized data, error, inputs, and trace

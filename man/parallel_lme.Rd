@@ -16,12 +16,10 @@ parallel_lme(
   cooling_rate = NA,
   tol = 1e-06,
   prob_global_move = 0.1,
-  rcpp = TRUE,
   starts = 1,
   parallel_start = 3,
   hill_climbs = NA,
   prob_within_move = 0.8,
-  pnumber,
   timepoint,
   return_best_solution = FALSE
 )
@@ -49,8 +47,6 @@ parallel_lme(
 
 \item{prob_global_move}{Numeric; probability of global move in annealing (default 0.1).}
 
-\item{rcpp}{Logical; use C++ objective implementation (default TRUE).}
-
 \item{starts}{Integer; number of optimization restarts (default 1).}
 
 \item{parallel_start}{Integer; number of parallel runs to launch.}
@@ -59,11 +55,11 @@ parallel_lme(
 
 \item{prob_within_move}{Numeric; probability of within-neighborhood move (default 0.8).}
 
-\item{pnumber}{Character or factor; grouping variable name for participants.}
-
 \item{timepoint}{Character or factor; grouping variable name for time points.}
 
 \item{return_best_solution}{Logical; if TRUE, return only the best fit (default FALSE).}
+
+\item{pnumber}{Character or factor; grouping variable name for participants.}
 }
 \value{
 A list of `discourse.object` results from each parallel start,

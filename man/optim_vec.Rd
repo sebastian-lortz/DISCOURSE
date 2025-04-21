@@ -20,7 +20,6 @@ optim_vec(
   pb_update_interval = NA,
   obj_weight = list(c(1, 1)),
   prior_weight = 0.5,
-  rcpp = TRUE,
   maxit_pso = 1000,
   eps = 1e-12,
   max_starts = 3,
@@ -59,8 +58,6 @@ optim_vec(
 \item{obj_weight}{List of two numerics; weights for mean vs SD.}
 
 \item{prior_weight}{Numeric; mix weight for prior sampling.}
-
-\item{rcpp}{Logical; use C++ objective if TRUE.}
 
 \item{maxit_pso}{Integer; max PSO iterations (continuous mode).}
 

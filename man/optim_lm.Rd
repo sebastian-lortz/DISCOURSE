@@ -17,7 +17,6 @@ optim_lm(
   tol = 1e-06,
   prob_global_move = 0.1,
   progress_bar = TRUE,
-  rcpp = TRUE,
   starts = 1,
   hill_climbs = NA
 )
@@ -46,8 +45,6 @@ optim_lm(
 \item{prob_global_move}{Prob of global move vs local swap}
 
 \item{progress_bar}{Show progress bar if TRUE}
-
-\item{rcpp}{Use Rcpp back-ends if TRUE}
 
 \item{starts}{Number of annealing restarts}
 

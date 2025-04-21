@@ -41,7 +41,7 @@ plot_cooling <- function(discourse_obj) {
     ggplot2::labs(
       title = "Cooling Schedule",
       x     = "Iteration",
-      y     = expression(Temperature^2)
+      y     = "Temperature"
     ) +
     apa_theme +
     ggplot2::coord_cartesian(clip = "off")

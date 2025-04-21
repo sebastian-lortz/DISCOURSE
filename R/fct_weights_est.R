@@ -17,9 +17,6 @@
 #' @param tol        Numeric; convergence tolerance.
 #' @param prob_global_move Numeric; probability of taking a global move.
 #' @param progress_bar   Logical; if `TRUE`, print progress.
-#' @param pnumber    Vector of subject IDs (for mixed‑effects only).
-#' @param timepoint  Vector of time points (for mixed‑effects only).
-#' @param rcpp       Logical; if `TRUE`, use Rcpp‑accelerated routines.
 #' @param weight     Numeric vector; initial weights (default `c(1,1)`).
 #' @param pool_range Integer; how many recent error ratios to average.
 #' @param starts     Integer; number of restarts.
@@ -43,13 +40,10 @@ weights_est <- function(module,
                         reg_equation,
                         max_iter = 1e5,
                         init_temp = 1,
-                        cooling_rate = 0.9999,
+                        cooling_rate = NA,
                         tol = 1e-6,
                         prob_global_move = 0.1,
                         progress_bar = TRUE,
-                        pnumber = NA,
-                        timepoint = NA,
-                        rcpp = TRUE,
                         weight = c(1, 1),
                         pool_range = 10,
                         starts = 1,
@@ -75,12 +69,9 @@ weights_est <- function(module,
           tol              = tol,
           prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
-          rcpp             = rcpp,
           starts           = starts,
           hill_climbs      = NA,
-          prob_within_move = prob_within_move,
-          pnumber          = pnumber,
-          timepoint        = timepoint
+          prob_within_move = prob_within_move
         )
       } else {
         opt_run <- optim_lm(
@@ -96,7 +87,6 @@ weights_est <- function(module,
           tol              = tol,
           prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
-          rcpp             = rcpp,
           starts           = starts,
           hill_climbs      = NA
         )
@@ -115,13 +105,10 @@ weights_est <- function(module,
           cooling_rate         = cooling_rate,
           tol                  = tol,
           prob_global_move     = prob_global_move,
-          rcpp                 = rcpp,
           starts               = starts,
           parallel_start       = parallel_start,
           hill_climbs          = NA,
           prob_within_move     = prob_within_move,
-          pnumber              = pnumber,
-          timepoint            = timepoint,
           return_best_solution = TRUE
         )
       } else {
@@ -137,7 +124,6 @@ weights_est <- function(module,
           cooling_rate         = cooling_rate,
           tol                  = tol,
           prob_global_move     = prob_global_move,
-          rcpp                 = rcpp,
           starts               = starts,
           parallel_start       = parallel_start,
           hill_climbs          = NA,
@@ -163,6 +149,7 @@ weights_est <- function(module,
   cat("The estimated weights are:", weights, "\n")
   list(
     weights       = weights,
-    best_solution = last_opt_run$best_solution
+    best_solution = last_opt_run$best_solution,
+    error_ratio = error_ratios
   )
 }

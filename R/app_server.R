@@ -32,5 +32,9 @@ app_server <- function(input, output, session) {
     tags$pre(paste(lines, collapse = "\n"))
   })
 
+  mod_optim_vec_server("optim_vec")
+  mod_optim_lm_server("optim_lm")
+  mod_optim_lme_server("optim_lme")
+  mod_optim_aov_server("optim_aov")
 
 }

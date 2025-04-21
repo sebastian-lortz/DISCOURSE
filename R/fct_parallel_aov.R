@@ -59,6 +59,7 @@ parallel_aov <- function(
   cores <- parallel::detectCores() - 1
   cl    <- parallel::makeCluster(cores)
   doSNOW::registerDoSNOW(cl)
+  cat("\nParallel backend registered with:", cores, "cores.\n")
 
   # ensure cleanup on exit
   on.exit({
@@ -69,6 +70,8 @@ parallel_aov <- function(
   # packages to load on workers
   pkgs <- c("discourse", "Rcpp")
 
+  cat("\nParallel optimization is running...\n")
+  start_time <- Sys.time()
   # parallel optim_aov runs
   values <- foreach::foreach(
     i = seq_len(parallel_start),
@@ -102,6 +105,9 @@ parallel_aov <- function(
       checkGrim         = checkGrim
     )
   }
+  cat(" finished.\n")
+  stop_time <- Sys.time()
+  cat("\nParallel optimization time was", stop_time - start_time, "seconds.\n")
 
   # return best solution if requested
   if (return_best_solution) {

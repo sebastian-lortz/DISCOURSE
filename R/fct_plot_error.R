@@ -4,10 +4,11 @@
 #' @param discourse_obj S3 object of class "discourse.object"
 #' @param run Integer; which run to plot (default 1)
 #' @param show_best Logical; highlight the minimum error (default TRUE)
+#' @param first_iter Numeric; first iteration to be displayed in plot
 #' @return Invisibly returns the ggplot2 object
 #' @importFrom rlang .data
 #' @export
-plot_error <- function(discourse_obj, run = 1, show_best = TRUE) {
+plot_error <- function(discourse_obj, run = 1, show_best = TRUE, first_iter = 1) {
 
   # Theme setup
   apa_theme <- ggplot2::theme_minimal(base_size = 12, base_family = "Helvetica") +
@@ -36,9 +37,13 @@ plot_error <- function(discourse_obj, run = 1, show_best = TRUE) {
   } else {
     err_data
   }
+  # cut off the first `first_iter` values
+  seg_err <- err_vec[(first_iter + 1):length(err_vec)]
+
+  # build df so that Iteration = original index
   df <- data.frame(
-    Iteration = seq_along(err_vec),
-    Error     = err_vec
+    Iteration = first_iter + seq_along(seg_err),
+    Error     = seg_err
   )
 
   # Best-error identification

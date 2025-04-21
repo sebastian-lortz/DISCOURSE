@@ -28,6 +28,7 @@ Imports:
     parallel,
     pso,
     Rcpp,
+    rhandsontable,
     rlang,
     shiny,
     sn,

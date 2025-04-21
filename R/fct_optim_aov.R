@@ -16,7 +16,6 @@
 #' @param formula Model formula for F extraction
 #' @param tolerance Convergence tolerance for optimization
 #' @param mixedmodel Logical; TRUE for mixed‑model (long format)
-#' @param lme Logical; use lme4::lmer if TRUE (mixedmodel only)
 #' @param factor_type Factor types ("between"/"within") for mixed models
 #' @param balanced Logical; assume balanced design if TRUE
 #' @param typeSS Type of sums of squares (2 or 3)
@@ -24,7 +23,6 @@
 #' @param init_temp Initial temperature for annealing
 #' @param cooling_rate Cooling rate per iteration
 #' @param pb_update_interval Progress bar update interval; auto if NA
-#' @param rcpp Logical; use Rcpp back‑ends if available
 #' @param integer Logical; treat candidate values as integers
 #' @param max_starts Number of annealing restarts
 #' @param checkGrim Logical; perform GRIM checks on target means
@@ -37,13 +35,11 @@ optim_aov <- function(
     target_group_means,
     target_f_vec,
     df_effects,
-    marginal_means = NULL,
     MSE = NULL,
     range,
     formula,
     tolerance,
     mixedmodel = FALSE,
-    lme = FALSE,
     factor_type = NULL,
     balanced = FALSE,
     typeSS = 3,
@@ -51,7 +47,6 @@ optim_aov <- function(
     init_temp = 1,
     cooling_rate = NA,
     pb_update_interval = NA,
-    rcpp = TRUE,
     integer = TRUE,
     max_starts = 3,
     checkGrim = TRUE
@@ -202,6 +197,7 @@ optim_aov <- function(
   # simulated annealing
   for (s in seq_len(max_starts)) {
     pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
+    track_error       <- numeric(max_iter)
     for (i in seq_len(max_iter)) {
       x_new <- move_fun(x_cur)
       err   <- objective(x_new)
@@ -212,12 +208,14 @@ optim_aov <- function(
         best_sol <- x_cur
       }
       temp <- temp * cooling_rate
+      track_error[i]       <- best_err
       if (i %% pb_update_interval == 0) utils::setTxtProgressBar(pb, i)
       if (best_err < tolerance) break
     }
     close(pb)
     x_cur <- best_sol
     if (best_err < tolerance) break
+    cat("\nBest error in start", s, "is", best_err, "\n")
   }
 
   # result assembly
@@ -231,7 +229,7 @@ optim_aov <- function(
     best_error  = best_err,
     data        = out_data,
     inputs      = as.list(environment()),
-    track_error = NULL
+    track_error = track_error
   )
   class(res) <- "discourse.object"
   res

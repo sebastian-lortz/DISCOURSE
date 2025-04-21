@@ -14,13 +14,10 @@ weights_est(
   reg_equation,
   max_iter = 1e+05,
   init_temp = 1,
-  cooling_rate = 0.9999,
+  cooling_rate = NA,
   tol = 1e-06,
   prob_global_move = 0.1,
   progress_bar = TRUE,
-  pnumber = NA,
-  timepoint = NA,
-  rcpp = TRUE,
   weight = c(1, 1),
   pool_range = 10,
   starts = 1,
@@ -54,12 +51,6 @@ weights_est(
 \item{prob_global_move}{Numeric; probability of taking a global move.}
 
 \item{progress_bar}{Logical; if `TRUE`, print progress.}
-
-\item{pnumber}{Vector of subject IDs (for mixed‑effects only).}
-
-\item{timepoint}{Vector of time points (for mixed‑effects only).}
-
-\item{rcpp}{Logical; if `TRUE`, use Rcpp‑accelerated routines.}
 
 \item{weight}{Numeric vector; initial weights (default `c(1,1)`).}
 

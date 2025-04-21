@@ -4,7 +4,7 @@
 \alias{plot_error}
 \title{Plot Error Evolution}
 \usage{
-plot_error(discourse_obj, run = 1, show_best = TRUE)
+plot_error(discourse_obj, run = 1, show_best = TRUE, first_iter = 1)
 }
 \arguments{
 \item{discourse_obj}{S3 object of class "discourse.object"}
@@ -12,6 +12,8 @@ plot_error(discourse_obj, run = 1, show_best = TRUE)
 \item{run}{Integer; which run to plot (default 1)}
 
 \item{show_best}{Logical; highlight the minimum error (default TRUE)}
+
+\item{first_iter}{Numeric; first iteration to be displayed in plot}
 }
 \value{
 Invisibly returns the ggplot2 object

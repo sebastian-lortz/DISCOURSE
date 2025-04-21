@@ -16,7 +16,6 @@ parallel_lm(
   cooling_rate = NA,
   tol = 1e-06,
   prob_global_move = 0.1,
-  rcpp = TRUE,
   starts = 1,
   parallel_start = 3,
   hill_climbs = NA,
@@ -45,8 +44,6 @@ parallel_lm(
 \item{tol}{Convergence tolerance.}
 
 \item{prob_global_move}{Probability of global move.}
-
-\item{rcpp}{Logical; use Rcpp.}
 
 \item{starts}{Number of starts per run.}
 

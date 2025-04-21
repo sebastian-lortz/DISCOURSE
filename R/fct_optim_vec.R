@@ -15,7 +15,6 @@
 #' @param pb_update_interval Integer; progress‐bar refresh frequency.
 #' @param obj_weight List of two numerics; weights for mean vs SD.
 #' @param prior_weight Numeric; mix weight for prior sampling.
-#' @param rcpp Logical; use C++ objective if TRUE.
 #' @param maxit_pso Integer; max PSO iterations (continuous mode).
 #' @param eps Numeric; small constant to avoid zero division.
 #' @param max_starts Integer; annealing restarts.
@@ -45,7 +44,6 @@ optim_vec <- function(
     pb_update_interval = NA,
     obj_weight      = list(c(1, 1)),
     prior_weight    = 0.5,
-    rcpp            = TRUE,
     maxit_pso       = 1000,
     eps             = 1e-12,
     max_starts      = 3,
@@ -91,7 +89,7 @@ optim_vec <- function(
     N, target_mean, target_sd, range, tolerance,
     max_iter, init_temp, cooling_rate, init_distr,
     skew, kurt, pb_update_interval, obj_weight,
-    prior_weight, rcpp, integer, maxit_pso,
+    prior_weight, integer, maxit_pso,
     eps, max_starts, checkGrim, prob_heuristic
   ) {
     mean_dec <- count_decimals(target_mean)
@@ -106,18 +104,9 @@ optim_vec <- function(
     }
 
     ## Define objective
-    if (rcpp) {
       objective <- function(x) {
         objective_cpp(x, target_mean, target_sd, obj_weight, eps, mean_dec, sd_dec)
       }
-    } else {
-      denom_mean <- max(abs(target_mean), eps)
-      denom_sd   <- max(abs(target_sd), eps)
-      objective <- function(x) {
-        ((base::mean(x) - target_mean) / denom_mean)^2 * obj_weight[1] +
-          ((stats::sd(x)   - target_sd)   / denom_sd)   ^2 * obj_weight[2]
-      }
-    }
 
     if (integer) {
       ## Integer‐value optimization
@@ -229,24 +218,35 @@ optim_vec <- function(
     cores <- parallel::detectCores() - 1
     cl <- parallel::makeCluster(cores)
     doSNOW::registerDoSNOW(cl)
-    on.exit(parallel::stopCluster(cl), add = TRUE)
+    cat("\nParallel backend registered with:", cores, "cores.\n")
 
-    parallel::clusterEvalQ(cl, {
-      library(discourse)
+    # ensure cluster stop and cleanup on exit
+    on.exit({
+      parallel::stopCluster(cl)
+      gc()
     })
+
+    # Define packages for parallel workers
+    pkgs <- c("discourse", "Rcpp")
+
+    cat("\nParallel optimization is running...\n")
+    start_time <- Sys.time()
 
     values <- foreach::foreach(
       i = seq_len(n_var),
-      .packages = c("sn","pso")
+      .packages = pkgs
     ) %dopar% {
       optim_vec_single(
         N, target_mean[i], target_sd[i], range[, i], tolerance,
         max_iter, init_temp, cooling_rate, init_distr[i],
         skew[i], kurt[i], pb_update_interval, obj_weight[[i]],
-        prior_weight[i], rcpp, integer[i], maxit_pso, eps,
+        prior_weight[i], integer[i], maxit_pso, eps,
         max_starts, checkGrim, prob_heuristic
       )
     }
+    cat(" finished.\n")
+    stop_time <- Sys.time()
+    cat("\nParallel optimization time was", stop_time - start_time, "seconds.\n")
 
     for (i in seq_len(n_var)) {
       sol                 <- values[[i]]$data
@@ -261,7 +261,7 @@ optim_vec <- function(
         N, target_mean[i], target_sd[i], range[, i], tolerance,
         max_iter, init_temp, cooling_rate, init_distr[i],
         skew[i], kurt[i], pb_update_interval, obj_weight[[i]],
-        prior_weight[i], rcpp, integer[i], maxit_pso, eps,
+        prior_weight[i], integer[i], maxit_pso, eps,
         max_starts, checkGrim, prob_heuristic
       )
       solution_matrix[, i] <- res$data

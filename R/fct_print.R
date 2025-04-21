@@ -45,8 +45,10 @@ print.summary.discourse.object <- function(x, ...) {
 
   } else {
     # optim_vec branch
-    cat("Achieved Loss of Optimization: ", unlist(x$best_error), "\n\n")
-    cat("RMSE of Summary Statistics\n")
+    best_err <- unlist(x$best_error)
+    names(best_err) <- names(x$means)
+    cat("Achieved Loss of Optimization:\n"); print(best_err)
+    cat("\nRMSE of Summary Statistics\n")
     cat("  Means: ", x$rmse$rmse_mean, "\n")
     cat("  SDs:   ", x$rmse$rmse_sd, "\n\n")
 

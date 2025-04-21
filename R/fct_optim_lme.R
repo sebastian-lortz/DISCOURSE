@@ -14,12 +14,9 @@
 #' @param tol Error tolerance for early stopping.
 #' @param prob_global_move Probability of a global shuffle move.
 #' @param progress_bar Logical; show progress bar.
-#' @param rcpp Logical; use Rcpp candidate‐evaluation if TRUE.
 #' @param starts Number of SA restarts.
 #' @param hill_climbs Optional hill‐climb iterations after SA.
 #' @param prob_within_move Probability of within‐timegroup swap move.
-#' @param pnumber Vector of participant IDs.
-#' @param timepoint Vector of time points.
 #'
 #' @return A "discourse.object" with best error, data, inputs, and trace
 #' @export
@@ -28,19 +25,17 @@ optim_lme <- function(sim_data,
                       target_reg,
                       reg_equation,
                       target_se       = NULL,
-                      weight          = NA,
+                      weight          = c(1,1),
                       max_iter        = 1e5,
                       init_temp       = 1,
                       cooling_rate    = NA,
                       tol             = 1e-6,
                       prob_global_move= 0.1,
                       progress_bar    = TRUE,
-                      rcpp            = TRUE,
                       starts          = 1,
                       hill_climbs     = NA,
-                      prob_within_move= 0.8,
-                      pnumber,
-                      timepoint) {
+                      prob_within_move= 0.8) {
+  pnumber <- 1:nrow(sim_data)
   NA_cor <- is.na(target_cor)
   NA_reg <- is.na(target_reg)
   names(target_reg)[length(target_reg)] <- "pnumber"
@@ -57,7 +52,6 @@ optim_lme <- function(sim_data,
   full_data <- cbind(pnumber, sim_data)
   long_data <- wide_to_long(full_data)
   long_pnumber <- long_data$pnumber
-  num_cols     <- ncol(sim_data)
   long_num_cols<- ncol(long_data)
 
   ## identify between‐ and within‐predictors
@@ -80,10 +74,11 @@ optim_lme <- function(sim_data,
   outcome    <- long_data[, long_num_cols]
 
   ### helper wrappers
-  if (rcpp) {
     candidate_cor <- function(candidate) {
       candidate_cor_cpp(as.matrix(candidate[,-(1:2)]), outcome)
     }
+
+    if (is.null(target_se)) {
     candidate_reg <- function(candidate) {
       long_candidate <- cbind(candidate, outcome)
       colnames(long_candidate) <- col_names
@@ -103,31 +98,7 @@ optim_lme <- function(sim_data,
         rep(1e5, length(target_reg))
       })
     }
-  } else {
-    candidate_cor <- function(candidate) {
-      C <- stats::cor(cbind(candidate[,-(1:2)], outcome))
-      C[upper.tri(C)]
-    }
-    candidate_reg <- function(candidate) {
-      long_candidate <- cbind(candidate, outcome)
-      colnames(long_candidate) <- col_names
-      tryCatch({
-        model <- lme4::lmer(
-          reg_equation,
-          data    = long_candidate,
-          control = lme4::lmerControl(
-            check.conv.singular = "ignore"
-          )
-        )
-        c(lme4::fixef(model),
-          as.data.frame(lme4::VarCorr(model))$sdcor[2]
-        )
-      }, error = function(e) {
-        rep(1e5, length(target_reg))
-      })
-    }
-  }
-
+  # error function
   error_function <- function(candidate) {
     cor_vec    <- candidate_cor(candidate)
     cor_error  <- sqrt(mean((round(cor_vec[!NA_cor], cor_dec) -
@@ -139,8 +110,46 @@ optim_lme <- function(sim_data,
     error_ratio<- cor_error/reg_error
     list(total_error=total_error, error_ratio=error_ratio)
   }
+    } else {
+      # including target SEs
+      candidate_reg <- function(candidate) {
+        long_candidate <- cbind(candidate, outcome)
+        colnames(long_candidate) <- col_names
+        tryCatch({
+        model <- lme4::lmer(
+          reg_equation, data = long_candidate,
+          control = lme4::lmerControl(
+            check.conv.singular = "ignore",
+            calc.derivs         = FALSE
+          )
+        )
+        c(lme4::fixef(model),
+          as.data.frame(lme4::VarCorr(model))$sdcor[2],
+          as.vector(coef(summary(model))[ , "Std. Error"]))
+        } , error = function(e) {
+          rep(1e5, length(c(target_reg, target_se)))
+        })
+      }
+      error_function <- function(candidate) {
+        cor_vec   <- candidate_cor(candidate)
+        cor_error <- sqrt(mean((round(cor_vec[!NA_cor], cor_dec) -
+                                  target_cor[!NA_cor])^2))
 
-  ## SA hyperparams
+        reg_vec   <- candidate_reg(candidate)
+        k         <- length(target_reg)
+        j         <- length(target_se)
+        coef_err  <- round(reg_vec[1:k][!NA_reg], reg_dec) - target_reg[!NA_reg]
+        se_err    <- round(reg_vec[(k+1):(k+j)][!NA_se], se_dec) - target_se[!NA_se]
+        reg_error <- sqrt(mean(c(coef_err, se_err)^2))
+
+        total_error <- cor_error * weight[1] + reg_error * weight[2]
+        error_ratio <- cor_error / reg_error
+        list(total_error = total_error, error_ratio = error_ratio)
+      }
+
+}
+
+  ## SA parameter
   if (is.na(cooling_rate)) cooling_rate <- (max_iter-10)/max_iter
   temp <- init_temp
 
@@ -276,12 +285,11 @@ optim_lme <- function(sim_data,
       target_reg   = target_reg,
       target_se    = target_se,
       reg_equation = reg_equation,
-      pnumber      = pnumber,
-      timepoint    = timepoint,
       weight       = weight,
       max_iter     = max_iter,
       init_temp    = init_temp,
-      cooling_rate = cooling_rate
+      cooling_rate = cooling_rate,
+      prob_within_move = .8
     ),
     track_error       = track_error,
     track_error_ratio = track_error_ratio

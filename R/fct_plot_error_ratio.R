@@ -29,10 +29,10 @@ plot_error_ratio <- function(discourse_obj, run = 1,
 
   # validate input
   if (!inherits(discourse_obj, "discourse.object")) {
-    stop("Input must be a .disco object.")
+    stop("Input must be a discourse.object.")
   }
   if (is.null(discourse_obj$track_error_ratio)) {
-    stop("Only .disco objects from optim_lm or optim_lme have a track_error_ratio element.")
+    stop("Only discourse.object from optim_lm or optim_lme have a track_error_ratio element.")
   }
 
   # extract error data

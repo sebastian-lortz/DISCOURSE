@@ -10,19 +10,16 @@ optim_lme(
   target_reg,
   reg_equation,
   target_se = NULL,
-  weight = NA,
+  weight = c(1, 1),
   max_iter = 1e+05,
   init_temp = 1,
   cooling_rate = NA,
   tol = 1e-06,
   prob_global_move = 0.1,
   progress_bar = TRUE,
-  rcpp = TRUE,
   starts = 1,
   hill_climbs = NA,
-  prob_within_move = 0.8,
-  pnumber,
-  timepoint
+  prob_within_move = 0.8
 )
 }
 \arguments{
@@ -50,17 +47,11 @@ optim_lme(
 
 \item{progress_bar}{Logical; show progress bar.}
 
-\item{rcpp}{Logical; use Rcpp candidate‐evaluation if TRUE.}
-
 \item{starts}{Number of SA restarts.}
 
 \item{hill_climbs}{Optional hill‐climb iterations after SA.}
 
 \item{prob_within_move}{Probability of within‐timegroup swap move.}
-
-\item{pnumber}{Vector of participant IDs.}
-
-\item{timepoint}{Vector of time points.}
 }
 \value{
 A "discourse.object" with best error, data, inputs, and trace

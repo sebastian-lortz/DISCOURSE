@@ -12,7 +12,6 @@
 #' @param cooling_rate Cooling schedule rate.
 #' @param tol Convergence tolerance.
 #' @param prob_global_move Probability of global move.
-#' @param rcpp Logical; use Rcpp.
 #' @param starts Number of starts per run.
 #' @param parallel_start Number of parallel runs.
 #' @param hill_climbs Number of hill climbs.
@@ -30,7 +29,6 @@ parallel_lm <- function(sim_data, target_cor,
                         cooling_rate = NA,
                         tol = 1e-6,
                         prob_global_move = 0.1,
-                        rcpp = TRUE,
                         starts = 1,
                         parallel_start = 3,
                         hill_climbs = NA,
@@ -69,7 +67,6 @@ parallel_lm <- function(sim_data, target_cor,
                                  cooling_rate = cooling_rate,
                                  tol = tol,
                                  prob_global_move = prob_global_move,
-                                 rcpp = rcpp,
                                  starts = starts,
                                  hill_climbs = hill_climbs,
                                  progress_bar = FALSE
