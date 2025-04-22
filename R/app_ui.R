@@ -10,6 +10,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
 
     fluidPage(
+      lang = "en",
       navbarPage(
         title = tags$img(
           src    = "www/logo.png",

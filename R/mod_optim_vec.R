@@ -1,4 +1,5 @@
-#' @import shiny shinyjs
+#' @import shiny
+#' @importFrom shinyjs useShinyjs disable enable
 #' @importFrom rhandsontable rhandsontable rHandsontableOutput renderRHandsontable hot_to_r hot_col hot_table
 NULL
 
@@ -46,10 +47,11 @@ mod_optim_vec_ui <- function(id) {
               numericInput(ns("init_temp"), name_with_info(
                 "Initial Temperature",
                 "The starting temperature for the simulated annealing, which sets the initial likelihood of accepting worse solutions in the first start."),
-                1,     step = 0.1),
+                1,     step = 0.01),
               numericInput(ns("cooling_rate"), name_with_info(
-                "Max Iterations",
-                "The factor by which the temperature is multiplied after each iteration, governing how quickly the algorithm reduces its acceptance of worse solutions."),   (1e5-10)/1e5, step = 0.01),
+                "Cooling Rate",
+                "The factor by which the temperature is multiplied after each iteration, governing how quickly the algorithm reduces its acceptance of worse solutions."),
+                (1e5-10)/1e5, min = 0, max = 1, step = 0.0001),
               numericInput(ns("max_starts"), name_with_info(
                 "Max Starts",
                 "The maximum number of times the optimization algorithm will restart from the current best solution using reduced inital temperatures."),     3,     min = 1,    step = 1),
@@ -58,7 +60,7 @@ mod_optim_vec_ui <- function(id) {
                 "Enable the algorithm to execute on a parallel backend for improved performance."), TRUE),
               tags$hr(),
               h5(name_with_info(
-                "Objective Weights",
+                "Weights of Objective Function",
                 "The  weights multiplied with each term in the objective function; adjusting these values can steer the optimization toward preferred trade‑offs and improve performance.")),
               div(style = "width:100%; overflow-x:auto;",
                   rHandsontableOutput(ns("weight_table"), width = "100%")
@@ -188,10 +190,12 @@ mod_optim_vec_server <- function(id) {
       weight_df(new_w)
     })
     output$weight_table <- renderRHandsontable({
-      tbl <- rhandsontable(weight_df(), rowHeaders = NULL, width = "100%")
-      tbl <- hot_table(tbl, stretchH = "all")
-      hot_col(tbl, "WeightMean", format = "0.000")
-      hot_col(tbl, "WeightSD",   format = "0.000")
+      tbl <- rhandsontable(weight_df(), rowHeaders = NULL, width = "100%") %>%
+        hot_table(stretchH = "all") %>%
+        # set display names, but underlying keys stay the same
+        hot_col("WeightMean",  title = "Weight of Means",  format = "0.000") %>%
+        hot_col("WeightSD",    title = "Weight of SDs",    format = "0.000")
+      tbl
     })
     observeEvent(input$estimate_weights, {
       df <- rv$params; req(df)
@@ -260,6 +264,7 @@ mod_optim_vec_server <- function(id) {
       )
 
       rv$status <- "done"
+      shinyjs::enable("run")
       lapply(c("show_error_traj","show_rmse","show_summary","show_cooling","display_data","download"),
              shinyjs::enable
       )
