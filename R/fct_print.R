@@ -33,7 +33,7 @@ print.summary.discourse.object <- function(x, ...) {
     cat("\n  Means:\n");         print(x$means)
     cat("\n  SDs:\n");           print(x$sds)
 
-  } else if (!is.null(x$inputs$target_f_vec)) {
+  } else if (!is.null(x$inputs$target_f_list)) {
     # factorial‐model branch
     cat("Achieved Loss of Optimization: ", x$best_error, "\n\n")
     cat("RMSE of F statistics: ", x$rmse$rmse_F, "\n\n")

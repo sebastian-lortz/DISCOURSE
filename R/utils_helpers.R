@@ -151,10 +151,10 @@ heuristic_move <- function(candidate, target_sd, range) {
   lower_bound <- range[1]
   upper_bound <- range[2]
 
-  # Precompute current SD and maximum value to avoid repeated computation.
+  # Precompute current SD and maximum value
   current_sd <- stats::sd(candidate)
   increaseSD <- (current_sd < target_sd)
-  cand_max <- max(candidate)
+  cand_max <- max(candidate) # dont exceed the current max.
 
   # Select candidate for decrement
   # Eligible indices: candidate > lower_bound and, if increasing SD, avoid the maximum.
@@ -371,6 +371,9 @@ calcMarginalMeans <- function(factor_mat, group_means, group_sizes) {
 
 # Function to generate an integer candidate vector for one group
 generate_candidate_group <- function(tMean, n, range) {
+  if (tMean < range[1] || tMean > range[2]) {
+    stop("Target mean is outside the allowable range.")
+  }
   # Calculate total points (should be integer if target is GRIM-consistent)
   total_points <- round(tMean * n)
   # Compute base integer value and remainder
@@ -378,10 +381,6 @@ generate_candidate_group <- function(tMean, n, range) {
   remainder <- total_points %% n
   # Create a vector: 'remainder' values will be (base+1) and the rest will be base
   vec <- c(rep(base + 1, remainder), rep(base, n - remainder))
-  # Optionally, randomize the order within the group
-  vec <- sample(vec)
-  # Force values to be within the allowed range (if needed)
-  vec <- pmax(pmin(vec, range[2]), range[1])
   return(vec)
 }
 

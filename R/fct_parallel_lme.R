@@ -12,8 +12,7 @@
 #' @param init_temp Numeric; initial temperature for simulated annealing.
 #' @param cooling_rate Numeric; decay rate of temperature.
 #' @param tol Numeric; convergence tolerance (default 1e-6).
-#' @param prob_global_move Numeric; probability of global move in annealing (default 0.1).
-#' @param starts Integer; number of optimization restarts (default 1).
+#' @param max_starts Integer; number of optimization restarts (default 1).
 #' @param parallel_start Integer; number of parallel runs to launch.
 #' @param hill_climbs Integer or NA; number of hill-climb refinements post-annealing.
 #' @param prob_within_move Numeric; probability of within-neighborhood move (default 0.8).
@@ -35,8 +34,7 @@ parallel_lme <- function(
     init_temp = 1,
     cooling_rate = NA,
     tol = 1e-6,
-    prob_global_move = 0.1,
-    starts = 1,
+    max_starts = 1,
     parallel_start = 3,
     hill_climbs = NA,
     prob_within_move = 0.8,
@@ -78,8 +76,7 @@ parallel_lme <- function(
       init_temp        = init_temp,
       cooling_rate     = cooling_rate,
       tol              = tol,
-      prob_global_move = prob_global_move,
-      starts           = starts,
+      max_starts       = max_starts,
       hill_climbs      = hill_climbs,
       prob_within_move = prob_within_move,
       progress_bar     = FALSE

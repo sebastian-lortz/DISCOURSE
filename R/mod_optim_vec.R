@@ -204,11 +204,7 @@ mod_optim_vec_server <- function(id) {
         target_mean = df$Mean,
         target_sd   = df$SD,
         range       = rbind(df$Min, df$Max),
-        init_distr  = "uniform",
-        skew        = 0,
-        kurt        = 1,
         obj_weight  = c(1,1),
-        prior_weight= 0.5,
         integer     = df$Integer
       )
       w_mat <- do.call(rbind, w_list)

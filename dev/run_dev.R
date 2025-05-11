@@ -10,7 +10,7 @@ golem::detach_all_attached()
 
 # Document and reload your package
 golem::document_and_reload()
-#devtools::install(dependencies = FALSE)
+devtools::install(dependencies = FALSE)
 
 # Run the application
-run_app()
+#run_app()

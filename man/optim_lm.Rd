@@ -17,7 +17,7 @@ optim_lm(
   tol = 1e-06,
   prob_global_move = 0.1,
   progress_bar = TRUE,
-  starts = 1,
+  max_starts = 1,
   hill_climbs = NA
 )
 }
@@ -26,7 +26,7 @@ optim_lm(
 
 \item{target_cor}{Target vector of correlations (upper-triangular elements)}
 
-\item{target_reg}{Target regression coefficients (excluding intercept)}
+\item{target_reg}{Target regression coefficients}
 
 \item{reg_equation}{Regression formula as character, e.g. "Y ~ X1 + X2 + X1:X2"}
 
@@ -46,7 +46,7 @@ optim_lm(
 
 \item{progress_bar}{Show progress bar if TRUE}
 
-\item{starts}{Number of annealing restarts}
+\item{max_starts}{Number of annealing restarts}
 
 \item{hill_climbs}{Optional hill-climbing iterations for refinement}
 }

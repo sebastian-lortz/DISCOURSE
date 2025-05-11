@@ -44,7 +44,7 @@ get_stats <- function(result) {
     ))
 
     # ANOVA-based branch
-  } else if (!is.null(result$inputs$target_f_vec)) {
+  } else if (!is.null(result$inputs$target_f_list)) {
     if (!requireNamespace("afex", quietly = TRUE)) {
       stop("Package 'afex' required for ANOVA tests.")
     }
@@ -55,7 +55,7 @@ get_stats <- function(result) {
       type     = result$inputs$typeSS
     )$anova_table
     rn    <- trimws(rownames(an_tab))
-    eff   <- result$inputs$target_f_vec$effect
+    eff   <- result$inputs$target_f_list$effect
     F_val <- sapply(eff, function(e) an_tab[rn == e, "F"])
 
     return(list(

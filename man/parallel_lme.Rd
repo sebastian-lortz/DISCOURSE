@@ -15,8 +15,7 @@ parallel_lme(
   init_temp = 1,
   cooling_rate = NA,
   tol = 1e-06,
-  prob_global_move = 0.1,
-  starts = 1,
+  max_starts = 1,
   parallel_start = 3,
   hill_climbs = NA,
   prob_within_move = 0.8,
@@ -45,9 +44,7 @@ parallel_lme(
 
 \item{tol}{Numeric; convergence tolerance (default 1e-6).}
 
-\item{prob_global_move}{Numeric; probability of global move in annealing (default 0.1).}
-
-\item{starts}{Integer; number of optimization restarts (default 1).}
+\item{max_starts}{Integer; number of optimization restarts (default 1).}
 
 \item{parallel_start}{Integer; number of parallel runs to launch.}
 

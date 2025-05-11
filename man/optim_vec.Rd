@@ -14,12 +14,9 @@ optim_vec(
   max_iter = 1e+05,
   init_temp = 1,
   cooling_rate = NA,
-  init_distr = "uniform",
-  skew = 0,
-  kurt = 1,
+  int.probs = NULL,
   pb_update_interval = NA,
   obj_weight = list(c(1, 1)),
-  prior_weight = 0.5,
   maxit_pso = 1000,
   eps = 1e-12,
   max_starts = 3,
@@ -47,17 +44,11 @@ optim_vec(
 
 \item{cooling_rate}{Numeric; decay rate (default auto).}
 
-\item{init_distr}{Character; "uniform" or "normal" init distribution.}
-
-\item{skew}{Numeric; skew for normal init (integer mode).}
-
-\item{kurt}{Numeric; kurtosis for normal init (integer mode).}
+\item{int.probs}{Numeric; a list with a vector of sampling probabilities for each variable.}
 
 \item{pb_update_interval}{Integer; progress‐bar refresh frequency.}
 
 \item{obj_weight}{List of two numerics; weights for mean vs SD.}
-
-\item{prior_weight}{Numeric; mix weight for prior sampling.}
 
 \item{maxit_pso}{Integer; max PSO iterations (continuous mode).}
 

@@ -135,9 +135,9 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
             strip.text = ggplot2::element_text(face = "bold"))
     return(p)
 
-    ### Branch 2: For aov objects (with target_f_vec)
-  } else if (!is.null(discourse_obj$inputs$target_f_vec)) {
-    target_F <- discourse_obj$inputs$target_f_vec$F
+    ### Branch 2: For aov objects (with target_f_list)
+  } else if (!is.null(discourse_obj$inputs$target_f_list)) {
+    target_F <- discourse_obj$inputs$target_f_list$F
     F_dec <- count_decimals(target_F)
     stats <- get_stats(discourse_obj)
     sim_F <- stats$F_value

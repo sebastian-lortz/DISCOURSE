@@ -15,9 +15,8 @@ optim_lme(
   init_temp = 1,
   cooling_rate = NA,
   tol = 1e-06,
-  prob_global_move = 0.1,
   progress_bar = TRUE,
-  starts = 1,
+  max_starts = 1,
   hill_climbs = NA,
   prob_within_move = 0.8
 )
@@ -27,7 +26,7 @@ optim_lme(
 
 \item{target_cor}{Numeric vector of target correlations (upper‐tri of full corr matrix).}
 
-\item{target_reg}{Numeric vector of target regression coefficients (excluding intercept).}
+\item{target_reg}{Numeric vector of target regression coefficients.}
 
 \item{reg_equation}{Model formula string, e.g. "Y ~ X1 + X2 + X1:X2".}
 
@@ -43,11 +42,9 @@ optim_lme(
 
 \item{tol}{Error tolerance for early stopping.}
 
-\item{prob_global_move}{Probability of a global shuffle move.}
-
 \item{progress_bar}{Logical; show progress bar.}
 
-\item{starts}{Number of SA restarts.}
+\item{max_starts}{Number of SA restarts.}
 
 \item{hill_climbs}{Optional hill‐climb iterations after SA.}
 

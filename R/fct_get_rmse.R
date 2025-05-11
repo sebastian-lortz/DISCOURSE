@@ -24,9 +24,9 @@ get_rmse <- function(result) {
     return(list(rmse_cor = rc, rmse_reg = rr, rmse_se = rs))
 
     # branch: ANOVA-based
-  } else if (!is.null(result$inputs$target_f_vec)) {
+  } else if (!is.null(result$inputs$target_f_list)) {
     # target and precision
-    tf <- result$inputs$target_f_vec$F
+    tf <- result$inputs$target_f_list$F
     df <- count_decimals(tf)
 
     # compute F and RMSE

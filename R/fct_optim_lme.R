@@ -4,7 +4,7 @@
 #'
 #' @param sim_data Data frame (wide) of predictors and outcome.
 #' @param target_cor Numeric vector of target correlations (upper‐tri of full corr matrix).
-#' @param target_reg Numeric vector of target regression coefficients (excluding intercept).
+#' @param target_reg Numeric vector of target regression coefficients.
 #' @param reg_equation Model formula string, e.g. "Y ~ X1 + X2 + X1:X2".
 #' @param target_se Optional target standard errors for regression.
 #' @param weight Numeric length‐2 vector of weights for (corr, reg) error.
@@ -12,9 +12,8 @@
 #' @param init_temp Initial temperature.
 #' @param cooling_rate Cooling rate per iteration (if NA, set to (max_iter-10)/max_iter).
 #' @param tol Error tolerance for early stopping.
-#' @param prob_global_move Probability of a global shuffle move.
 #' @param progress_bar Logical; show progress bar.
-#' @param starts Number of SA restarts.
+#' @param max_starts Number of SA restarts.
 #' @param hill_climbs Optional hill‐climb iterations after SA.
 #' @param prob_within_move Probability of within‐timegroup swap move.
 #'
@@ -30,9 +29,8 @@ optim_lme <- function(sim_data,
                       init_temp       = 1,
                       cooling_rate    = NA,
                       tol             = 1e-6,
-                      prob_global_move= 0.1,
                       progress_bar    = TRUE,
-                      starts          = 1,
+                      max_starts      = 1,
                       hill_climbs     = NA,
                       prob_within_move= 0.8) {
   pnumber <- 1:nrow(sim_data)
@@ -154,7 +152,7 @@ optim_lme <- function(sim_data,
   temp <- init_temp
 
   ## restart loop
-  for (start in seq_len(starts)) {
+  for (start in seq_len(max_starts)) {
     if (progress_bar) {
       pb_update_interval <- floor(max_iter/100)
       pb <- utils::txtProgressBar(min=0, max=max_iter, style=3)

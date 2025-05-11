@@ -32,8 +32,6 @@ Imports:
     rlang,
     shiny,
     shinyjs,
-    shinyWidgets,
-    sn,
     stats,
     tidyr,
     tidyselect,

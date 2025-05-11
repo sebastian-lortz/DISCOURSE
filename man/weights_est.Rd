@@ -20,7 +20,7 @@ weights_est(
   progress_bar = TRUE,
   weight = c(1, 1),
   pool_range = 10,
-  starts = 1,
+  max_starts = 1,
   parallel_start = 0,
   prob_within_move = 0.8
 )
@@ -56,7 +56,7 @@ weights_est(
 
 \item{pool_range}{Integer; how many recent error ratios to average.}
 
-\item{starts}{Integer; number of restarts.}
+\item{max_starts}{Integer; number of restarts.}
 
 \item{parallel_start}{Integer; number of parallel workers (0 = sequential).}
 

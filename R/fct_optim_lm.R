@@ -2,7 +2,7 @@
 #'
 #' @param sim_data   Data frame with predictors and outcome in last column
 #' @param target_cor Target vector of correlations (upper-triangular elements)
-#' @param target_reg Target regression coefficients (excluding intercept)
+#' @param target_reg Target regression coefficients
 #' @param reg_equation Regression formula as character, e.g. "Y ~ X1 + X2 + X1:X2"
 #' @param target_se  Optional target standard errors for coefficients
 #' @param weight     Two-element vector weighting cor vs reg error
@@ -12,7 +12,7 @@
 #' @param tol        Error tolerance for convergence
 #' @param prob_global_move Prob of global move vs local swap
 #' @param progress_bar  Show progress bar if TRUE
-#' @param starts     Number of annealing restarts
+#' @param max_starts     Number of annealing restarts
 #' @param hill_climbs Optional hill-climbing iterations for refinement
 #' @return A "discourse.object" with best error, data, inputs, and trace
 #' @export
@@ -29,7 +29,7 @@ optim_lm <- function(
     tol = 1e-6,
     prob_global_move = 0.1,
     progress_bar = TRUE,
-    starts = 1,
+    max_starts = 1,
     hill_climbs = NA
 ) {
 
@@ -88,7 +88,7 @@ optim_lm <- function(
   temp <- init_temp
 
   # outer restarts
-  for (start in seq_len(starts)) {
+  for (start in seq_len(max_starts)) {
     if (progress_bar) {
       pb_interval <- floor(max_iter / 100)
       pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)

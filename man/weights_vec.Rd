@@ -9,12 +9,9 @@ weights_vec(
   target_mean,
   target_sd,
   range,
-  init_distr = "uniform",
-  skew = 0,
-  kurt = 1,
   obj_weight = c(1, 1),
-  prior_weight = 0.5,
-  integer = NULL,
+  integer,
+  int.probs = NULL,
   est_iter = 1000,
   eps = 0.001,
   max_weight = 10000,
@@ -30,17 +27,11 @@ weights_vec(
 
 \item{range}{Numeric matrix (2 x length(target_mean)) specifying [min, max] for each variable.}
 
-\item{init_distr}{Initialization distribution: "uniform" or "normal" (integers only).}
-
-\item{skew}{Skewness parameter for the skew-normal init_distr.}
-
-\item{kurt}{Kurtosis adjustment factor for init_distr.}
-
 \item{obj_weight}{Weighting for objective terms (mean vs. SD).}
 
-\item{prior_weight}{Blend factor between prior and uniform for init_distr.}
-
 \item{integer}{Logical vector: TRUE for integer-valued vectors.}
+
+\item{int.probs}{Numeric; a list with a vector of sampling probabilities for each variable.}
 
 \item{est_iter}{Number of Monte Carlo iterations to estimate weights.}
 

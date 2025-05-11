@@ -16,7 +16,7 @@ parallel_lm(
   cooling_rate = NA,
   tol = 1e-06,
   prob_global_move = 0.1,
-  starts = 1,
+  max_starts = 1,
   parallel_start = 3,
   hill_climbs = NA,
   return_best_solution = FALSE
@@ -45,7 +45,7 @@ parallel_lm(
 
 \item{prob_global_move}{Probability of global move.}
 
-\item{starts}{Number of starts per run.}
+\item{max_starts}{Number of starts per run.}
 
 \item{parallel_start}{Number of parallel runs.}
 

@@ -23,7 +23,7 @@ summary.discourse.object <- function(object, ...) {
       sds               = stats$sd
     )
 
-  } else if (!is.null(object$inputs$target_f_vec)) {
+  } else if (!is.null(object$inputs$target_f_list)) {
     summary_obj <- list(
       rmse       = rmse,
       inputs     = object$inputs,

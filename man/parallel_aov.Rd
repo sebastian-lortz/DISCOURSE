@@ -5,27 +5,21 @@
 \title{parallel_aov: parallel ANOVA optimization}
 \usage{
 parallel_aov(
-  sample_size,
+  N,
   levels,
   subgroup_sizes = NULL,
   target_group_means,
-  target_f_vec,
+  target_f_list,
   df_effects,
-  marginal_means = NULL,
-  MSE = NULL,
   range,
   formula,
   tolerance,
-  mixedmodel = FALSE,
-  lme = FALSE,
   factor_type = NULL,
-  balanced = FALSE,
   typeSS = 3,
   max_iter = 1000,
   init_temp = 1,
   cooling_rate = 0.99,
   pb_update_interval = NA,
-  rcpp = TRUE,
   integer = TRUE,
   max_starts = 3,
   checkGrim = TRUE,
@@ -34,7 +28,7 @@ parallel_aov(
 )
 }
 \arguments{
-\item{sample_size}{Total sample size of observations or participants}
+\item{N}{Total sample size of observations or participants}
 
 \item{levels}{Vector specifying number of levels for each factor}
 
@@ -42,13 +36,9 @@ parallel_aov(
 
 \item{target_group_means}{Vector of target means for each group}
 
-\item{target_f_vec}{List with target F-values and related parameters}
+\item{target_f_list}{List with target F-values and related parameters}
 
 \item{df_effects}{Degrees of freedom for each effect}
-
-\item{marginal_means}{Optional precomputed marginal means}
-
-\item{MSE}{Optional mean square error; if NULL, computed internally}
 
 \item{range}{Numeric vector of length 2 specifying candidate value range}
 
@@ -56,15 +46,9 @@ parallel_aov(
 
 \item{tolerance}{Convergence tolerance for the optimization}
 
-\item{mixedmodel}{Logical; handle data as mixed model if TRUE}
-
-\item{lme}{Logical; use lmer() when mixedmodel is TRUE}
-
 \item{factor_type}{Vector indicating factor types ("between"/"within")}
 
-\item{balanced}{Logical; assume a balanced design if TRUE}
-
-\item{typeSS}{Type of sums of squares (e.g., 3 for Type III)}
+\item{typeSS}{Type of sums of squares (e.g., 3 for Type III)}
 
 \item{max_iter}{Maximum iterations for simulated annealing}
 
@@ -73,8 +57,6 @@ parallel_aov(
 \item{cooling_rate}{Cooling rate per iteration}
 
 \item{pb_update_interval}{Progress bar update interval (NA = auto)}
-
-\item{rcpp}{Logical; use Rcpp implementations if TRUE}
 
 \item{integer}{Logical; treat candidate values as integers if TRUE}
 

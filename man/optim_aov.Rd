@@ -5,31 +5,28 @@
 \title{Optimize group means via simulated annealing to match ANOVA F-values}
 \usage{
 optim_aov(
-  sample_size,
+  N,
   levels,
   subgroup_sizes = NULL,
   target_group_means,
-  target_f_vec,
+  target_f_list,
   df_effects,
-  MSE = NULL,
+  integer,
   range,
   formula,
   tolerance,
-  mixedmodel = FALSE,
-  factor_type = NULL,
-  balanced = FALSE,
+  factor_type = "between",
   typeSS = 3,
   max_iter = 1000,
   init_temp = 1,
   cooling_rate = NA,
   pb_update_interval = NA,
-  integer = TRUE,
   max_starts = 3,
   checkGrim = TRUE
 )
 }
 \arguments{
-\item{sample_size}{Total number of observations or participants}
+\item{N}{Total number of observations}
 
 \item{levels}{Vector of factor levels per factor}
 
@@ -37,7 +34,7 @@ optim_aov(
 
 \item{target_group_means}{Numeric vector of target means for each group}
 
-\item{target_f_vec}{List with:
+\item{target_f_list}{List with:
 - F: target F statistics vector
 - effect: character vector of effect names
 - contrast: (optional) contrast formula
@@ -45,7 +42,7 @@ optim_aov(
 
 \item{df_effects}{Degrees of freedom for each effect}
 
-\item{MSE}{Optional mean square error; computed if NULL}
+\item{integer}{Logical; treat candidate values as integers}
 
 \item{range}{Numeric vector length 2 specifying allowed candidate range}
 
@@ -53,11 +50,7 @@ optim_aov(
 
 \item{tolerance}{Convergence tolerance for optimization}
 
-\item{mixedmodel}{Logical; TRUE for mixed‑model (long format)}
-
 \item{factor_type}{Factor types ("between"/"within") for mixed models}
-
-\item{balanced}{Logical; assume balanced design if TRUE}
 
 \item{typeSS}{Type of sums of squares (2 or 3)}
 
@@ -69,13 +62,9 @@ optim_aov(
 
 \item{pb_update_interval}{Progress bar update interval; auto if NA}
 
-\item{integer}{Logical; treat candidate values as integers}
-
 \item{max_starts}{Number of annealing restarts}
 
 \item{checkGrim}{Logical; perform GRIM checks on target means}
-
-\item{marginal_means}{(unused) precomputed marginal means}
 }
 \value{
 A "discourse.object" list with optimized data, error, inputs, and trace

@@ -9,12 +9,9 @@
 #' @param max_iter Integer; max annealing iterations (default 1e5).
 #' @param init_temp Numeric; starting temperature.
 #' @param cooling_rate Numeric; decay rate (default auto).
-#' @param init_distr Character; "uniform" or "normal" init distribution.
-#' @param skew Numeric; skew for normal init (integer mode).
-#' @param kurt Numeric; kurtosis for normal init (integer mode).
+#' @param int.probs Numeric; a list with a vector of sampling probabilities for each variable.
 #' @param pb_update_interval Integer; progress‐bar refresh frequency.
 #' @param obj_weight List of two numerics; weights for mean vs SD.
-#' @param prior_weight Numeric; mix weight for prior sampling.
 #' @param maxit_pso Integer; max PSO iterations (continuous mode).
 #' @param eps Numeric; small constant to avoid zero division.
 #' @param max_starts Integer; annealing restarts.
@@ -38,12 +35,9 @@ optim_vec <- function(
     max_iter        = 1e5,
     init_temp       = 1,
     cooling_rate    = NA,
-    init_distr      = "uniform",
-    skew            = 0,
-    kurt            = 1,
+    int.probs       = NULL,
     pb_update_interval = NA,
     obj_weight      = list(c(1, 1)),
-    prior_weight    = 0.5,
     maxit_pso       = 1000,
     eps             = 1e-12,
     max_starts      = 3,
@@ -65,17 +59,9 @@ optim_vec <- function(
   }
 
   n_var <- length(target_mean)
-  if (length(init_distr) < n_var) {
-    init_distr <- rep(init_distr[1], n_var)
-  }
-  if (length(skew) < n_var) {
-    skew <- rep(skew[1], n_var)
-  }
-  if (length(kurt) < n_var) {
-    kurt <- rep(kurt[1], n_var)
-  }
-  if (length(prior_weight) < n_var) {
-    prior_weight <- rep(prior_weight[1], n_var)
+  if (is.null(int.probs)) {
+    int.probs <- vector("list", n_var)
+    int.probs <- rep(list(NULL), n_var)
   }
   if (length(obj_weight) < n_var) {
     obj_weight <- rep(obj_weight[1], n_var)
@@ -87,9 +73,8 @@ optim_vec <- function(
   ## Single‐run optimizer
   optim_vec_single <- function(
     N, target_mean, target_sd, range, tolerance,
-    max_iter, init_temp, cooling_rate, init_distr,
-    skew, kurt, pb_update_interval, obj_weight,
-    prior_weight, integer, maxit_pso,
+    max_iter, init_temp, cooling_rate, int.probs,
+    pb_update_interval, obj_weight, integer, maxit_pso,
     eps, max_starts, checkGrim, prob_heuristic
   ) {
     mean_dec <- count_decimals(target_mean)
@@ -112,22 +97,9 @@ optim_vec <- function(
       ## Integer‐value optimization
       allowed   <- seq(range[1], range[2])
       n_allowed <- length(allowed)
-
-      if (init_distr == "normal") {
-        probs <- sn::psn(allowed + 0.5, xi = target_mean, omega = target_sd, alpha = skew) -
-          sn::psn(allowed - 0.5, xi = target_mean, omega = target_sd, alpha = skew)
-        probs <- probs / sum(probs)
-        if (kurt != 1) {
-          probs <- probs^kurt
-          probs <- probs / sum(probs)
-        }
-        uni   <- rep(1 / n_allowed, n_allowed)
-        probs <- prior_weight * probs + (1 - prior_weight) * uni
-        probs <- probs / sum(probs)
-      } else {
-        probs <- rep(1 / n_allowed, n_allowed)
+      if (is.null(int.probs)) {
+      probs <- rep(1 / n_allowed, n_allowed)
       }
-
       if (is.na(pb_update_interval)) {
         pb_update_interval <- floor(max_iter / 100)
       }
@@ -147,10 +119,10 @@ optim_vec <- function(
           } else {
             idx <- sample.int(N, 1)
             tmp <- x_current
-            tmp[idx] <- sample(allowed, 1, prob = probs)
+            sample.idx <- allowed %in% tmp[idx]
+            tmp[idx] <- sample(allowed[!sample.idx], 1, prob = probs[!sample.idx])
             tmp
           }
-
           obj_cand <- objective(candidate)
           acc_prob <- exp((obj_current - obj_cand) / temp)
           if (obj_cand < obj_current || stats::runif(1) < acc_prob) {
@@ -238,9 +210,8 @@ optim_vec <- function(
     ) %dopar% {
       optim_vec_single(
         N, target_mean[i], target_sd[i], range[, i], tolerance,
-        max_iter, init_temp, cooling_rate, init_distr[i],
-        skew[i], kurt[i], pb_update_interval, obj_weight[[i]],
-        prior_weight[i], integer[i], maxit_pso, eps,
+        max_iter, init_temp, cooling_rate, int.probs[[i]],
+        pb_update_interval, obj_weight[[i]], integer[i], maxit_pso, eps,
         max_starts, checkGrim, prob_heuristic
       )
     }
@@ -259,9 +230,8 @@ optim_vec <- function(
     for (i in seq_len(n_var)) {
       res <- optim_vec_single(
         N, target_mean[i], target_sd[i], range[, i], tolerance,
-        max_iter, init_temp, cooling_rate, init_distr[i],
-        skew[i], kurt[i], pb_update_interval, obj_weight[[i]],
-        prior_weight[i], integer[i], maxit_pso, eps,
+        max_iter, init_temp, cooling_rate, int.probs[[i]],
+        pb_update_interval, obj_weight[[i]], integer[i], maxit_pso, eps,
         max_starts, checkGrim, prob_heuristic
       )
       solution_matrix[, i] <- res$data
@@ -282,6 +252,7 @@ optim_vec <- function(
       N            = N,
       grim         = grim_list,
       weight       = obj_weight,
+      int.probs    = int.probs,
       max_iter     = max_iter,
       init_temp    = init_temp,
       cooling_rate = cooling_rate

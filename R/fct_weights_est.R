@@ -19,7 +19,7 @@
 #' @param progress_bar   Logical; if `TRUE`, print progress.
 #' @param weight     Numeric vector; initial weights (default `c(1,1)`).
 #' @param pool_range Integer; how many recent error ratios to average.
-#' @param starts     Integer; number of restarts.
+#' @param max_starts     Integer; number of restarts.
 #' @param parallel_start Integer; number of parallel workers (0 = sequential).
 #' @param prob_within_move Numeric; probability of local move in mixed model.
 #'
@@ -46,7 +46,7 @@ weights_est <- function(module,
                         progress_bar = TRUE,
                         weight = c(1, 1),
                         pool_range = 10,
-                        starts = 1,
+                        max_starts = 1,
                         parallel_start = 0,
                         prob_within_move = 0.8) {
 
@@ -67,9 +67,8 @@ weights_est <- function(module,
           init_temp        = init_temp,
           cooling_rate     = cooling_rate,
           tol              = tol,
-          prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
-          starts           = starts,
+          max_starts       = max_starts,
           hill_climbs      = NA,
           prob_within_move = prob_within_move
         )
@@ -87,7 +86,7 @@ weights_est <- function(module,
           tol              = tol,
           prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
-          starts           = starts,
+          max_starts       = max_starts,
           hill_climbs      = NA
         )
       }
@@ -104,8 +103,7 @@ weights_est <- function(module,
           init_temp            = init_temp,
           cooling_rate         = cooling_rate,
           tol                  = tol,
-          prob_global_move     = prob_global_move,
-          starts               = starts,
+          max_starts           = max_starts,
           parallel_start       = parallel_start,
           hill_climbs          = NA,
           prob_within_move     = prob_within_move,
@@ -124,7 +122,7 @@ weights_est <- function(module,
           cooling_rate         = cooling_rate,
           tol                  = tol,
           prob_global_move     = prob_global_move,
-          starts               = starts,
+          max_starts           = max_starts,
           parallel_start       = parallel_start,
           hill_climbs          = NA,
           return_best_solution = TRUE
