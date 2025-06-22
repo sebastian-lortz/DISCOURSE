@@ -4,6 +4,9 @@
 #' @return Named list of RMSE values
 #' @export
 get_rmse <- function(result) {
+  if (!inherits(result, "discourse.object")) {
+    stop("Input must be a discourse.object.")
+  }
   # branch: regression models
   if (!is.null(result$inputs$target_reg)) {
     # targets and precision

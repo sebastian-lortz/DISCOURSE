@@ -7,40 +7,42 @@ Authors@R:
            comment = c(ORCID = "0009-0007-0281-7996"))
 Description: We introduce the DISCOURSE framework – this algorithmic
     framework is designed to reconstruct complete data sets solely from
-    summary statistics.  It provides researchers with a tool to inform the
-    discourse in replication study decision-making when raw data are
+    summary statistics.  It provides researchers with a tool to follow-up analyses even when raw data are
     unavailable.
 License: MIT + file LICENSE
 URL: https://github.com/sebastian-lortz/DISCOURSE
 BugReports: https://github.com/sebastian-lortz/DISCOURSE/issues
 Imports: 
-    afex,
     car,
     config,
-    doSNOW,
     dplyr,
-    emmeans,
-    foreach,
-    ggplot2,
     golem,
-    lme4,
+    htmltools,
     magrittr,
     parallel,
-    pso,
     Rcpp,
     rhandsontable,
     rlang,
     shiny,
     shinyjs,
-    stats,
+    shinyWidgets,
     tidyr,
     tidyselect,
-    utils
+    utils,
+    foreach,
+    doSNOW,
+    afex,
+    emmeans,
+    pso,
+    stats,
+    lme4,
+    lmerTest
 Suggests: 
     knitr,
     rmarkdown,
     spelling,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    ggplot2
 LinkingTo: 
     Rcpp,
     RcppArmadillo

@@ -6,37 +6,27 @@
 \usage{
 hill_climb(
   current_candidate,
-  outcome = NULL,
   error_function,
-  max_iter = 10000,
-  mixedmodel = FALSE,
-  candidate_cols = NULL,
-  unique_times = NULL,
+  N,
+  hill_climbs = 100,
+  LME = FALSE,
   num_preds = NULL,
-  progress_bar = FALSE,
-  neighborhood_size = 10,
-  prob_within_move = 0.8,
-  within_names = NULL,
-  time_indices = NULL,
-  p_indices = NULL,
-  between_names = NULL,
-  pnumber = NULL
+  progress_bar = TRUE,
+  neighborhood_size = 4,
+  w.length = NULL,
+  outcome = NULL
 )
 }
 \arguments{
 \item{current_candidate}{Initial candidate data structure}
 
-\item{outcome}{(unused) placeholder for future extension}
-
 \item{error_function}{Function returning list with element $total_error}
 
-\item{max_iter}{Maximum iterations (default 1e4)}
+\item{N}{The sample size}
 
-\item{mixedmodel}{Logical, use mixed-model moves if TRUE}
+\item{hill_climbs}{Maximum iterations (default 1e4)}
 
-\item{candidate_cols}{Predictor columns for mixed models}
-
-\item{unique_times}{Time groups for mixed models}
+\item{LME}{Logical, use mixed-model moves if TRUE}
 
 \item{num_preds}{Number of predictors for standard models}
 
@@ -44,17 +34,9 @@ hill_climb(
 
 \item{neighborhood_size}{Moves per iteration}
 
-\item{prob_within_move}{Probability of within-group move}
+\item{w.length}{The length of the LME data in wide format}
 
-\item{within_names}{Names for within-group moves}
-
-\item{time_indices}{Indices of time}
-
-\item{p_indices}{Indices of participants}
-
-\item{between_names}{Names for between-subject moves}
-
-\item{pnumber}{Identifier vector for mixed-model subjects}
+\item{outcome}{The outcome vector in the LM module}
 }
 \value{
 List with best_candidate and best_error

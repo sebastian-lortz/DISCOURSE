@@ -4,6 +4,10 @@
 #' @return An object of class `summary.discourse.object`
 #' @export
 summary.discourse.object <- function(object, ...) {
+
+  if (!inherits(object, "discourse.object")) {
+    stop("Input must be a discourse.object.")
+  }
   stats <- get_stats(object)
   rmse  <- get_rmse(object)
 

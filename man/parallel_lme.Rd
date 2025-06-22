@@ -5,25 +5,30 @@
 \title{Run mixed-effects linear regression optimization in parallel}
 \usage{
 parallel_lme(
+  parallel_start,
+  return_best_solution,
   sim_data,
   target_cor,
   target_reg,
   reg_equation,
   target_se = NULL,
   weight = NA,
-  max_iter = 1e+05,
+  max_iter = 10000,
   init_temp = 1,
-  cooling_rate = NA,
+  cooling_rate = NULL,
   tol = 1e-06,
   max_starts = 1,
-  parallel_start = 3,
-  hill_climbs = NA,
-  prob_within_move = 0.8,
-  timepoint,
-  return_best_solution = FALSE
+  hill_climbs = NULL,
+  move_prob = list(start = c(residual = 0, k_cycle = 0, local = 0.25, tau = 0.75), end =
+    c(residual = 0.2, k_cycle = 0.1, local = 0.7, tau = 0)),
+  min_decimals = 1
 )
 }
 \arguments{
+\item{parallel_start}{Integer; number of parallel runs to launch.}
+
+\item{return_best_solution}{Logical; if TRUE, return only the best fit (default FALSE).}
+
 \item{sim_data}{Data frame or list; input data for mixed-effects modeling.}
 
 \item{target_cor}{Numeric; target correlation(s) to achieve.}
@@ -46,17 +51,11 @@ parallel_lme(
 
 \item{max_starts}{Integer; number of optimization restarts (default 1).}
 
-\item{parallel_start}{Integer; number of parallel runs to launch.}
-
 \item{hill_climbs}{Integer or NA; number of hill-climb refinements post-annealing.}
 
-\item{prob_within_move}{Numeric; probability of within-neighborhood move (default 0.8).}
+\item{move_prob}{List containing start and end probabilities of move selection}
 
-\item{timepoint}{Character or factor; grouping variable name for time points.}
-
-\item{return_best_solution}{Logical; if TRUE, return only the best fit (default FALSE).}
-
-\item{pnumber}{Character or factor; grouping variable name for participants.}
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
 }
 \value{
 A list of `discourse.object` results from each parallel start,

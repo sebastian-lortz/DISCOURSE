@@ -9,10 +9,12 @@
 #' @importFrom tidyr pivot_wider pivot_longer
 #' @importFrom tidyselect all_of
 #' @importFrom rlang .data
+#' @importFrom stats aov as.formula coef formula lm model.frame reformulate resid sd setNames terms
+#' @importFrom utils combn head str write.csv
 #' @noRd
 NULL
 
-count_decimals <- function(vec) {
+count_decimals <- function(vec, min_decimals = 0) {
   sapply(as.character(vec), function(x) {
     # Check if there's a decimal point in the string.
     if (grepl("\\.", x)) {
@@ -20,41 +22,13 @@ count_decimals <- function(vec) {
       parts <- strsplit(x, "\\.", fixed = FALSE)[[1]]
       nchar(parts[2])
     } else {
-      0
+      min_decimals
     }
   })
 }
 
-
-check_grim <- function(n, target_mean, decimals, tol.r = .Machine$double.eps^0.5) {
-  # Compute the nearest possible sum (the total number of "points")
-  total_points <- round(target_mean * n)
-
-  # Calculate the mean that would result from that total
-  possible_mean <- total_points / n
-
-  # Determine the absolute difference between the target mean and the possible mean
-  diff <- abs(target_mean - possible_mean)
-
-  # Define the allowed margin (half the smallest increment plus a tolerance for rounding errors)
-  allowed_margin <- (0.1 ^ decimals) / 2 + tol.r
-
-  if (diff > allowed_margin) {
-    adjusted_mean <- round(possible_mean, decimals)
-    cat("\nMean", target_mean, "fails GRIM test. The adjusted mean", adjusted_mean, "is plausible.\n")
-    return(list(test = FALSE, grim_mean = adjusted_mean))
-  } else {
-    cat("\nMean", target_mean, "passed GRIM test. The mean is plausible.\n")
-    return(list(test = TRUE, grim_mean = target_mean))
-  }
-}
-
-
-get_design <- function(sim_data, reg_equation, terms_obj) {
-  # split in candidate and outcome
-  candidate <- as.matrix(sim_data[, -ncol(sim_data)])
-  outcome <- sim_data[, ncol(sim_data)]
-  p <- ncol(candidate)
+get_design <- function(candidate, reg_equation, terms_obj) {
+ p         <- ncol(candidate)
 
   # check if names are provided
   main_names <- colnames(candidate)
@@ -80,7 +54,18 @@ get_design <- function(sim_data, reg_equation, terms_obj) {
 
 
   # match and extract the desired position
-  positions <- match(target_names, full_names)
+  positions <- vapply(target_names, function(nm) {
+    # try exact
+    pos <- match(nm, full_names)
+    # if it’s an interaction and not found, swap sides and try again
+    if (is.na(pos) && grepl(":", nm)) {
+      parts <- strsplit(nm, ":", fixed = TRUE)[[1]]
+      rev_nm <- paste(parts[2], parts[1], sep = ":")
+      pos <- match(rev_nm, full_names)
+    }
+    if (is.na(pos)) stop("Term not in design: ", nm)
+    pos
+  }, integer(1))
 
   return(list(
     target_names = target_names,
@@ -89,20 +74,21 @@ get_design <- function(sim_data, reg_equation, terms_obj) {
   ))
 }
 
-is_integer_vector <- function(vec, tol = .Machine$double.eps) {
-  all(abs(vec %% 1) < tol)
+is_integer_vector <- function(vec, tol = .Machine$double.eps^0.5) {
+  all(abs(vec - round(vec)) < tol)
 }
+
 
 long_to_wide <- function(data) {
   if (!is.data.frame(data)) stop("Input must be a data.frame.")
-  if (ncol(data) < 3) stop("Need: pnumber + time + at least 1 measure.")
+  if (ncol(data) < 3) stop("Need: ID + time + at least 1 measure.")
 
   participant_col <- names(data)[1]
   time_col <- "time"
   if (!time_col %in% names(data)) stop("'time' column not found")
 
   time_index <- which(names(data) == time_col)
-  # If time column comes immediately after pnumber, no between-subject columns exist
+  # If time column comes immediately after ID, no between-subject columns exist
   if (time_index > 2) {
     between_cols <- names(data)[2:(time_index - 1)]
   } else {
@@ -113,10 +99,10 @@ long_to_wide <- function(data) {
 
   wide_data <- tidyr::pivot_wider(
     data,
-    id_cols     = c(participant_col, between_cols),
-    names_from  = time_col,
-    values_from = all_of(value_cols),
-    names_sep   = "_"
+    id_cols     = tidyselect::all_of(c(participant_col, between_cols)),
+    names_from  = tidyselect::all_of(time_col),
+    values_from = tidyselect::all_of(value_cols),
+    names_glue  = "{.value}_{time}"
   )
 
   as.data.frame(wide_data)
@@ -125,24 +111,33 @@ long_to_wide <- function(data) {
 
 wide_to_long <- function(data) {
   # Convert matrix to data.frame if needed
+  if (!is.data.frame(data) && !is.matrix(data)) stop("Input must be a data.frame or matrix.")
+  if (ncol(data) < 3) stop("Need the data in wide format.")
   if (is.matrix(data)) data <- as.data.frame(data)
 
-  # Ensure first column is named "pnumber"
-  if (!"pnumber" %in% names(data)) {
-    names(data)[1] <- "pnumber"
+  # Ensure first column is named "ID"
+  if (!"ID" %in% names(data)) {
+    data <- cbind(1:nrow(data),data)
+    names(data)[1] <- "ID"
   }
 
   # Identify id (between - subject) cols = those WITHOUT an underscore
   id_cols <- names(data)[!grepl("_", names(data))]
+  if (is.null(id_cols)) stop("The data in wide format have to contain at least two repeated measures with columns named [var]_[time.index]; e.g. V1_1, V2_2")
 
+  # check for at least two var_time columns
+  vt <- grep("^[^_]+_[0-9]+$", names(data), value = TRUE)
+  if (length(vt) < 2) {
+    stop("Need at least two repeated‐measure columns named like V1_1, V1_2.")
+  }
   data %>%
-    pivot_longer(
-      cols       = -all_of(id_cols),
+    tidyr::pivot_longer(
+      cols       = -tidyselect::all_of(id_cols),
       names_to   = c(".value", "time"),
       names_sep  = "_"
     ) %>%
     # convert time from character integer
-    mutate(time = as.integer(.data$time)) %>%
+    dplyr::mutate(time = as.integer(.data$time)) %>%
     as.data.frame()
 }
 
@@ -243,10 +238,12 @@ mixed_factor_matrix <- function(sample_size, levels, factor_type, subgroup_sizes
     between_design <- expand.grid(lapply(levels[between_idx], seq_len))
     between_design <- between_design[do.call(order, between_design), , drop = FALSE]
     n_between <- nrow(between_design)
+    between.factor = TRUE
   } else {
     # No between factors: create a dummy design with one group.
     between_design <- data.frame(dummy = rep(1, sample_size))
     n_between <- sample_size
+    between.factor = FALSE
   }
 
   # Generate the within-group factorial design (if any).
@@ -260,7 +257,7 @@ mixed_factor_matrix <- function(sample_size, levels, factor_type, subgroup_sizes
   }
 
   # Determine subject allocation to between-group combinations.
-  if(ncol(between_design) > 0) {
+  if(between.factor) {
     if(!is.null(subgroup_sizes)) {
       if(length(subgroup_sizes) != n_between) {
         stop("Length of subgroup_sizes must equal the number of between-group combinations: ", n_between)
@@ -285,7 +282,7 @@ mixed_factor_matrix <- function(sample_size, levels, factor_type, subgroup_sizes
   }
 
   # Replicate between-design rows according to subject allocation.
-  if(ncol(between_design) > 0) {
+  if(between.factor) {
     full_between <- between_design[rep(1:n_between, subjects_per_group), , drop = FALSE]
   } else {
     full_between <- between_design
@@ -302,30 +299,33 @@ mixed_factor_matrix <- function(sample_size, levels, factor_type, subgroup_sizes
       })
     })
     final_df <- do.call(rbind, subject_list)
+    if(!between.factor) {
+      final_df <- final_df[,-1]
+    }
   } else {
     final_df <- full_between
   }
 
   # Determine number of subjects.
-  n_subjects <- if(ncol(between_design) > 0) nrow(full_between) else sample_size
+  n_subjects <- if(between.factor) nrow(full_between) else sample_size
 
-  # Add subject identifier ("pnumber") as the first column.
+  # Add subject identifier ("ID") as the first column.
   if(ncol(within_design) > 0) {
-    final_df <- cbind(pnumber = rep(1:n_subjects, each = n_within), final_df)
+    final_df <- cbind(ID = rep(1:n_subjects, each = n_within), final_df)
   } else {
-    final_df <- cbind(pnumber = 1:n_subjects, final_df)
+    final_df <- cbind(ID = 1:n_subjects, final_df)
   }
 
   # Remove any row names to avoid warnings.
   rownames(final_df) <- NULL
 
-  # Rename factor columns (all except pnumber) to "Factor1", "Factor2", etc.
+  # Rename factor columns (all except ID) to "Factor1", "Factor2", etc.
   n_factor_cols <- ncol(final_df) - 1
   if(n_factor_cols > 0) {
     colnames(final_df)[-1] <- paste0("Factor", seq_len(n_factor_cols))
   }
 
-  # Convert all factor columns (except pnumber) to factors.
+  # Convert all factor columns (except ID) to factors.
   final_df[-1] <- lapply(final_df[-1], function(x) as.factor(x))
 
   # Attach attributes for reference.
@@ -438,3 +438,173 @@ compute_sequential_SS <- function(means, sizes, uniq_factor_mat) {
   ))
 }
 
+
+# plots histograms given the data
+plot_histogram <- function(df, tol = 1e-8, SD = TRUE) {
+  is_int <- function(x) all(abs(x - round(x)) < tol)
+
+  plots <- lapply(names(df), function(var) {
+    x   <- df[[var]]
+    m   <- mean(x, na.rm = TRUE)
+    s   <- stats::sd(x,   na.rm = TRUE)
+    if (SD) {
+    lbl <- sprintf("M = %.2f\nSD = %.2f", m, s)
+    } else {
+      lbl <- paste0("M = ", round(m,1))
+}
+    if (is_int(x)) {
+      # frequency bar chart
+      tbl <- as.data.frame(table(x, useNA = "no"))
+      names(tbl) <- c("Value", "Count")
+      tbl$Value <- as.numeric(as.character(tbl$Value))
+
+      p <- ggplot2::ggplot(tbl, ggplot2::aes(x = .data$Value, y = .data$Count)) +
+        ggplot2::geom_col(fill = "steelblue") +
+        ggplot2::geom_vline(xintercept = m,
+                            linetype   = "dashed",
+                            linewidth  = 1,
+                            color      = "darkgrey") +
+        ggplot2::annotate("text",
+                          x      = Inf, y = Inf,
+                          hjust  = 1.1, vjust = 1.5,
+                          label  = lbl,
+                          size   = 4) +
+        ggplot2::labs(title = paste("Frequency of", var),
+                      x     = var,
+                      y     = "Count")
+    } else {
+      # histogram
+      p <- ggplot2::ggplot(df, ggplot2::aes(x = .data[[var]])) +
+        ggplot2::geom_histogram(binwidth = (max(x, na.rm=TRUE)-min(x, na.rm=TRUE))/30,
+                                fill     = "steelblue") +
+        ggplot2::geom_vline(xintercept = m,
+                            linetype   = "dashed",
+                            linewidth  = 1,
+                            color      = "darkgrey") +
+        ggplot2::annotate("text",
+                          x      = Inf, y = Inf,
+                          hjust  = 1.1, vjust = 1.5,
+                          label  = lbl,
+                          size   = 4) +
+        ggplot2::labs(title = paste("Distribution of", var),
+                      x     = var,
+                      y     = "Count")
+    }
+
+    p +
+      ggplot2::theme_minimal(base_size = 14) +
+      ggplot2::theme(
+        axis.text.x     = ggplot2::element_text(hjust = 1),
+        legend.position = "none",
+        plot.title      = ggplot2::element_text(face = "bold")
+      )
+  })
+
+  names(plots) <- names(df)
+  plots
+}
+
+# partial regression plots given a model
+plot_partial_regression <- function(model) {
+  # extract the exact data used to fit
+  df_orig    <- as.data.frame(model.frame(model))
+  fm         <- stats::formula(model)
+  resp_name  <- as.character(fm)[2]
+  term_labels<- attr(stats::terms(model), "term.labels")
+
+  # make syntactically valid names
+  safe_labels <- make.names(term_labels, unique = TRUE)
+
+  # copy & augment df with interaction cols if needed
+  df <- df_orig
+  for (i in seq_along(term_labels)) {
+    if (term_labels[i] != safe_labels[i]) {
+      parts <- strsplit(term_labels[i], ":", fixed=TRUE)[[1]]
+      df[[ safe_labels[i] ]] <- df[[ parts[1] ]] * df[[ parts[2] ]]
+    }
+  }
+
+  # now build one partial regression plot per term
+  plots <- lapply(seq_along(safe_labels), function(i) {
+    term_safe <- safe_labels[i]
+    term_lbl  <- term_labels[i]
+
+    # everything except this term
+    others    <- setdiff(safe_labels, term_safe)
+
+    # residuals of Y ~ others
+    fY <- stats::reformulate(others, resp_name)
+    yres <- stats::resid(stats::lm(fY, data = df))
+
+    # residuals of X_term ~ others
+    fX <- stats::reformulate(others, term_safe)
+    xres <- stats::resid(stats::lm(fX, data = df))
+
+    # fit and extract slope & SD
+    fit   <- stats::lm(yres ~ xres)
+    beta  <- stats::coef(fit)[2]
+    sd_r  <- stats::sd(stats::resid(fit))
+
+    ggplot2::ggplot(data.frame(xres,yres), ggplot2::aes(x=xres,y=yres)) +
+      ggplot2::geom_point(color="steelblue", alpha=0.7) +
+      ggplot2::geom_smooth(method="lm", se=FALSE,
+                  color="darkgrey", linewidth=1) +
+      ggplot2::annotate("text", x=Inf,y=Inf, hjust=1.1,vjust=1.5,
+               label=sprintf("Beta = %.3f\nSD(resid)=%.3f", beta, sd_r),
+               size=4) +
+      ggplot2::labs(
+        title = paste("Partial Regression for", term_lbl),
+        x     = paste(term_lbl, "residuals"),
+        y     = paste(resp_name,   "residuals")
+      ) +
+      ggplot2::theme_minimal(base_size=14) +
+      ggplot2::theme(
+        axis.text.x     = ggplot2::element_text(angle=45, hjust=1),
+        plot.title      = ggplot2::element_text(face="bold"),
+        legend.position = "none"
+      )
+  })
+
+  names(plots) <- term_labels
+  plots
+}
+
+# method of moments estiamte of random intercept var
+var_tau <- function(x, y) {
+  Y      <- x[[y]]
+  id     <- factor(x$ID)
+  n      <- length(unique(x$time))
+  aovTab <- summary(stats::aov(Y ~ id, data = x))[[1]]
+  MSB    <- aovTab["id",       "Mean Sq"]
+  MSW    <- aovTab["Residuals", "Mean Sq"]
+  tau2_mom <- (MSB - MSW) / n
+  tau2_mom
+}
+
+# re order the target cor according to input order of columns
+remap_target_cor <- function(target_cor, sim_data, vars_new) {
+  # original names & dimension
+  vars_old <- colnames(sim_data)
+  p_old    <- length(vars_old)
+  if (length(target_cor) != p_old*(p_old-1)/2) {
+    stop("target_cor length (", length(target_cor),
+         ") does not match ncol(sim_data) = ", p_old)
+  }
+
+  # build full symmetric matrix
+  mat_old <- matrix(NA_real_, p_old, p_old,
+                    dimnames = list(vars_old, vars_old))
+  mat_old[upper.tri(mat_old)] <- target_cor
+  mat_old[lower.tri(mat_old)] <- t(mat_old)[lower.tri(mat_old)]
+  diag(mat_old) <- 1
+
+  # reorder rows & columns
+  if (!all(vars_new %in% vars_old)) {
+    stop("Some vars_new not found in sim_data: ",
+         paste(setdiff(vars_new, vars_old), collapse = ", "))
+  }
+  mat_new <- mat_old[vars_new, vars_new]
+
+  # return new upper triangle
+  as.vector(mat_new[upper.tri(mat_new)])
+}

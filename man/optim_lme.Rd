@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_optim_lme.R
 \name{optim_lme}
 \alias{optim_lme}
-\title{optim_lme}
+\title{optim_lme()}
 \usage{
 optim_lme(
   sim_data,
@@ -13,12 +13,15 @@ optim_lme(
   weight = c(1, 1),
   max_iter = 1e+05,
   init_temp = 1,
-  cooling_rate = NA,
+  cooling_rate = NULL,
   tol = 1e-06,
   progress_bar = TRUE,
   max_starts = 1,
-  hill_climbs = NA,
-  prob_within_move = 0.8
+  hill_climbs = NULL,
+  move_prob = list(start = c(residual = 0, k_cycle = 0, local = 0.25, tau = 0.75), end =
+    c(residual = 0.2, k_cycle = 0.1, local = 0.7, tau = 0)),
+  min_decimals = 0,
+  eps = 1e-05
 )
 }
 \arguments{
@@ -48,7 +51,11 @@ optim_lme(
 
 \item{hill_climbs}{Optional hill‐climb iterations after SA.}
 
-\item{prob_within_move}{Probability of within‐timegroup swap move.}
+\item{move_prob}{List containing start and end probabilities of move selection}
+
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
+
+\item{eps}{Numeric; the lower bound for the standardization to prevent division by zero}
 }
 \value{
 A "discourse.object" with best error, data, inputs, and trace

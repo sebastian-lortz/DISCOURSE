@@ -23,6 +23,42 @@ weights_vec <- function(N, target_mean, target_sd, range,
                         max_weight = 10000,
                         metric = "mean") {
 
+  # input checks
+  if (!is.numeric(N) || length(N) != 1 || N <= 0 || N != as.integer(N)) {
+    stop("`N` must be a single positive integer (sample size).")
+  }
+  if (!is.numeric(target_mean) || length(target_mean) < 1) {
+    stop("`target_mean` must be a non-empty numeric vector of desired means.")
+  }
+  if (!is.numeric(target_sd) || length(target_sd) != length(target_mean)) {
+    stop("`target_sd` must be a numeric vector of the same length as `target_mean`.")
+  }
+  if (!is.matrix(range) || nrow(range) != 2 ||
+      ncol(range) != length(target_mean) || !is.numeric(range)) {
+    stop("`range` must be a 2 x length(target_mean) numeric matrix specifying min/max for each variable.")
+  }
+  if (!is.numeric(obj_weight) || length(obj_weight) != 2) {
+    stop("`obj_weight` must be a numeric vector of length 2 (weights for mean vs. SD errors).")
+  }
+  if (!is.logical(integer) || length(integer) < 1) {
+    stop("`integer` must be a logical vector (length 1 or matching length of `target_mean`).")
+  }
+  if (!is.null(int.probs) && (!is.list(int.probs) || length(int.probs) != length(target_mean))) {
+    stop("`int.probs`, if provided, must be a list of length equal to `target_mean`, each element a numeric probability vector.")
+  }
+  if (!is.numeric(est_iter) || length(est_iter) != 1 || est_iter <= 0 || est_iter != as.integer(est_iter)) {
+    stop("`est_iter` must be a single positive integer (number of Monte Carlo iterations).")
+  }
+  if (!is.numeric(eps) || length(eps) != 1 || eps < 0) {
+    stop("`eps` must be a single non-negative numeric constant.")
+  }
+  if (!is.numeric(max_weight) || length(max_weight) != 1 || max_weight <= 0) {
+    stop("`max_weight` must be a single positive numeric value.")
+  }
+  if (!is.character(metric) || length(metric) != 1 || !metric %in% c("mean","median")) {
+    stop("`metric` must be either \"mean\" or \"median\".")
+  }
+
   weights_vec_single <- function(N, target_mean, target_sd, range,
                                  obj_weight = c(1, 1),
                                  integer,

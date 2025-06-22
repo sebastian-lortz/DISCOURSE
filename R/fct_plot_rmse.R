@@ -6,16 +6,30 @@
 #' @importFrom rlang .data
 #' @export
 plot_rmse <- function(object_list) {
-  # Retrieve RMSE data
+
+  # input check
+  if (!is.list(object_list)) object_list <- list(object_list)
+  if (!all(sapply(object_list, function(x) is.list(x) && inherits(x, "discourse.object")))) {
+    stop("object_list must be a list of objects of class 'discourse.object'.")
+  }
+  if (!requireNamespace("ggplot2", quietly=TRUE)) {
+    stop("`ggplot2` is needed to plot summaries; please install it.")
+  }
+
+  # theme setup
+  apa_theme <- ggplot2::theme_minimal(base_size = 12, base_family = "Helvetica") +
+    ggplot2::theme(
+      plot.title       = ggplot2::element_text(face = "bold", size = 14, hjust = 0),
+      axis.title       = ggplot2::element_text(color = "black"),
+      axis.text        = ggplot2::element_text(color = "black"),
+    )
+
+  # extract data
   obj <- get_rmse_parallel(object_list)
-
-  # Extract raw RMSE values
   dr <- obj$data_rmse
-
-  # Determine metrics
   metrics <- if (is.list(dr$between)) names(dr$between) else "rmse_F"
 
-  # Build long-format data frame
+  # long format rmse data
   rmse_data <- do.call(rbind, lapply(metrics, function(metric) {
     if (is.list(dr$between)) {
       between_vals <- dr$between[[metric]]
@@ -30,11 +44,10 @@ plot_rmse <- function(object_list) {
     rbind(df_between, df_target)
   }))
 
-  # Filter out NA values and validate
   rmse_data <- rmse_data[!is.na(rmse_data$RMSE), ]
   if (nrow(rmse_data) == 0) stop("No RMSE data available to plot.")
 
-  # Create plot
+  # plot
   p <- ggplot2::ggplot(rmse_data, ggplot2::aes(x = .data$Type, y = .data$RMSE, fill = .data$Type)) +
     ggplot2::geom_boxplot(width = 0.6, alpha = 0.4, outlier.shape = NA) +
     ggplot2::stat_boxplot(geom = "errorbar", width = 0.25, color = "black") +
@@ -47,13 +60,12 @@ plot_rmse <- function(object_list) {
       x     = "RMSE Type",
       y     = "RMSE"
     ) +
-    ggplot2::theme_minimal(base_size = 14) +
+    apa_theme +
     ggplot2::theme(
       legend.position    = "none",
       strip.background   = ggplot2::element_rect(fill = "gray90", color = "gray50"),
       strip.text         = ggplot2::element_text(face = "bold"),
       panel.grid.major.x = ggplot2::element_blank()
     )
-
   return(p)
 }

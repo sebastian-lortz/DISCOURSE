@@ -5,6 +5,8 @@
 \title{Parallel Linear Model Optimization}
 \usage{
 parallel_lm(
+  parallel_start,
+  return_best_solution,
   sim_data,
   target_cor,
   target_reg,
@@ -13,16 +15,19 @@ parallel_lm(
   weight = c(1, 1),
   max_iter = 1e+05,
   init_temp = 1,
-  cooling_rate = NA,
+  cooling_rate = NULL,
   tol = 1e-06,
   prob_global_move = 0.1,
   max_starts = 1,
-  parallel_start = 3,
-  hill_climbs = NA,
-  return_best_solution = FALSE
+  hill_climbs = NULL,
+  min_decimals = 1
 )
 }
 \arguments{
+\item{parallel_start}{Number of parallel runs.}
+
+\item{return_best_solution}{Logical; return best solution only.}
+
 \item{sim_data}{Simulation data.}
 
 \item{target_cor}{Target correlation.}
@@ -47,11 +52,9 @@ parallel_lm(
 
 \item{max_starts}{Number of starts per run.}
 
-\item{parallel_start}{Number of parallel runs.}
-
 \item{hill_climbs}{Number of hill climbs.}
 
-\item{return_best_solution}{Logical; return best solution only.}
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
 }
 \value{
 List of optimization results or single best result.

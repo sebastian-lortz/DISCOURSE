@@ -10,15 +10,16 @@ optim_lm(
   target_reg,
   reg_equation,
   target_se = NULL,
-  weight = NA,
+  weight = c(1, 1),
   max_iter = 1e+05,
   init_temp = 1,
-  cooling_rate = NA,
+  cooling_rate = NULL,
   tol = 1e-06,
   prob_global_move = 0.1,
   progress_bar = TRUE,
   max_starts = 1,
-  hill_climbs = NA
+  hill_climbs = 100,
+  min_decimals = 2
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ optim_lm(
 \item{max_starts}{Number of annealing restarts}
 
 \item{hill_climbs}{Optional hill-climbing iterations for refinement}
+
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
 }
 \value{
 A "discourse.object" with best error, data, inputs, and trace

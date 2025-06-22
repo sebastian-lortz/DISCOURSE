@@ -9,16 +9,39 @@
 
 plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
 
-  # Helper function to compute centered difference
+  # input check
+  if (!inherits(discourse_obj, "discourse.object")) {
+    stop("Input must be a discourse.object.")
+  }
+  if (!is.list(discourse_obj) || is.null(discourse_obj$inputs) || !is.list(discourse_obj$inputs)) {
+    stop("`discourse_obj` must be a list containing an 'inputs' list element.")
+  }
+  if (!is.logical(standardised) || length(standardised) != 1) {
+    stop("`standardised` must be a single logical value.")
+  }
+  if (!is.numeric(eps) || length(eps) != 1) {
+    stop("`eps` must be a single numeric value.")
+  }
+  if (!requireNamespace("ggplot2", quietly=TRUE)) {
+    stop("`ggplot2` is needed to plot summaries; please install it.")
+  }
+
   compute_centered <- function(sim, target) {
     if (standardised) {
-      ifelse(abs(target) < .Machine$double.eps, sim - target, (sim - target) / target)
+      ifelse(abs(target) < eps, sim - target, (sim - target) / target)
     } else {
       sim - target
     }
   }
 
-  # Define label strings depending on the standardisation flag
+  # theme
+  apa_theme <- ggplot2::theme_minimal(base_size = 12, base_family = "Helvetica") +
+    ggplot2::theme(
+      panel.grid.major = ggplot2::element_line(color = "gray90"),
+      plot.title       = ggplot2::element_text(face = "bold", size = 14, hjust = 0),
+      axis.text        = ggplot2::element_text(color = "black")
+    )
+
   y_label <- if (standardised) {
     "((Simulated - Target) / Target)"
   } else {
@@ -31,20 +54,17 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     "Unstandardised"
   }
 
-  ### Branch 1: For optim_lm/optim_lme objects (with target_reg, target_cor, and optionally target_se)
+  # lm and lme module
   if (!is.null(discourse_obj$inputs$target_reg)) {
     target_reg <- discourse_obj$inputs$target_reg
     target_cor <- discourse_obj$inputs$target_cor
-    target_se  <- discourse_obj$inputs$target_se  # May be NULL
-
+    target_se  <- discourse_obj$inputs$target_se
     reg_dec <- max(count_decimals(target_reg))
     cor_dec <- max(count_decimals(target_cor))
-
     stats    <- get_stats(discourse_obj)
     sim_reg  <- stats$reg
     sim_cor  <- stats$cor
     sim_se   <- stats$se
-
     sim_reg_r <- round(sim_reg, reg_dec)
     sim_cor_r <- round(sim_cor, cor_dec)
 
@@ -57,7 +77,7 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       stringsAsFactors = FALSE
     )
     df_reg$SimulatedType <- ifelse(
-      standardised & abs(df_reg$Target) < .Machine$double.eps,
+      standardised & abs(df_reg$Target) < eps,
       "Unstandardized Diff", "Simulated"
     )
 
@@ -72,18 +92,20 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       stringsAsFactors = FALSE
     )
     df_cor$SimulatedType <- ifelse(
-      standardised & abs(df_cor$Target) < .Machine$double.eps,
+      standardised & abs(df_cor$Target) < eps,
       "Unstandardized Diff", "Simulated"
     )
 
-    # ---- single block handling target_se ----
+    # standard errors
     if (!is.null(target_se)) {
-      se_dec     <- max(count_decimals(target_se))
-      sim_se_r   <- round(sim_se, se_dec)
-
-      var_names_se <- names(target_se)
-      if (is.null(var_names_se)) var_names_se <- names(target_reg)
-      df_se <- data.frame(
+      se_dec    <- max(count_decimals(target_se))
+      sim_se_r  <- round(sim_se, se_dec)
+      if (!is.null(names(target_se))) {
+        var_names_se <- names(target_se)
+      } else {
+        var_names_se <- names(target_reg)[seq_along(target_se)]
+      }
+            df_se <- data.frame(
         Measure   = "Standard Error",
         Variable  = var_names_se,
         Simulated = sim_se_r,
@@ -92,7 +114,7 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
         stringsAsFactors = FALSE
       )
       df_se$SimulatedType <- ifelse(
-        standardised & abs(df_se$Target) < .Machine$double.eps,
+        standardised & abs(df_se$Target) < eps,
         "Unstandardized Diff", "Simulated"
       )
     } else {
@@ -113,29 +135,27 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       )
     }
 
-
+    # plot
     p <- ggplot2::ggplot(df_all, ggplot2::aes(x = .data$Variable, y = .data$Centered)) +
       ggplot2::geom_point(ggplot2::aes(color = .data$SimulatedType), size = 4, na.rm = TRUE) +
-      ggplot2::geom_point(ggplot2::aes(y = 0, color = "Target"), size = 3, shape = 17, na.rm = TRUE) +
       ggplot2::geom_segment(ggplot2::aes(x = .data$Variable, xend = .data$Variable, y = .data$Centered, yend = 0),
                    color = "gray50", linetype = "dashed", na.rm = TRUE) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dotted", color = "gray50") +
       ggplot2::facet_wrap(~ .data$Measure, scales = "free_x") +
       ggplot2::scale_color_manual(name = "",
                          values = c("Simulated" = "steelblue",
-                                    "Unstandardized Diff" = "red",
-                                    "Target" = "darkgrey")) +
+                                    "Unstandardized Diff" = "red")) +
       ggplot2::labs(title = paste(title_prefix, "Difference of Summary Statistics"),
            y = y_label,
            x = "Parameter") +
-      ggplot2::theme_minimal(base_size = 14) +
+      apa_theme +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
             legend.position = "bottom",
             strip.background = ggplot2::element_rect(fill = "gray90", color = "gray50"),
             strip.text = ggplot2::element_text(face = "bold"))
     return(p)
 
-    ### Branch 2: For aov objects (with target_f_list)
+    # aov module
   } else if (!is.null(discourse_obj$inputs$target_f_list)) {
     target_F <- discourse_obj$inputs$target_f_list$F
     F_dec <- count_decimals(target_F)
@@ -154,34 +174,33 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       Centered  = centered,
       stringsAsFactors = FALSE
     )
-    df$SimulatedType <- ifelse(standardised & abs(df$Target) < .Machine$double.eps,
+    df$SimulatedType <- ifelse(standardised & abs(df$Target) < eps,
                                "Unstandardized Diff", "Simulated")
     if(any(df$SimulatedType == "Unstandardized Diff")){
       warning("One or more target values were practically 0; the unstandardised difference was computed for these values.")
     }
 
+    # plot
     p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$Variable, y = .data$Centered)) +
       ggplot2::geom_point(ggplot2::aes(color = .data$SimulatedType), size = 4, na.rm = TRUE) +
-      ggplot2::geom_point(ggplot2::aes(y = 0, color = "Target"), size = 3, shape = 17, na.rm = TRUE) +
       ggplot2::geom_segment(ggplot2::aes(x = .data$Variable, xend = .data$Variable, y = .data$Centered, yend = 0),
                    color = "gray50", linetype = "dashed", na.rm = TRUE) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dotted", color = "gray50") +
       ggplot2::facet_wrap(~ .data$Measure, scales = "free_x") +
       ggplot2::scale_color_manual(name = "",
                          values = c("Simulated" = "steelblue",
-                                    "Unstandardized Diff" = "red",
-                                    "Target" = "darkgrey")) +
+                                    "Unstandardized Diff" = "red")) +
       ggplot2::labs(title = paste(title_prefix, "Difference of Summary Statistics"),
            y = y_label,
            x = "Effect") +
-      ggplot2::theme_minimal(base_size = 14) +
+      apa_theme +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
             legend.position = "bottom",
             strip.background = ggplot2::element_rect(fill = "gray90", color = "gray50"),
             strip.text = ggplot2::element_text(face = "bold"))
     return(p)
 
-    ### Branch 3: For optim_vec objects (with target_mean and target_sd)
+    # Vec module
   } else {
     target_mean <- discourse_obj$inputs$target_mean
     target_sd   <- discourse_obj$inputs$target_sd
@@ -192,10 +211,8 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     sim_sd   <- stats$sd
     sim_mean_r <- round(sim_mean, mean_dec)
     sim_sd_r   <- round(sim_sd, sd_dec)
-
     centered_mean <- compute_centered(sim_mean_r, target_mean)
     centered_sd   <- compute_centered(sim_sd_r, target_sd)
-
     sim_data <- as.data.frame(discourse_obj$data)
     vars <- colnames(sim_data)
     if (is.null(vars)) vars <- names(target_mean)
@@ -208,32 +225,29 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       Centered  = c(centered_mean, centered_sd),
       stringsAsFactors = FALSE
     )
-    df$SimulatedType <- ifelse(standardised & abs(df$Target) < .Machine$double.eps,
+    df$SimulatedType <- ifelse(standardised & abs(df$Target) < eps,
                                "Unstandardized Diff", "Simulated")
-
     df <- df %>% dplyr::group_by(.data$Measure) %>%
       dplyr::mutate(Variable = factor(.data$Variable, levels = unique(.data$Variable))) %>%
       dplyr::ungroup()
-
     if(any(df$SimulatedType == "Unstandardized Diff")){
       warning("One or more target values were practically 0; the unstandardised difference was computed for these values.")
     }
 
+    # plot
     p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$Variable, y = .data$Centered)) +
       ggplot2::geom_point(ggplot2::aes(color = .data$SimulatedType), size = 4, na.rm = TRUE) +
-      ggplot2::geom_point(ggplot2::aes(y = 0, color = "Target"), size = 3, shape = 17, na.rm = TRUE) +
       ggplot2::geom_segment(ggplot2::aes(x = .data$Variable, xend = .data$Variable, y = .data$Centered, yend = 0),
                    color = "gray50", linetype = "dashed", na.rm = TRUE) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dotted", color = "gray50") +
       ggplot2::facet_wrap(~ .data$Measure, scales = "free_x") +
       ggplot2::scale_color_manual(name = "",
                          values = c("Simulated" = "steelblue",
-                                    "Unstandardized Diff" = "red",
-                                    "Target" = "darkgrey")) +
+                                    "Unstandardized Diff" = "red")) +
       ggplot2::labs(title = paste(title_prefix,"Difference of Summary Statistics"),
            y = y_label,
            x = "Variable") +
-      ggplot2::theme_minimal(base_size = 14) +
+      apa_theme +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
             legend.position = "bottom",
             strip.background = ggplot2::element_rect(fill = "gray90", color = "gray50"),

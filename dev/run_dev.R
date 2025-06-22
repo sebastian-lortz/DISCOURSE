@@ -11,6 +11,7 @@ golem::detach_all_attached()
 # Document and reload your package
 golem::document_and_reload()
 devtools::install(dependencies = FALSE)
-
+# rm(list=ls())
+# rm -rf /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/00LOCK-discourse
 # Run the application
-#run_app()
+run_app()

@@ -3,9 +3,8 @@
 #' @return List with between-run and target RMSE summaries and raw values
 #' @export
 get_rmse_parallel <- function(object_list) {
-  # ensure input is a list
+  # input checks
   if (!is.list(object_list)) object_list <- list(object_list)
-  # validate each element is a discourse.object
   if (!all(sapply(object_list, function(x) is.list(x) && inherits(x, "discourse.object")))) {
     stop("object_list must be a list of objects of class 'discourse.object'.")
   }
@@ -47,12 +46,15 @@ get_rmse_parallel <- function(object_list) {
     # compute between-run RMSEs
     between_differences <- lapply(opt_metrics, function(run) {
       # recompute overall means inside loop (equivalent to original overall_mean)
-      overall_cor <- Reduce("+", lapply(opt_metrics, `[[`, "cor")) / n_runs
-      overall_reg <- Reduce("+", lapply(opt_metrics, `[[`, "reg")) / n_runs
-      overall_se  <- Reduce("+", lapply(opt_metrics, `[[`, "se"))  / n_runs
-      diff_cor <- if (!is.null(target_cor)) run$cor - overall_cor
-      diff_reg <- if (!is.null(target_reg)) run$reg - overall_reg
-      diff_se  <- if (!is.null(target_se))  run$se  - overall_se
+      na.cor <- is.na(target_cor)
+      na.reg <- is.na(target_reg)
+      if (!is.null(target_se)) na.se <- is.na(target_se)
+      overall_cor <- round(Reduce("+", lapply(opt_metrics, `[[`, "cor")) / n_runs, cor_dec)
+      overall_reg <- round(Reduce("+", lapply(opt_metrics, `[[`, "reg")) / n_runs, reg_dec)
+      if (!is.null(target_se)) overall_se  <- round(Reduce("+", lapply(opt_metrics, `[[`, "se"))  / n_runs, se_dec)
+      diff_cor <-  run$cor[!na.cor] - overall_cor[!na.cor]
+      diff_reg <-  run$reg[!na.reg] - overall_reg[!na.reg]
+      diff_se  <- if (!is.null(target_se))  run$se[!na.se]  - overall_se[!na.se]
       list(
         rmse_cor = sqrt(mean(diff_cor^2, na.rm = TRUE)),
         rmse_reg = sqrt(mean(diff_reg^2, na.rm = TRUE)),
@@ -119,32 +121,39 @@ get_rmse_parallel <- function(object_list) {
                 target_rmse  = target_summary,
                 data_rmse    = data_rmse))
 
-  } else if (!is.null(first_obj$inputs$target_f_vec)) {
+  } else if (!is.null(first_obj$inputs$target_f_list)) {
     # branch 2: ANOVA-based objects
-    target_F_values <- first_obj$inputs$target_f_vec$F
+    target_F_values <- first_obj$inputs$target_f_list$F
     F_dec           <- max(count_decimals(target_F_values))
     opt_metrics     <- lapply(object_list, function(res) {
       stats <- get_stats(res)
-      list(F_value = round(stats$F_value, F_dec))
+      round(stats$F_value, F_dec)
     })
     # between-run RMSE for F
-    overall_F          <- mean(sapply(opt_metrics, `[[`, "F_value"))
-    between_differences <- sapply(opt_metrics, function(run) sqrt((run$F_value - overall_F)^2))
+    F_mat <- do.call(rbind, opt_metrics)
+    overall_F <- colMeans(F_mat, na.rm = TRUE)
+    between_differences <- apply(F_mat, 1, function(F_run) {
+      sqrt( mean((F_run - overall_F)^2, na.rm = TRUE) )
+    })
     between_summary    <- data.frame(
       Metric    = "rmse_F",
       Mean_RMSE = mean(between_differences, na.rm = TRUE),
       SD_RMSE   = stats::sd(between_differences,   na.rm = TRUE),
       Min_RMSE  = min(between_differences,  na.rm = TRUE),
-      Max_RMSE  = max(between_differences,  na.rm = TRUE)
+      Max_RMSE  = max(between_differences,  na.rm = TRUE),
+      stringsAsFactors = FALSE
     )
     # target-run RMSE for F
-    target_differences <- sapply(opt_metrics, function(run) sqrt((run$F_value - target_F_values)^2))
+    target_differences <- apply(F_mat, 1, function(F_run) {
+      sqrt( mean((F_run - target_F_values)^2, na.rm = TRUE) )
+    })
     target_summary     <- data.frame(
       Metric    = "rmse_F",
       Mean_RMSE = mean(target_differences, na.rm = TRUE),
       SD_RMSE   = stats::sd(target_differences,   na.rm = TRUE),
       Min_RMSE  = min(target_differences,  na.rm = TRUE),
-      Max_RMSE  = max(target_differences,  na.rm = TRUE)
+      Max_RMSE  = max(target_differences,  na.rm = TRUE),
+      stringsAsFactors = FALSE
     )
     # raw F RMSEs
     data_rmse <- list(between = between_differences, target = target_differences)

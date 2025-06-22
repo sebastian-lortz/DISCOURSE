@@ -6,7 +6,7 @@
 \alias{discourse-package}
 \title{discourse: Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates}
 \description{
-We introduce the DISCOURSE framework – this algorithmic framework is designed to reconstruct complete data sets solely from summary statistics. It provides researchers with a tool to inform the discourse in replication study decision-making when raw data are unavailable.
+We introduce the DISCOURSE framework – this algorithmic framework is designed to reconstruct complete data sets solely from summary statistics. It provides researchers with a tool to follow-up analyses even when raw data are unavailable.
 }
 \seealso{
 Useful links:

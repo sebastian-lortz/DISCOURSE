@@ -14,15 +14,17 @@ weights_est(
   reg_equation,
   max_iter = 1e+05,
   init_temp = 1,
-  cooling_rate = NA,
+  cooling_rate = NULL,
   tol = 1e-06,
-  prob_global_move = 0.1,
+  prob_global_move = 0.05,
   progress_bar = TRUE,
   weight = c(1, 1),
   pool_range = 10,
   max_starts = 1,
-  parallel_start = 0,
-  prob_within_move = 0.8
+  parallel_start = 1,
+  move_prob = list(start = c(residual = 0, k_cycle = 0, local = 0.25, tau = 0.75), end =
+    c(residual = 0.2, k_cycle = 0.1, local = 0.7, tau = 0)),
+  min_decimals = 0
 )
 }
 \arguments{
@@ -60,7 +62,9 @@ weights_est(
 
 \item{parallel_start}{Integer; number of parallel workers (0 = sequential).}
 
-\item{prob_within_move}{Numeric; probability of local move in mixed model.}
+\item{move_prob}{List containing start and end probabilities of move selection}
+
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
 }
 \value{
 A list with components:

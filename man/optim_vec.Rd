@@ -13,16 +13,17 @@ optim_vec(
   integer,
   max_iter = 1e+05,
   init_temp = 1,
-  cooling_rate = NA,
+  cooling_rate = NULL,
   int.probs = NULL,
-  pb_update_interval = NA,
+  progress_bar = TRUE,
   obj_weight = list(c(1, 1)),
-  maxit_pso = 1000,
+  maxit_pso = 2000,
   eps = 1e-12,
   max_starts = 3,
   checkGrim = TRUE,
   prob_heuristic = 0.1,
-  parallel = FALSE
+  parallel = FALSE,
+  min_decimals = 1
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ optim_vec(
 
 \item{range}{Numeric of length 2 or matrix; allowed value ranges.}
 
-\item{tolerance}{Numeric; stop when objective ≤ tolerance.}
+\item{tolerance}{Numeric; stop when objective < tolerance.}
 
 \item{integer}{Logical; use integer values if TRUE.}
 
@@ -46,7 +47,7 @@ optim_vec(
 
 \item{int.probs}{Numeric; a list with a vector of sampling probabilities for each variable.}
 
-\item{pb_update_interval}{Integer; progress‐bar refresh frequency.}
+\item{progress_bar}{Show progress bar if TRUE}
 
 \item{obj_weight}{List of two numerics; weights for mean vs SD.}
 
@@ -61,6 +62,8 @@ optim_vec(
 \item{prob_heuristic}{Numeric; heuristic move probability.}
 
 \item{parallel}{Logical; run per-variable in parallel.}
+
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
 }
 \value{
 A `discourse.object` with:

@@ -16,7 +16,7 @@
 ## Dependencies ----
 ## Amend DESCRIPTION with dependencies read from package code parsing
 ## install.packages('attachment') # if needed.
- attachment::att_amend_desc()
+attachment::att_amend_desc()
 # If you use devtools:
 devtools::build_readme()
 ## Add modules ----
@@ -52,6 +52,7 @@ golem::add_fct("plot_error", with_test = TRUE)
 golem::add_fct("plot_error_ratio", with_test = TRUE)
 
 golem::add_utils("helpers", with_test = TRUE)
+golem::add_utils("helpers_export", with_test = TRUE)
 golem::add_utils("discourse-package", with_test = TRUE)
 golem::add_utils("server", with_test = TRUE)
 ## Rcpp
@@ -70,7 +71,10 @@ golem::add_any_file("file.json")
 
 ## Add internal datasets ----
 ## If you have data in your package
-usethis::use_data_raw(name = "my_dataset", open = FALSE)
+usethis::use_data_raw(name = "data_vec", open = FALSE)
+usethis::use_data_raw(name = "data_aov", open = FALSE)
+usethis::use_data_raw(name = "data_lm", open = FALSE)
+usethis::use_data_raw(name = "data_lme", open = FALSE)
 
 ## Tests ----
 ## Add one line by test you want to create

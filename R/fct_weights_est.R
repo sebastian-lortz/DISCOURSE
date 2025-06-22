@@ -21,7 +21,8 @@
 #' @param pool_range Integer; how many recent error ratios to average.
 #' @param max_starts     Integer; number of restarts.
 #' @param parallel_start Integer; number of parallel workers (0 = sequential).
-#' @param prob_within_move Numeric; probability of local move in mixed model.
+#' @param move_prob List containing start and end probabilities of move selection
+#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
 #'
 #' @return
 #' A list with components:
@@ -40,21 +41,41 @@ weights_est <- function(module,
                         reg_equation,
                         max_iter = 1e5,
                         init_temp = 1,
-                        cooling_rate = NA,
+                        cooling_rate = NULL,
                         tol = 1e-6,
-                        prob_global_move = 0.1,
+                        prob_global_move = 0.05,
                         progress_bar = TRUE,
                         weight = c(1, 1),
                         pool_range = 10,
                         max_starts = 1,
-                        parallel_start = 0,
-                        prob_within_move = 0.8) {
+                        parallel_start = 1,
+                        move_prob = list(
+                          start = c(residual = 0.00,
+                                    k_cycle  = 0.00,
+                                    local    = 0.25,
+                                    tau      = 0.75),
+                          end   = c(residual = 0.20,
+                                    k_cycle  = 0.10,
+                                    local    = 0.70,
+                                    tau      = 0.00)
+                        ),
+                        min_decimals = 0
+) {
+
+  # input checks
+  if (!is.character(module) || length(module) != 1 || !module %in% c("lm", "lme")) {
+    stop("`module` must be a single string: either \"lm\" or \"lme\".")
+  }
+  if (!is.numeric(sim_runs) || length(sim_runs) != 1 ||
+      sim_runs < 1 || sim_runs != as.integer(sim_runs)) {
+    stop("`sim_runs` must be a single positive integer indicating the number of simulation runs.")
+  }
 
   error_ratios <- numeric(sim_runs)
   last_opt_run <- NULL
 
   for (runs in seq_len(sim_runs)) {
-    if (parallel_start == 0) {
+    if (parallel_start == 1) {
       if (module == "lme") {
         opt_run <- optim_lme(
           sim_data         = sim_data,
@@ -69,9 +90,10 @@ weights_est <- function(module,
           tol              = tol,
           progress_bar     = progress_bar,
           max_starts       = max_starts,
-          hill_climbs      = NA,
-          prob_within_move = prob_within_move
-        )
+          hill_climbs      = NULL,
+          move_prob        = move_prob,
+          min_decimals     = min_decimals
+          )
       } else {
         opt_run <- optim_lm(
           sim_data         = sim_data,
@@ -87,7 +109,8 @@ weights_est <- function(module,
           prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
           max_starts       = max_starts,
-          hill_climbs      = NA
+          hill_climbs      = NULL,
+          min_decimals     = min_decimals
         )
       }
     } else {
@@ -105,9 +128,10 @@ weights_est <- function(module,
           tol                  = tol,
           max_starts           = max_starts,
           parallel_start       = parallel_start,
-          hill_climbs          = NA,
-          prob_within_move     = prob_within_move,
-          return_best_solution = TRUE
+          hill_climbs          = NULL,
+          return_best_solution = TRUE,
+          move_prob            = move_prob,
+          min_decimals     = min_decimals
         )
       } else {
         opt_run <- parallel_lm(
@@ -124,9 +148,10 @@ weights_est <- function(module,
           prob_global_move     = prob_global_move,
           max_starts           = max_starts,
           parallel_start       = parallel_start,
-          hill_climbs          = NA,
-          return_best_solution = TRUE
-        )
+          hill_climbs          = NULL,
+          return_best_solution = TRUE,
+          min_decimals     = min_decimals
+          )
       }
     }
 
@@ -147,7 +172,8 @@ weights_est <- function(module,
   cat("The estimated weights are:", weights, "\n")
   list(
     weights       = weights,
-    best_solution = last_opt_run$best_solution,
+    data = last_opt_run$data,
+    track_error = last_opt_run$track_error,
     error_ratio = error_ratios
   )
 }

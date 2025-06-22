@@ -1,5 +1,5 @@
 #' The application User-Interface
-#'tools::showNonASCIIfile("R/app_ui.R")
+#' tools::showNonASCIIfile("R/app_ui.R")
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
 #' @import shiny
@@ -28,7 +28,7 @@ app_ui <- function(request) {
             column(width = 12,
                    h1("Welcome to the DISCOURSE App"),
                    p(HTML(
-                     "We introduce the DISCOURSE framework - <strong>D</strong>ata-simulation via <strong>I</strong>terative <strong>S</strong>tochastic <strong>C</strong>ombinatorial <strong>O</strong>ptimization <strong>U</strong>sing <strong>R</strong>eported <strong>S</strong>ummary <strong>E</strong>stimates. This algorithmic framework reconstructs complete datasets using only summary statistics, giving researchers a way--when raw data are unavailable--to inform and guide the discourse in replication-study decision-making."
+                     "I introduce the DISCOURSE framework - <strong>D</strong>ata-simulation via <strong>I</strong>terative <strong>S</strong>tochastic <strong>C</strong>ombinatorial <strong>O</strong>ptimization <strong>U</strong>sing <strong>R</strong>eported <strong>S</strong>ummary <strong>E</strong>stimates. This algorithmic framework reconstructs complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication-study decision-making."
                    )),
                    h3("Purpose and Scope"),
                    p("The primary objective of DISCOURSE is to simulate an entire data set based solely on the available summary statistics."),
@@ -61,10 +61,10 @@ app_ui <- function(request) {
                        tags$tbody(
                          tags$tr(
                            tags$td(HTML("Descriptives (<code>optim_vec()</code>)")),
-                           tags$td(HTML("ANOVA (<code>optim_aov()</code>)"))
+                           tags$td(HTML("Linear Regression (<code>optim_lm()</code>)")),
                          ),
                          tags$tr(
-                           tags$td(HTML("Linear Regression (<code>optim_lm()</code>)")),
+                           tags$td(HTML("ANOVA (<code>optim_aov()</code>)")),
                            tags$td(HTML("LME (<code>optim_lme()</code>)"))
                          )
                        )
@@ -86,13 +86,14 @@ app_ui <- function(request) {
           fluidRow(
             column(width = 6,
                    h2("High Level Workflow"),
-                   p("Placeholder description text for the high level workflow image and explanation."),
-                   tags$ul(
-                     tags$li("Step 1: Data input"),
-                     tags$li("Step 2: Processing"),
-                     tags$li("Step 3: Output generation"),
-                     tags$li("Step 4: Validation")
-                   )
+                   p("The process begins with the candidate initialization, thus, the creation of an initial simulated vector or matrix. The algorithm then iteratively refines the candidate by optimizing an objective function that quantifies the discrepancy between the summary statistics of the candidate and the reported targets. At each iteration the following two steps are performed."),
+                   h5("Candidate Modification"),
+                   p("Modifications to the data are produced through different types of moves (e.g. global and local; heuristic and stochastic) within the search space."),
+                   h5("Candidate Evaluation"),
+                   p("Each candidate is evaluated by an objective function and accepted based on a stochastic optimization criterion, ensuring that modifications progressively reduce the objective value."),
+                   h4("Convergence"),
+                   p("The algorithm is deemed to have met the convergence criteria as soon as the best objective function score f_best falls below the user-specified tolerance. If convergence is not reached after Max Iteration steps, the algorithm restarts (up to Max Starts times) from the candidate with f_best. Only when all allowed iterations and restarts have been exhausted without achieving the tolerance does the routine stop due to iteration limits rather than error criteria.
+")
             ),
             column(width = 6,
                    tags$img(

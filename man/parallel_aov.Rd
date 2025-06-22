@@ -5,48 +5,55 @@
 \title{parallel_aov: parallel ANOVA optimization}
 \usage{
 parallel_aov(
+  parallel_start = 3,
+  return_best_solution = FALSE,
   N,
   levels,
-  subgroup_sizes = NULL,
   target_group_means,
   target_f_list,
-  df_effects,
+  integer,
   range,
   formula,
-  tolerance,
-  factor_type = NULL,
+  factor_type,
+  subgroup_sizes = NULL,
+  df_effects = NULL,
+  tolerance = 1e-08,
   typeSS = 3,
   max_iter = 1000,
   init_temp = 1,
-  cooling_rate = 0.99,
-  pb_update_interval = NA,
-  integer = TRUE,
-  max_starts = 3,
-  checkGrim = TRUE,
-  parallel_start = 3,
-  return_best_solution = FALSE
+  cooling_rate = NULL,
+  max_step = 0.2,
+  max_starts = 1,
+  checkGrim = FALSE,
+  min_decimals = 1
 )
 }
 \arguments{
-\item{N}{Total sample size of observations or participants}
+\item{parallel_start}{Number of independent parallel runs}
+
+\item{return_best_solution}{Logical; return only the best run if TRUE}
+
+\item{N}{Total sample size of participants}
 
 \item{levels}{Vector specifying number of levels for each factor}
-
-\item{subgroup_sizes}{Optional subgroup sizes for unbalanced designs}
 
 \item{target_group_means}{Vector of target means for each group}
 
 \item{target_f_list}{List with target F-values and related parameters}
 
-\item{df_effects}{Degrees of freedom for each effect}
+\item{integer}{Logical; treat candidate values as integers if TRUE}
 
 \item{range}{Numeric vector of length 2 specifying candidate value range}
 
 \item{formula}{Model formula for computing F statistics}
 
-\item{tolerance}{Convergence tolerance for the optimization}
-
 \item{factor_type}{Vector indicating factor types ("between"/"within")}
+
+\item{subgroup_sizes}{Optional subgroup sizes for unbalanced designs}
+
+\item{df_effects}{Degrees of freedom for each effect}
+
+\item{tolerance}{Convergence tolerance for the optimization}
 
 \item{typeSS}{Type of sums of squares (e.g., 3 for Type III)}
 
@@ -56,17 +63,13 @@ parallel_aov(
 
 \item{cooling_rate}{Cooling rate per iteration}
 
-\item{pb_update_interval}{Progress bar update interval (NA = auto)}
-
-\item{integer}{Logical; treat candidate values as integers if TRUE}
+\item{max_step}{Proportion; The maximum step size for modifications as proportion of the range}
 
 \item{max_starts}{Number of restart cycles}
 
 \item{checkGrim}{Logical; perform GRIM consistency checks if TRUE}
 
-\item{parallel_start}{Number of independent parallel runs}
-
-\item{return_best_solution}{Logical; return only the best run if TRUE}
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
 }
 \description{
 Run ANOVA optimization across multiple parallel workers

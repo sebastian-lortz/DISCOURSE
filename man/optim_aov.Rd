@@ -7,30 +7,30 @@
 optim_aov(
   N,
   levels,
-  subgroup_sizes = NULL,
   target_group_means,
   target_f_list,
-  df_effects,
   integer,
   range,
   formula,
-  tolerance,
-  factor_type = "between",
+  factor_type,
+  subgroup_sizes = NULL,
+  df_effects = NULL,
+  tolerance = 1e-08,
   typeSS = 3,
   max_iter = 1000,
   init_temp = 1,
-  cooling_rate = NA,
-  pb_update_interval = NA,
-  max_starts = 3,
-  checkGrim = TRUE
+  cooling_rate = NULL,
+  max_step = 0.2,
+  progress_bar = TRUE,
+  max_starts = 1,
+  checkGrim = FALSE,
+  min_decimals = 1
 )
 }
 \arguments{
-\item{N}{Total number of observations}
+\item{N}{Total number of subjects}
 
 \item{levels}{Vector of factor levels per factor}
-
-\item{subgroup_sizes}{Optional subgroup sizes for unbalanced designs}
 
 \item{target_group_means}{Numeric vector of target means for each group}
 
@@ -40,17 +40,19 @@ optim_aov(
 - contrast: (optional) contrast formula
 - contrast_method: (optional) contrast method name}
 
-\item{df_effects}{Degrees of freedom for each effect}
-
 \item{integer}{Logical; treat candidate values as integers}
 
 \item{range}{Numeric vector length 2 specifying allowed candidate range}
 
 \item{formula}{Model formula for F extraction}
 
-\item{tolerance}{Convergence tolerance for optimization}
-
 \item{factor_type}{Factor types ("between"/"within") for mixed models}
+
+\item{subgroup_sizes}{Optional subgroup sizes for unbalanced designs}
+
+\item{df_effects}{Degrees of freedom for each effect (consider removing)}
+
+\item{tolerance}{Convergence tolerance for optimization}
 
 \item{typeSS}{Type of sums of squares (2 or 3)}
 
@@ -60,11 +62,15 @@ optim_aov(
 
 \item{cooling_rate}{Cooling rate per iteration}
 
-\item{pb_update_interval}{Progress bar update interval; auto if NA}
+\item{max_step}{Proportion; The maximum step size for modifications as proportion of the range}
+
+\item{progress_bar}{Show progress bar if TRUE}
 
 \item{max_starts}{Number of annealing restarts}
 
 \item{checkGrim}{Logical; perform GRIM checks on target means}
+
+\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the target}
 }
 \value{
 A "discourse.object" list with optimized data, error, inputs, and trace

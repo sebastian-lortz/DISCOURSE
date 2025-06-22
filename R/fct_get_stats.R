@@ -4,19 +4,23 @@
 #' @return List containing model fit and summary stats or ANOVA/F stats or vectors
 #' @export
 get_stats <- function(result) {
+  if (!inherits(result, "discourse.object")) {
+    stop("Input must be a discourse.object.")
+  }
   # prepare data frame
   data_df <- as.data.frame(result$data)
 
   # regression-based branch
   if (!is.null(result$inputs$target_reg)) {
     eq <- result$inputs$reg_equation
-    if (!is.null(result$inputs$prob_within_move)) {
+    if (!is.null(result$inputs$move_prob)) {
       # mixed-effects model
-      model <- lme4::lmer(eq, data = data_df,
+      model <- lmerTest::lmer(eq, data = data_df,
                           control = lme4::lmerControl(check.conv.singular = "ignore"))
       fe      <- lme4::fixef(model)
-      re_sd   <- as.data.frame(lme4::VarCorr(model))$sdcor[2]
-      names(re_sd) <- "std.pnumber"
+      vc <- as.data.frame(lme4::VarCorr(model))
+      re_sd <- vc[vc$grp == "ID" & vc$var1 == "(Intercept)", "sdcor"]
+      names(re_sd) <- "std.ID"
       reg     <- c(fe, re_sd)
       se      <- summary(model)$coef[, "Std. Error"]
       wide    <- long_to_wide(data_df)
@@ -31,7 +35,7 @@ get_stats <- function(result) {
       sds   <- apply(data_df, 2, stats::sd)
     }
     # correlations
-    cor_mat  <- stats::cor(data_df[, !names(data_df) %in% c("pnumber", "time")])
+    cor_mat  <- stats::cor(data_df[, !names(data_df) %in% c("ID", "time")])
     cor_vals <- cor_mat[upper.tri(cor_mat)]
 
     return(list(
