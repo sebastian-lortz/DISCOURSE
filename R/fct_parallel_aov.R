@@ -129,50 +129,56 @@ parallel_aov <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
-  # detect cores and make cluster
-  cores <- parallel::detectCores() - 1
-  cl    <- parallel::makeCluster(cores)
-  doSNOW::registerDoSNOW(cl)
-  cat("\nParallel backend registered with:", cores, "cores.\n")
+  old_plan <- future::plan()
+  on.exit( future::plan(old_plan), add = TRUE )
 
-  # ensure cleanup on exit
-  on.exit({
-    parallel::stopCluster(cl)
-    gc()
-  })
+  cat("There are ", future::availableCores() , "available workers. \n")
+  real_cores <- future::availableCores()
+  n_workers  <- min(parallel_start, real_cores)
+  if (n_workers > 1L) {
+    future::plan(future::multisession, workers = n_workers)
+  } else {
+    future::plan(future::sequential)
+  }
+  cat("Running with", n_workers, "worker(s). \n")
 
-  # packages to load on workers
   pkgs <- c("discourse", "Rcpp")
 
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
-  # parallel optim_aov runs
-  values <- foreach::foreach(i = 1:parallel_start,
-                             .packages = pkgs,
-                             .errorhandling = "pass") %dopar% {
-      optim_aov(
-      N       = N,
-      levels            = levels,
-      subgroup_sizes    = subgroup_sizes,
-      target_group_means= target_group_means,
-      target_f_list      = target_f_list,
-      df_effects        = df_effects,
-      range             = range,
-      formula           = formula,
-      tolerance         = tolerance,
-      factor_type       = factor_type,
-      typeSS            = typeSS,
-      max_iter          = max_iter,
-      init_temp         = init_temp,
-      cooling_rate      = cooling_rate,
-      progress_bar      = FALSE,
-      integer           = integer,
-      max_starts        = max_starts,
-      checkGrim         = checkGrim,
-      max_step          = max_step
-    )
-                             }
-  str(values)
+
+  # parallel optim_aov
+  values <- future.apply::future_lapply(
+    X           = seq_len(parallel_start),
+    FUN         = function(i) {
+                                optim_aov(
+                                N       = N,
+                                levels            = levels,
+                                subgroup_sizes    = subgroup_sizes,
+                                target_group_means= target_group_means,
+                                target_f_list      = target_f_list,
+                                df_effects        = df_effects,
+                                range             = range,
+                                formula           = formula,
+                                tolerance         = tolerance,
+                                factor_type       = factor_type,
+                                typeSS            = typeSS,
+                                max_iter          = max_iter,
+                                init_temp         = init_temp,
+                                cooling_rate      = cooling_rate,
+                                progress_bar      = FALSE,
+                                integer           = integer,
+                                max_starts        = max_starts,
+                                checkGrim         = checkGrim,
+                                max_step          = max_step
+                              )
+                             },
+  future.seed = TRUE    # safe RNG in each worker
+  #packages    = pkgs,
+  #error       = function(e) e
+  )
+
+
   cat(" finished.\n")
   stop_time <- Sys.time()
   cat("\nParallel optimization time was", stop_time - start_time, "\n")

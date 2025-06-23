@@ -124,29 +124,40 @@ parallel_lme <- function(
   }
 
   # Setup parallel backend
-  cores <- parallel::detectCores() - 1
-  cl    <- parallel::makeCluster(cores)
-  doSNOW::registerDoSNOW(cl)
-  cat("\nParallel backend registered with:", cores, "cores.\n")
+  #cores <- parallel::detectCores() - 1
+  #cl    <- parallel::makeCluster(cores)
+  #doSNOW::registerDoSNOW(cl)
+  #cat("\nParallel backend registered with:", cores, "cores.\n")
 
   # ensure cluster stop and cleanup on exit
-  on.exit({
-    parallel::stopCluster(cl)
-    gc()
-  })
+  #on.exit({
+  #  parallel::stopCluster(cl)
+  #  gc()
+  #})
 
-  # Define packages and fct for parallel workers
+  old_plan <- future::plan()
+  on.exit( future::plan(old_plan), add = TRUE )
+
+  cat("There are ", future::availableCores() , "available workers. \n")
+  real_cores <- future::availableCores()
+  n_workers  <- min(parallel_start, real_cores)
+  if (n_workers > 1L) {
+    future::plan(future::multisession, workers = n_workers)
+  } else {
+    future::plan(future::sequential)
+  }
+  cat("Running with", n_workers, "worker(s). \n")
+
+  # Define packages for parallel workers
   pkgs <- c("discourse", "Rcpp")
 
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
 
   # run optim_lme in parallel
-  values <- foreach::foreach(
-    i = 1:parallel_start,
-    .packages = pkgs,
-    .errorhandling = "pass"
-  ) %dopar% {
+  values <- future.apply::future_lapply(
+    X           = seq_len(parallel_start),
+    FUN         = function(i) {
     optim_lme(
       sim_data         = sim_data,
       target_cor       = target_cor,
@@ -163,12 +174,17 @@ parallel_lme <- function(
       move_prob        = move_prob,
       progress_bar     = FALSE
     )
-  }
-  str(values)
+    },
+    future.seed = TRUE    # safe RNG in each worker
+    #packages    = pkgs,
+    #error       = function(e) e
+  )
+  #str(values)
 
   cat(" finished.\n")
   stop_time <- Sys.time()
   cat("\nParallel optimization time was", stop_time - start_time, "\n")
+
   # return best solution if requested
   if (return_best_solution) {
     errors <- vapply(

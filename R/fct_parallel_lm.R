@@ -120,7 +120,11 @@ parallel_lm <- function(
   #  parallel::stopCluster(cl)
   #  gc()
   # })
-  cat("real worker number is ", future::availableCores())
+
+  old_plan <- future::plan()
+  on.exit( future::plan(old_plan), add = TRUE )
+
+  cat("There are ", future::availableCores() , "available workers. \n")
   real_cores <- future::availableCores()
   n_workers  <- min(parallel_start, real_cores)
   if (n_workers > 1L) {
@@ -128,7 +132,7 @@ parallel_lm <- function(
   } else {
     future::plan(future::sequential)
   }
-  cat("Running with", n_workers, "worker(s)…\n")
+  cat("Running with", n_workers, "worker(s). \n")
 
   # Define packages for parallel workers
   pkgs <- c("discourse", "Rcpp")
@@ -185,7 +189,6 @@ parallel_lm <- function(
   cat(" finished.\n")
   stop_time <- Sys.time()
   cat("\nParallel optimization time was", stop_time - start_time, "\n")
-  future::plan(future::sequential)
 
   # Return results
   if (return_best_solution) {
