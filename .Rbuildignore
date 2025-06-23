@@ -16,3 +16,5 @@ $run_dev.*
 ^app\.R$
 ^rsconnect$
 ^\.rscignore$
+^src/.*\.(o|so|dll)$
+^libs$

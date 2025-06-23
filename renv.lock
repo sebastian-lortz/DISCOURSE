@@ -1678,7 +1678,8 @@
       "RemoteUsername": "sebastian-lortz",
       "RemoteRepo": "discourse",
       "RemoteRef": "main",
-      "RemoteSha": "599fee5db16d1bf9f6fc396c31c508562de4d564"
+      "RemoteSha": "057690468416a7e73766d99555912efde500c07a",
+      "Remotes": "github::sebastian-lortz/discourse"
     },
     "doBy": {
       "Package": "doBy",
@@ -2974,38 +2975,6 @@
       "NeedsCompilation": "no",
       "Author": "Folashade Daniel [cre], Revolution Analytics [aut, cph], Steve Weston [aut]",
       "Maintainer": "Folashade Daniel <fdaniel@microsoft.com>",
-      "Repository": "CRAN"
-    },
-    "jose": {
-      "Package": "jose",
-      "Version": "1.2.1",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "JavaScript Object Signing and Encryption",
-      "Authors@R": "person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"),  email = \"jeroenooms@gmail.com\", comment = c(ORCID = \"0000-0002-4035-0289\"))",
-      "Description": "Read and write JSON Web Keys (JWK, rfc7517), generate and verify JSON Web Signatures (JWS, rfc7515) and encode/decode JSON Web Tokens (JWT, rfc7519) <https://datatracker.ietf.org/wg/jose/documents/>. These standards provide  modern signing and encryption formats that are natively supported by browsers via the JavaScript WebCryptoAPI <https://www.w3.org/TR/WebCryptoAPI/#jose>,  and used by services like OAuth 2.0, LetsEncrypt, and Github Apps.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://r-lib.r-universe.dev/jose",
-      "BugReports": "https://github.com/r-lib/jose/issues",
-      "Depends": [
-        "openssl (>= 1.2.1)"
-      ],
-      "Imports": [
-        "jsonlite"
-      ],
-      "RoxygenNote": "7.1.2",
-      "VignetteBuilder": "knitr",
-      "Suggests": [
-        "spelling",
-        "testthat",
-        "knitr",
-        "rmarkdown"
-      ],
-      "Encoding": "UTF-8",
-      "Language": "en-US",
-      "NeedsCompilation": "no",
-      "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>)",
-      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
       "Repository": "CRAN"
     },
     "jquerylib": {
@@ -5010,8 +4979,8 @@
     },
     "rsconnect": {
       "Package": "rsconnect",
-      "Version": "1.4.2",
-      "Source": "Repository",
+      "Version": "1.4.2.9000",
+      "Source": "GitHub",
       "Type": "Package",
       "Title": "Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io', and 'RPubs'",
       "Authors@R": "c( person(\"Aron\", \"Atkins\", , \"aron@posit.co\", role = c(\"aut\", \"cre\")), person(\"Toph\", \"Allen\", role = \"aut\"), person(\"Hadley\", \"Wickham\", role = \"aut\"), person(\"Jonathan\", \"McPherson\", role = \"aut\"), person(\"JJ\", \"Allaire\", role = \"aut\"), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
@@ -5034,10 +5003,9 @@
         "renv (>= 1.0.0)",
         "rlang (>= 1.0.0)",
         "rstudioapi (>= 0.5)",
+        "snowflakeauth",
         "tools",
         "yaml (>= 2.1.5)",
-        "RcppTOML",
-        "jose",
         "utils"
       ],
       "Suggests": [
@@ -5061,11 +5029,16 @@
       "Config/testthat/edition": "3",
       "Config/testthat/parallel": "true",
       "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2",
-      "NeedsCompilation": "no",
       "Author": "Aron Atkins [aut, cre], Toph Allen [aut], Hadley Wickham [aut], Jonathan McPherson [aut], JJ Allaire [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Aron Atkins <aron@posit.co>",
-      "Repository": "CRAN"
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "rsconnect",
+      "RemoteRef": "main",
+      "RemoteSha": "910342479932ae67486be62d011f0672ff7de259"
     },
     "rstudioapi": {
       "Package": "rstudioapi",
@@ -5398,6 +5371,37 @@
         "utils"
       ],
       "NeedsCompilation": "no",
+      "Repository": "CRAN"
+    },
+    "snowflakeauth": {
+      "Package": "snowflakeauth",
+      "Version": "0.1.2",
+      "Source": "Repository",
+      "Title": "Authentication Helpers for 'Snowflake'",
+      "Authors@R": "c( person(\"Aaron\", \"Jacobs\", , \"aaron.jacobs@posit.co\", role = c(\"aut\")), person(\"E. David\", \"Aja\", , \"david@posit.co\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "Authentication helpers for 'Snowflake'. It provides compatibility with authentication approaches supported by the 'Snowflake Connector for Python' <https://pypi.org/project/snowflake-connector-python> and the 'Snowflake CLI' <https://pypi.org/project/snowflake-cli>.",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "Imports": [
+        "cli",
+        "curl",
+        "jsonlite",
+        "RcppTOML",
+        "rlang"
+      ],
+      "Suggests": [
+        "jose",
+        "openssl",
+        "testthat (>= 3.0.0)",
+        "withr"
+      ],
+      "RoxygenNote": "7.3.2",
+      "Config/testthat/edition": "3",
+      "URL": "https://posit-dev.github.io/snowflakeauth/, https://github.com/posit-dev/snowflakeauth",
+      "BugReports": "https://github.com/posit-dev/snowflakeauth/issues",
+      "NeedsCompilation": "no",
+      "Author": "Aaron Jacobs [aut], E. David Aja [aut, cre], Posit Software, PBC [cph, fnd]",
+      "Maintainer": "E. David Aja <david@posit.co>",
       "Repository": "CRAN"
     },
     "sourcetools": {
