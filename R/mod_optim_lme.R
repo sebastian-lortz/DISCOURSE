@@ -171,7 +171,7 @@ mod_optim_lme_ui <- function(id) {
             div(
               id    = ns("processing_msg"),
               style = "display:none; margin:10px; font-weight:bold; color:#337ab7;",
-              "Processing, please wait…"
+              "Processing, please wait ..."
             ),
             textOutput(ns("status_text")),
             selectInput(ns("dataset_selector"), name_with_info("Select Dataset", "Choose the data set to inspect or download."),
@@ -373,7 +373,7 @@ mod_optim_lme_server <- function(id, root_session){
           message = "Need a data.frame in wide LME format.")
       var_time_cols <- grep(".*_.*", names(df), value = TRUE)
       req(ncol(df) >= 3 && length(var_time_cols) >= 2,
-          message = "Need at least two repeated‐measure columns named like V1_1, V1_2.")
+          message = "Need at least two repeated-measure columns named like V1_1, V1_2.")
       df <- wide_to_long(cbind(ID = seq_len(nrow(df)), df))
       df <- df[ , !(names(df) %in% c("ID","time")) ]
       vars <- colnames(df)

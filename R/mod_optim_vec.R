@@ -133,7 +133,7 @@ mod_optim_vec_ui <- function(id) {
             div(
               id    = ns("processing_msg"),
               style = "display:none; margin:10px; font-weight:bold; color:#337ab7;",
-              "Processing, please wait…"
+              "Processing, please wait ..."
             ),
             textOutput(ns("status_text")),
 
@@ -440,7 +440,7 @@ mod_optim_vec_server <- function(id, root_session) {
               width = 3,
               selectizeInput(
                 ns("run_select"),
-                name_with_info("Variable", "Select which variable's (i.e. run’s) error trajectory to plot."),
+                name_with_info("Variable", "Select which variable's (i.e. run's) error trajectory to plot."),
                 choices = rv$params$Variable,
                 selected = run_id,
                 options = list(dropdownParent = 'body'),

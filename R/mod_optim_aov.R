@@ -182,7 +182,7 @@ mod_optim_aov_ui <- function(id) {
           div(
             id    = ns("processing_msg"),
             style = "display:none; margin:10px; font-weight:bold; color:#337ab7;",
-            "Processing, please wait…"
+            "Processing, please wait ..."
           ),
           textOutput(ns("status_text")),
           selectInput(ns("dataset_selector"), name_with_info("Select Dataset", "Choose the data set to inspect or download."),

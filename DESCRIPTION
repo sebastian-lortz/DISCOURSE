@@ -18,7 +18,6 @@ Imports:
     dplyr,
     golem,
     htmltools,
-    magrittr,
     parallel,
     Rcpp,
     rhandsontable,

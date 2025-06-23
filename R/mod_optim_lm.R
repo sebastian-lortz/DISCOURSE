@@ -23,13 +23,10 @@ mod_optim_lm_ui <- function(id) {
       z-index: 9999 !important;
     }
     .rhandsontable .ht_master .htDropdownMenu .dropdown-menu {
-      /* no height limit */
       max-height: none !important;
-      /* let items wrap if needed */
       white-space: normal !important;
     }
     .rhandsontable .ht_master .htDropdownMenu table {
-      /* let the table grow wider if needed */
       width: auto !important;
     }
   "))
@@ -53,7 +50,7 @@ mod_optim_lm_ui <- function(id) {
                 margin-top: 6px;
                 font-size: 0.8em;
                 color: #444;
-                line-height: 1.1;              /* tighten inter-line spacing */
+                line-height: 1.1;
               ",
                 tags$style(HTML("
                 .shrink-p p { margin: 2px 0; }
@@ -165,7 +162,7 @@ mod_optim_lm_ui <- function(id) {
               div(
                 id    = ns("processing_msg_weight"),
                 style = "display:none; margin:10px; font-weight:bold; color:#337ab7;",
-                "Processing, please wait…"
+                "Processing, please wait ..."
               )
             )
         ),
@@ -180,7 +177,7 @@ mod_optim_lm_ui <- function(id) {
             div(
               id    = ns("processing_msg"),
               style = "display:none; margin:10px; font-weight:bold; color:#337ab7;",
-              "Processing, please wait…"
+              "Processing, please wait ..."
             ),
             textOutput(ns("status_text")),
             selectInput(ns("dataset_selector"), name_with_info("Select Dataset", "Choose the data set to inspect or download."),
