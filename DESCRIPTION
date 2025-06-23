@@ -46,6 +46,7 @@ Suggests:
 LinkingTo: 
     Rcpp,
     RcppArmadillo
+SystemRequirements: BLAS, LAPACK
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
