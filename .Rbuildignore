@@ -11,3 +11,6 @@ $run_dev.*
 ^doc$
 ^Meta$
 ^codecov\.yml$
+^app\.R$
+^rsconnect$
+^\.rscignore$

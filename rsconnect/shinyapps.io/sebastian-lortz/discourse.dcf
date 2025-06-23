@@ -1,0 +1,10 @@
+name: discourse
+title:
+username: sebastian-lortz
+account: sebastian-lortz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14976347
+bundleId:
+url: https://sebastian-lortz.shinyapps.io/discourse/
+version: 1

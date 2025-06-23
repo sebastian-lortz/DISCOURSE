@@ -13,19 +13,26 @@ output: github_document
 )
 ```
 
-# `{DISCOURSE}`
+# `{discourse}`
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Codecov test coverage](https://codecov.io/gh/sebastian-lortz/DISCOURSE/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/DISCOURSE)
+[![Codecov test coverage](https://codecov.io/gh/sebastian-lortz/discourse/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/discourse)
 <!-- badges: end -->
 
 ## Installation
 
-You can install the development version of `{DISCOURSE}` like so:
+You can install the development version of `{discourse}` like so:
 
 ```{r}
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install devtools if you don’t have it yet
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
+# install the development version from GitHub
+devtools::install_github("sebastian-lortz/discourse")
+
 ```
 
 ## Run
@@ -33,7 +40,7 @@ You can install the development version of `{DISCOURSE}` like so:
 You can launch the application by running:
 
 ```{r, eval = FALSE}
-DISCOURSE::run_app()
+discourse::run_app()
 ```
 
 ## About
@@ -53,7 +60,7 @@ devtools::check(quiet = TRUE)
 ```
 
 ```{r echo = FALSE}
-unloadNamespace("DISCOURSE")
+unloadNamespace("discourse")
 ```
 
 ```{r, error = TRUE}

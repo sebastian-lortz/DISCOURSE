@@ -11,8 +11,8 @@ We introduce the DISCOURSE framework – this algorithmic framework is designed 
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/sebastian-lortz/DISCOURSE}
-  \item Report bugs at \url{https://github.com/sebastian-lortz/DISCOURSE/issues}
+  \item \url{https://github.com/sebastian-lortz/discourse}
+  \item Report bugs at \url{https://github.com/sebastian-lortz/discourse/issues}
 }
 
 }

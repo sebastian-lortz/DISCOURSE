@@ -15,7 +15,7 @@ get_stats <- function(result) {
     eq <- result$inputs$reg_equation
     if (!is.null(result$inputs$move_prob)) {
       # mixed-effects model
-      model <- lmerTest::lmer(eq, data = data_df,
+      model <- lme4::lmer(eq, data = data_df,
                           control = lme4::lmerControl(check.conv.singular = "ignore"))
       fe      <- lme4::fixef(model)
       vc <- as.data.frame(lme4::VarCorr(model))

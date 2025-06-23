@@ -83,7 +83,7 @@ spelling::update_wordlist()
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("DISCOURSE")
+usethis::use_vignette("discourse")
 devtools::build_vignettes()
 
 ## Code Coverage----

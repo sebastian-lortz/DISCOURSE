@@ -1,8 +1,8 @@
 ---
-title: "DISCOURSE"
+title: "discourse"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{DISCOURSE}
+  %\VignetteIndexEntry{discourse}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

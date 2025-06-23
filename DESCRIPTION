@@ -1,47 +1,46 @@
 Package: discourse
 Title: Data-simulation via Iterative Stochastic Combinatorial Optimization
     Using Reported Summary Estimates
-Version: 0.0.0.9000
+Version: 0.0.1.000
 Authors@R:
     person("Sebastian A. J.", "Lortz", , "s.a.j.lortz@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0007-0281-7996"))
 Description: We introduce the DISCOURSE framework – this algorithmic
     framework is designed to reconstruct complete data sets solely from
-    summary statistics.  It provides researchers with a tool to follow-up analyses even when raw data are
-    unavailable.
+    summary statistics.  It provides researchers with a tool to follow-up
+    analyses even when raw data are unavailable.
 License: MIT + file LICENSE
-URL: https://github.com/sebastian-lortz/DISCOURSE
-BugReports: https://github.com/sebastian-lortz/DISCOURSE/issues
+URL: https://github.com/sebastian-lortz/discourse
+BugReports: https://github.com/sebastian-lortz/discourse/issues
 Imports: 
+    afex,
     car,
     config,
+    doSNOW,
     dplyr,
+    emmeans,
+    foreach,
+    ggplot2,
     golem,
     htmltools,
+    lme4,
     parallel,
+    pso,
     Rcpp,
     rhandsontable,
     rlang,
     shiny,
     shinyjs,
     shinyWidgets,
+    stats,
     tidyr,
     tidyselect,
-    utils,
-    foreach,
-    doSNOW,
-    afex,
-    emmeans,
-    pso,
-    stats,
-    lme4,
-    lmerTest
+    utils
 Suggests: 
     knitr,
     rmarkdown,
     spelling,
-    testthat (>= 3.0.0),
-    ggplot2
+    testthat (>= 3.0.0)
 LinkingTo: 
     Rcpp,
     RcppArmadillo
