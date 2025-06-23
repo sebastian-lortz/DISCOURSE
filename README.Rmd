@@ -24,7 +24,7 @@ output: github_document
 
 You can install the development version of `{discourse}` like so:
 
-```{r}
+```{r install-from-github, eval = FALSE, echo = TRUE}
 # install devtools if you don’t have it yet
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
