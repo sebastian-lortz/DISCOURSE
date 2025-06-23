@@ -1665,6 +1665,7 @@
         "Rcpp",
         "RcppArmadillo"
       ],
+      "SystemRequirements": "BLAS, LAPACK",
       "VignetteBuilder": "knitr",
       "Config/testthat/edition": "3",
       "Encoding": "UTF-8",
@@ -1678,7 +1679,7 @@
       "RemoteUsername": "sebastian-lortz",
       "RemoteRepo": "discourse",
       "RemoteRef": "main",
-      "RemoteSha": "057690468416a7e73766d99555912efde500c07a",
+      "RemoteSha": "68cf48a56c8b8b43de98bbcba153adfd1a78ba63",
       "Remotes": "github::sebastian-lortz/discourse"
     },
     "doBy": {
