@@ -20,6 +20,7 @@ run_app <- function(
     future::multisession,
     workers = max(1, parallel::detectCores() - 1)
     )
+  cat("worker number is ", parallel::detectCores() - 1)
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
