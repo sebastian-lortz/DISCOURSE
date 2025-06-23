@@ -9,3 +9,6 @@ inst/doc
 /Meta/
 ^src/.*\.(o|so|dll)$
 ^libs$
+src/*.o
+src/*.so
+libs/
