@@ -22,59 +22,8 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 }
 
 # install the development version from GitHub
-devtools::install_github("sebastian-lortz/discourse")
-#> Using GitHub PAT from the git credential store.
-#> Downloading GitHub repo sebastian-lortz/discourse@HEAD
-#> utf8         (1.2.4    -> 1.2.6   ) [CRAN]
-#> pillar       (1.10.1   -> 1.10.2  ) [CRAN]
-#> tibble       (3.2.1    -> 3.3.0   ) [CRAN]
-#> scales       (1.3.0    -> 1.4.0   ) [CRAN]
-#> rlang        (1.1.5    -> 1.1.6   ) [CRAN]
-#> Rdpack       (2.6.2    -> 2.6.4   ) [CRAN]
-#> reformulas   (0.4.0    -> 0.4.1   ) [CRAN]
-#> nloptr       (2.1.1    -> 2.2.1   ) [CRAN]
-#> stringi      (1.8.4    -> 1.8.7   ) [CRAN]
-#> cpp11        (0.5.1    -> 0.5.2   ) [CRAN]
-#> ggplot2      (3.5.1    -> 3.5.2   ) [CRAN]
-#> Deriv        (4.1.6    -> 4.2.0   ) [CRAN]
-#> purrr        (1.0.2    -> 1.0.4   ) [CRAN]
-#> generics     (0.1.3    -> 0.1.4   ) [CRAN]
-#> MatrixModels (0.5-3    -> 0.5-4   ) [CRAN]
-#> doBy         (4.6.24   -> 4.6.27  ) [CRAN]
-#> broom        (1.0.7    -> 1.0.8   ) [CRAN]
-#> quantreg     (5.99.1   -> 6.1     ) [CRAN]
-#> pbkrtest     (0.5.3    -> 0.5.4   ) [CRAN]
-#> fs           (1.6.5    -> 1.6.6   ) [CRAN]
-#> sass         (0.4.9    -> 0.4.10  ) [CRAN]
-#> bslib        (0.8.0    -> 0.9.0   ) [CRAN]
-#> promises     (1.3.2    -> 1.3.3   ) [CRAN]
-#> later        (1.4.1    -> 1.4.2   ) [CRAN]
-#> jsonlite     (1.8.9    -> 2.0.0   ) [CRAN]
-#> mime         (0.12     -> 0.13    ) [CRAN]
-#> httpuv       (1.6.15   -> 1.6.16  ) [CRAN]
-#> tinytex      (0.54     -> 0.57    ) [CRAN]
-#> evaluate     (1.0.1    -> 1.0.4   ) [CRAN]
-#> knitr        (1.49     -> 1.50    ) [CRAN]
-#> mvtnorm      (1.3-2    -> 1.3-3   ) [CRAN]
-#> RcppArmad... (14.2.3-1 -> 14.4.3-1) [CRAN]
-#> emmeans      (1.10.7   -> 1.11.1  ) [CRAN]
-#> Installing 33 packages: utf8, pillar, tibble, scales, rlang, Rdpack, reformulas, nloptr, stringi, cpp11, ggplot2, Deriv, purrr, generics, MatrixModels, doBy, broom, quantreg, pbkrtest, fs, sass, bslib, promises, later, jsonlite, mime, httpuv, tinytex, evaluate, knitr, mvtnorm, RcppArmadillo, emmeans
-#> Installing packages into '/private/var/folders/tt/dhl_zln57k19qn1d4t5xvhw40000gn/T/Rtmp1c0vmV/temp_libpath107374dd5928'
-#> (as 'lib' is unspecified)
-#> 
-#> The downloaded binary packages are in
-#>  /var/folders/tt/dhl_zln57k19qn1d4t5xvhw40000gn/T//Rtmp1JcbrK/downloaded_packages
-#> ── R CMD build ─────────────────────────────────────────────────────────────────
-#> * checking for file ‘/private/var/folders/tt/dhl_zln57k19qn1d4t5xvhw40000gn/T/Rtmp1JcbrK/remotes1175d4699199a/sebastian-lortz-discourse-35022cf/DESCRIPTION’ ... OK
-#> * preparing ‘discourse’:
-#> * checking DESCRIPTION meta-information ... OK
-#> * cleaning src
-#> * checking for LF line-endings in source and make files and shell scripts
-#> * checking for empty or unneeded directories
-#> Omitted ‘LazyData’ from DESCRIPTION
-#> * building ‘discourse_0.0.0.9000.tar.gz’
-#> Installing package into '/private/var/folders/tt/dhl_zln57k19qn1d4t5xvhw40000gn/T/Rtmp1c0vmV/temp_libpath107374dd5928'
-#> (as 'lib' is unspecified)
+devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
+#> Installing 33 packages: rlang, utf8, pillar, stringi, tibble, generics, fs, sass, bslib, promises, later, jsonlite, mime, httpuv, tinytex, evaluate, knitr, Rdpack, reformulas, nloptr, MatrixModels, cpp11, scales, ggplot2, Deriv, purrr, doBy, broom, quantreg, pbkrtest, mvtnorm, RcppArmadillo, emmeans
 ```
 
 ## Run
@@ -93,7 +42,7 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-23 10:47:50 CEST"
+#> [1] "2025-06-23 10:53:25 CEST"
 ```
 
 Here are the tests results and package coverage:
@@ -102,7 +51,7 @@ Here are the tests results and package coverage:
 devtools::check(quiet = TRUE)
 #> ℹ Loading discourse
 #> ── R CMD check results ──────────────────────────────── discourse 0.0.1.000 ────
-#> Duration: 21.6s
+#> Duration: 21.3s
 #> 
 #> 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```

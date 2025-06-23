@@ -31,7 +31,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 }
 
 # install the development version from GitHub
-devtools::install_github("sebastian-lortz/discourse")
+devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
 
 ```
 
