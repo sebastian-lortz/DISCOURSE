@@ -110,16 +110,16 @@ parallel_lm <- function(
   }
 
   # Setup parallel backend
-  cores <- parallel::detectCores() - 1
-  cl    <- parallel::makeCluster(cores)
-  doSNOW::registerDoSNOW(cl)
-  cat("\nParallel backend registered with:", cores, "cores.\n")
+  # cores <- parallel::detectCores() - 1
+  # cl    <- parallel::makeCluster(cores)
+  # doSNOW::registerDoSNOW(cl)
+  # cat("\nParallel backend registered with:", cores, "cores.\n")
 
   # ensure cluster stop and cleanup on exit
-  on.exit({
-    parallel::stopCluster(cl)
-    gc()
-  })
+  # on.exit({
+  #  parallel::stopCluster(cl)
+  #  gc()
+  # })
 
   # Define packages for parallel workers
   pkgs <- c("discourse", "Rcpp")
@@ -128,26 +128,51 @@ parallel_lm <- function(
   start_time <- Sys.time()
 
   # Run parallel optimization
-  values <- foreach::foreach(i = 1:parallel_start,
-                             .packages = pkgs,
-                             .errorhandling = "pass") %dopar% {
-                               optim_lm(
-                                 sim_data = sim_data,
-                                 target_cor = target_cor,
-                                 target_reg = target_reg,
-                                 reg_equation = reg_equation,
-                                 target_se = target_se,
-                                 weight = weight,
-                                 max_iter = max_iter,
-                                 init_temp = init_temp,
-                                 cooling_rate = cooling_rate,
-                                 tol = tol,
-                                 prob_global_move = prob_global_move,
-                                 max_starts = max_starts,
-                                 hill_climbs = hill_climbs,
-                                 progress_bar = FALSE
-                               )
-                             }
+  # values <- foreach::foreach(i = 1:parallel_start,
+  #                           .packages = pkgs,
+  #                           .errorhandling = "pass") %dopar% {
+  #                             optim_lm(
+  #                               sim_data = sim_data,
+  #                               target_cor = target_cor,
+  #                               target_reg = target_reg,
+  #                               reg_equation = reg_equation,
+  #                               target_se = target_se,
+  #                               weight = weight,
+  #                               max_iter = max_iter,
+   #                              init_temp = init_temp,
+    #                             cooling_rate = cooling_rate,
+     #                            tol = tol,
+      #                           prob_global_move = prob_global_move,
+       #                          max_starts = max_starts,
+        #                         hill_climbs = hill_climbs,
+         #                        progress_bar = FALSE
+          #                     )
+           #                  }
+  values <- future.apply::future_lapply(
+    X           = seq_len(parallel_start),
+    FUN         = function(i) {
+      optim_lm(
+        sim_data         = sim_data,
+        target_cor       = target_cor,
+        target_reg       = target_reg,
+        reg_equation     = reg_equation,
+        target_se        = target_se,
+        weight           = weight,
+        max_iter         = max_iter,
+        init_temp        = init_temp,
+        cooling_rate     = cooling_rate,
+        tol              = tol,
+        prob_global_move = prob_global_move,
+        max_starts       = max_starts,
+        hill_climbs      = hill_climbs,
+        progress_bar     = FALSE
+      )
+    },
+    future.seed = TRUE    # safe RNG in each worker
+    #packages    = pkgs,
+    #error       = function(e) e
+  )
+
   cat(" finished.\n")
   stop_time <- Sys.time()
   cat("\nParallel optimization time was", stop_time - start_time, "\n")

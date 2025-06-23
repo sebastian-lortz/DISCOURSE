@@ -22,6 +22,8 @@ Imports:
     dplyr,
     emmeans,
     foreach,
+    future,
+    future.apply,
     ggplot2,
     golem,
     htmltools,

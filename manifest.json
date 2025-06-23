@@ -4943,7 +4943,7 @@
   },
   "files": {
     ".Rbuildignore": {
-      "checksum": "78a5913fae93dc1cb891ed5b9559ebd4"
+      "checksum": "012afb2ec7ce7d1ef1f85d2d2aa608ea"
     },
     "app.R": {
       "checksum": "5cf6be1632f530221a40ad14c0f38edb"
@@ -4989,9 +4989,6 @@
     },
     "inst/WORDLIST": {
       "checksum": "da74bb308a8715a6c0b7ee0f57892000"
-    },
-    "Meta/vignette.rds": {
-      "checksum": "708a06ff28a624f331b1996f66cc87ca"
     },
     "NAMESPACE": {
       "checksum": "85904d3bb7713fe10dce95517153b7bd"
@@ -5113,23 +5110,14 @@
     "renv.lock": {
       "checksum": "313c25abf821e2024d2cc4ec48c14d4c"
     },
-    "src/discourse.so": {
-      "checksum": "39dd177295be57b376577ee0c1f7ec2d"
-    },
     "src/helpers.cpp": {
       "checksum": "14a251d6e23dff47705e09fad87bf184"
-    },
-    "src/helpers.o": {
-      "checksum": "b4d6ecd45f32c55ffac9f536a2755259"
     },
     "src/Makevars": {
       "checksum": "86422ed58742e4d4f9b3d3c58d01ab7f"
     },
     "src/RcppExports.cpp": {
       "checksum": "2515311c226321988dfc3d13a229191d"
-    },
-    "src/RcppExports.o": {
-      "checksum": "e7733381c4a7175635090cea617a50cb"
     }
   },
   "users": null

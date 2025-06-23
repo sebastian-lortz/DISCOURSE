@@ -623,7 +623,7 @@ mod_optim_lm_server <- function(id, root_session){
       }
       if (parallel_start > 1) {
         rv$result <- do.call(parallel_lm, fn_args)
-      } else {
+        } else {
         seq_args <- fn_args[names(fn_args) %in% names(formals(optim_lm))]
         rv$result <- do.call(optim_lm, seq_args)
       }
