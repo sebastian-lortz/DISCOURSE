@@ -1287,18 +1287,18 @@
         "RoxygenNote": "7.3.2",
         "Author": "Sebastian A. J. Lortz [aut, cre]\n    (<https://orcid.org/0009-0007-0281-7996>)",
         "Maintainer": "Sebastian A. J. Lortz <s.a.j.lortz@gmail.com>",
-        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-23 14:15:04 UTC; unix",
+        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-23 14:24:23 UTC; unix",
         "RemoteType": "github",
         "RemoteHost": "api.github.com",
         "RemoteUsername": "sebastian-lortz",
         "RemoteRepo": "discourse",
         "RemoteRef": "main",
-        "RemoteSha": "4ea57c495538b16a2aed3779cd287d21825b6922",
+        "RemoteSha": "7c0e6418015a5e03d081a92adbdb67c490ae0ce7",
         "GithubHost": "api.github.com",
         "GithubRepo": "discourse",
         "GithubUsername": "sebastian-lortz",
         "GithubRef": "main",
-        "GithubSHA1": "4ea57c495538b16a2aed3779cd287d21825b6922",
+        "GithubSHA1": "7c0e6418015a5e03d081a92adbdb67c490ae0ce7",
         "Remotes": "github::sebastian-lortz/discourse"
       }
     },
@@ -5079,7 +5079,7 @@
   },
   "files": {
     ".Rbuildignore": {
-      "checksum": "012afb2ec7ce7d1ef1f85d2d2aa608ea"
+      "checksum": "c94651d2ef877752e534434abbaf354c"
     },
     "app.R": {
       "checksum": "5cf6be1632f530221a40ad14c0f38edb"
@@ -5243,11 +5243,11 @@
     "R/utils_server.R": {
       "checksum": "11579cb4dd811370dfb029acf916a507"
     },
-    "renv.lock": {
-      "checksum": "26e92b993661fda8b55a00b2b4a1ea54"
+    "R/zzz..R": {
+      "checksum": "be6fb7651b19d7a4d4de64e4220a6150"
     },
-    "src/discourse.so": {
-      "checksum": "c981c72ab9f03acf96d44a0931cc8729"
+    "renv.lock": {
+      "checksum": "c9dbf4a9d5e2b9cebc249deed2a628be"
     },
     "src/helpers.cpp": {
       "checksum": "14a251d6e23dff47705e09fad87bf184"

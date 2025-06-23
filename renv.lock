@@ -1681,7 +1681,7 @@
       "RemoteUsername": "sebastian-lortz",
       "RemoteRepo": "discourse",
       "RemoteRef": "main",
-      "RemoteSha": "4ea57c495538b16a2aed3779cd287d21825b6922",
+      "RemoteSha": "7c0e6418015a5e03d081a92adbdb67c490ae0ce7",
       "Remotes": "github::sebastian-lortz/discourse"
     },
     "doBy": {

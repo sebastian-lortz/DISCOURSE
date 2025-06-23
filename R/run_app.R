@@ -16,11 +16,6 @@ run_app <- function(
 ) {
   Sys.setlocale("LC_NUMERIC", "C")
   options(OutDec = ".")
-  future::plan(
-    future::multisession,
-    workers = max(1, parallel::detectCores() - 1)
-    )
-  cat("worker number is ", parallel::detectCores() - 1)
   with_golem_options(
     app = shinyApp(
       ui = app_ui,

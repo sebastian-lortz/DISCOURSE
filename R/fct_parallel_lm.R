@@ -120,6 +120,11 @@ parallel_lm <- function(
   #  parallel::stopCluster(cl)
   #  gc()
   # })
+  cat("worker number is ", parallel::detectCores() - 1)
+  future::plan(
+    future::multisession,
+    workers = max(1, parallel::detectCores() - 1)
+  )
 
   # Define packages for parallel workers
   pkgs <- c("discourse", "Rcpp")
