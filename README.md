@@ -16,14 +16,10 @@ coverage](https://codecov.io/gh/sebastian-lortz/discourse/graph/badge.svg)](http
 You can install the development version of `{discourse}` like so:
 
 ``` r
-# install devtools if you don’t have it yet
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-
-# install the development version from GitHub
 devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
-#> Installing 33 packages: rlang, utf8, pillar, stringi, tibble, generics, fs, sass, bslib, promises, later, jsonlite, mime, httpuv, tinytex, evaluate, knitr, Rdpack, reformulas, nloptr, MatrixModels, cpp11, scales, ggplot2, Deriv, purrr, doBy, broom, quantreg, pbkrtest, mvtnorm, RcppArmadillo, emmeans
 ```
 
 ## Run

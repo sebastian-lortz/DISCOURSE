@@ -53,7 +53,7 @@ This README has been compiled on the
 Sys.time()
 ```
 
-Here are the tests results and package coverage:
+Here are the tests results and Namespace:
 
 ```{r, error = TRUE}
 devtools::check(quiet = TRUE)
@@ -61,8 +61,4 @@ devtools::check(quiet = TRUE)
 
 ```{r echo = FALSE}
 unloadNamespace("discourse")
-```
-
-```{r, error = TRUE}
-covr::package_coverage()
 ```
