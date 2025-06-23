@@ -42,6 +42,7 @@ golem::add_shinyserver_file()
 # install own package from Git and snapshot
 # FIRST find and delete all .o .so files
 # find . -type f -name '*.so'
+# find . -type f -name '*.o'
 # ./src/discourse.so
 # rm ./src/discourse.so
 
