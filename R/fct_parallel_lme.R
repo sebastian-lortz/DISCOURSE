@@ -147,7 +147,7 @@ parallel_lme <- function(
     .packages = pkgs,
     .errorhandling = "pass"
   ) %dopar% {
-    discourse::optim_lme(
+    optim_lme(
       sim_data         = sim_data,
       target_cor       = target_cor,
       target_reg       = target_reg,
