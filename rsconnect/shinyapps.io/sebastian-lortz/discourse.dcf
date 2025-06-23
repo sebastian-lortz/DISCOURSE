@@ -5,6 +5,6 @@ account: sebastian-lortz
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14976952
-bundleId: 10504081
+bundleId: 10504115
 url: https://sebastian-lortz.shinyapps.io/discourse/
 version: 1

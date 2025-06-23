@@ -40,6 +40,7 @@ golem::add_shinyserver_file()
 ## Deploy to Posit Connect or ShinyApps.io ----
 
 # install own package from Git and snapshot
+renv::install("rstudio/rsconnect")
 renv::install("github::sebastian-lortz/discourse")
 renv::snapshot(prompt = FALSE)
 
