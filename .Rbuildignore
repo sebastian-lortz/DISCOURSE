@@ -17,5 +17,5 @@
 ^rsconnect$
 ^\.rscignore$
 ^src/.*\.(o|so|dll)$
-^inst/libs$
+^inst/libs/.*\.(so|dll)$
 ^libs(/|$)

@@ -1287,18 +1287,18 @@
         "RoxygenNote": "7.3.2",
         "Author": "Sebastian A. J. Lortz [aut, cre]\n    (<https://orcid.org/0009-0007-0281-7996>)",
         "Maintainer": "Sebastian A. J. Lortz <s.a.j.lortz@gmail.com>",
-        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-23 14:07:22 UTC; unix",
+        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-23 14:15:04 UTC; unix",
         "RemoteType": "github",
         "RemoteHost": "api.github.com",
         "RemoteUsername": "sebastian-lortz",
         "RemoteRepo": "discourse",
         "RemoteRef": "main",
-        "RemoteSha": "188c9c2fabdb19c06dcf5bfcd00e18b8d0922852",
+        "RemoteSha": "4ea57c495538b16a2aed3779cd287d21825b6922",
         "GithubHost": "api.github.com",
         "GithubRepo": "discourse",
         "GithubUsername": "sebastian-lortz",
         "GithubRef": "main",
-        "GithubSHA1": "188c9c2fabdb19c06dcf5bfcd00e18b8d0922852",
+        "GithubSHA1": "4ea57c495538b16a2aed3779cd287d21825b6922",
         "Remotes": "github::sebastian-lortz/discourse"
       }
     },
@@ -5127,13 +5127,10 @@
       "checksum": "da74bb308a8715a6c0b7ee0f57892000"
     },
     "NAMESPACE": {
-      "checksum": "cc2c4170fae0563825b211ce5dc64ad8"
+      "checksum": "85904d3bb7713fe10dce95517153b7bd"
     },
     "R/_disable_autoload.R": {
       "checksum": "1178c335d6c11555fd1c4ec6098dfee6"
-    },
-    "R/00_global.R": {
-      "checksum": "5d7dbd8b9b26c339b4b8c84bd2be2f4e"
     },
     "R/app_config.R": {
       "checksum": "1841469456da370110e06960078f6508"
@@ -5235,7 +5232,7 @@
       "checksum": "b93f953a380019143f1d4054278ceba6"
     },
     "R/run_app.R": {
-      "checksum": "98145465ba15f0ece2a65b8ba183e319"
+      "checksum": "4fd16bf7f7e289a5a57e1eda9381f0b1"
     },
     "R/utils_helpers_export.R": {
       "checksum": "5555057fadc2a6ddb338c5e61e7956f8"
@@ -5247,7 +5244,7 @@
       "checksum": "11579cb4dd811370dfb029acf916a507"
     },
     "renv.lock": {
-      "checksum": "3422345975613a18fa1772450537acec"
+      "checksum": "26e92b993661fda8b55a00b2b4a1ea54"
     },
     "src/discourse.so": {
       "checksum": "c981c72ab9f03acf96d44a0931cc8729"
