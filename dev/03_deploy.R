@@ -39,11 +39,13 @@ golem::add_shinyserver_file()
 
 ## Deploy to Posit Connect or ShinyApps.io ----
 
+# install own package from Git and snapshot
+renv::install("github::sebastian-lortz/discourse")
+renv::snapshot(prompt = FALSE)
+
 ## Add/update manifest file (optional; for Git backed deployment on Posit )
 rsconnect::writeManifest()
 
-renv::install("github::sebastian-lortz/discourse")
-renv::snapshot(prompt = FALSE)
 
 ## In command line.
 rsconnect::deployApp(

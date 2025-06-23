@@ -7,7 +7,5 @@
 inst/doc
 /doc/
 /Meta/
-*.o
-*.so
-*.dll
-libs/
+^src/.*\.(o|so|dll)$
+^libs$
