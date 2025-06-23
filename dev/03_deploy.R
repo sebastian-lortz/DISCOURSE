@@ -41,9 +41,9 @@ golem::add_shinyserver_file()
 
 # install own package from Git and snapshot
 # FIRST find and delete all .o .so files
-# RN-145-90-175-7:DISCOURSE lortz$ find . -type f -name '*.so'
+# find . -type f -name '*.so'
 # ./src/discourse.so
-# RN-145-90-175-7:DISCOURSE lortz$ rm ./src/discourse.so
+# rm ./src/discourse.so
 
 # THEN commit and push!
 
