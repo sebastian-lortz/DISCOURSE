@@ -12,6 +12,8 @@ Description: We introduce the DISCOURSE framework – this algorithmic
 License: MIT + file LICENSE
 URL: https://github.com/sebastian-lortz/discourse
 BugReports: https://github.com/sebastian-lortz/discourse/issues
+Remotes:
+    github::sebastian-lortz/discourse
 Imports: 
     afex,
     car,
