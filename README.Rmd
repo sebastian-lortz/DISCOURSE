@@ -26,11 +26,9 @@ You can install the development version of `{discourse}` like so:
 
 ```{r install-from-github, eval = FALSE, echo = TRUE}
 # install devtools if you don’t have it yet
-if (!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools")
-}
+if (!requireNamespace("devtools", quietly = TRUE)) {install.packages("devtools")}
 
-# install the development version from GitHub
+# install the latest version from GitHub
 devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
 
 ```
@@ -53,11 +51,7 @@ This README has been compiled on the
 Sys.time()
 ```
 
-Here are the tests results and Namespace:
-
-```{r, error = TRUE}
-devtools::check(quiet = TRUE)
-```
+Here is the Namespace:
 
 ```{r echo = FALSE}
 unloadNamespace("discourse")

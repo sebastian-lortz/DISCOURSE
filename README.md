@@ -17,11 +17,9 @@ You can install the development version of `{discourse}` like so:
 
 ``` r
 # install devtools if you don’t have it yet
-if (!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools")
-}
+if (!requireNamespace("devtools", quietly = TRUE)) {install.packages("devtools")}
 
-# install the development version from GitHub
+# install the latest version from GitHub
 devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
 ```
 
@@ -41,16 +39,7 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-23 12:39:13 CEST"
+#> [1] "2025-06-25 14:59:58 CEST"
 ```
 
-Here are the tests results and Namespace:
-
-``` r
-devtools::check(quiet = TRUE)
-#> ℹ Loading discourse
-#> ── R CMD check results ──────────────────────────────── discourse 0.0.1.000 ────
-#> Duration: 20.8s
-#> 
-#> 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
-```
+Here is the Namespace:
