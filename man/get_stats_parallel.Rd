@@ -2,16 +2,24 @@
 % Please edit documentation in R/fct_get_stats_parallel.R
 \name{get_stats_parallel}
 \alias{get_stats_parallel}
-\title{Aggregate stats across discourse.object runs}
+\title{Aggregate statistics across discourse.object runs}
 \usage{
 get_stats_parallel(object_list)
 }
 \arguments{
-\item{object_list}{List of discourse.object}
+\item{object_list}{A `list` of `discourse.object` instances. Outputs from functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).}
 }
 \value{
-List of data.frames with mean, median, sd, min, max per component
+A `list` of `data.frame` objects. Each data.frame corresponds to one numeric component (e.g., `reg`, `se`, `cor`, `mean`, `sd`), and contains columns:
+\describe{
+  \item{mean}{Numeric. Mean of the component across runs.}
+  \item{med}{Numeric. Median of the component across runs.}
+  \item{sd}{Numeric. Standard deviation across runs.}
+  \item{min}{Numeric. Minimum value observed across runs.}
+  \item{max}{Numeric. Maximum value observed across runs.}
+}
 }
 \description{
-Aggregate stats across discourse.object runs
+Computes summary metrics (mean, median, standard deviation, minimum, and maximum)
+for each numeric output component across multiple `discourse.object` results.
 }

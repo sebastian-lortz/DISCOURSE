@@ -1,12 +1,25 @@
-#' plot_summary: visualize discrepancies between simulated and target statistics
-#' @description Create a faceted point plot of centered differences
-#' @param discourse_obj A discourse.object containing inputs$target_* and data
-#' @param standardised Logical; if TRUE, differences are divided by target values
-#' @param eps Numeric; threshold below which target is treated as zero
-#' @return A ggplot2 object showing (simulated - target) or standardized differences
+#' Plot Summary of Simulated vs. Target Statistics for a discourse.object
+#'
+#' Visualizes discrepancies between simulated and target summary statistics
+#' (e.g., means, SDs, F-values, correlations, regression coefficients) for a single `discourse.object`.
+#'
+#' @param discourse_obj A `discourse.object` produced by `optim_*` functions,
+#'   containing both simulated data/results and `inputs$target_*` values.
+#' @param standardised Logical; if `TRUE`, differences are divided by target values
+#'   (except when targets are near zero); default `TRUE`.
+#' @param eps Numeric; threshold below which a target is treated as zero for standardisation;
+#'   default `1e-12`.
+#'
+#' @return A `ggplot2` object.
+#'
+#' @example
+#' res <- optim_aov(...)
+#' plot_summary(res, standardised = FALSE)
+#'
 #' @importFrom rlang .data
+#' @import ggplot2
+#' @import dplyr
 #' @export
-
 plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
 
   # input check
@@ -26,6 +39,25 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     stop("`ggplot2` is needed to plot summaries; please install it.")
   }
 
+  # theme
+  apa_theme <- ggplot2::theme_minimal(base_size = 12, base_family = "Helvetica") +
+    ggplot2::theme(
+      panel.grid.major = ggplot2::element_line(color = "gray90"),
+      plot.title       = ggplot2::element_text(face = "bold", size = 14, hjust = 0),
+      axis.text        = ggplot2::element_text(color = "black")
+    )
+  y_label <- if (standardised) {
+    "((Simulated - Target) / Target)"
+  } else {
+    "Simulated - Target"
+  }
+  title_prefix <- if (standardised) {
+    "Standardised"
+  } else {
+    "Unstandardised"
+  }
+
+  # helper
   compute_centered <- function(sim, target) {
     if (standardised) {
       ifelse(abs(target) < eps, sim - target, (sim - target) / target)
@@ -34,27 +66,7 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     }
   }
 
-  # theme
-  apa_theme <- ggplot2::theme_minimal(base_size = 12, base_family = "Helvetica") +
-    ggplot2::theme(
-      panel.grid.major = ggplot2::element_line(color = "gray90"),
-      plot.title       = ggplot2::element_text(face = "bold", size = 14, hjust = 0),
-      axis.text        = ggplot2::element_text(color = "black")
-    )
-
-  y_label <- if (standardised) {
-    "((Simulated - Target) / Target)"
-  } else {
-    "Simulated - Target"
-  }
-
-  title_prefix <- if (standardised) {
-    "Standardised"
-  } else {
-    "Unstandardised"
-  }
-
-  # lm and lme module
+  # data lm and lme module
   if (!is.null(discourse_obj$inputs$target_reg)) {
     target_reg <- discourse_obj$inputs$target_reg
     target_cor <- discourse_obj$inputs$target_cor
@@ -67,7 +79,6 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     sim_se   <- stats$se
     sim_reg_r <- round(sim_reg, reg_dec)
     sim_cor_r <- round(sim_cor, cor_dec)
-
     df_reg <- data.frame(
       Measure   = "Regression Coefficient",
       Variable  = names(target_reg),
@@ -80,7 +91,6 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       standardised & abs(df_reg$Target) < eps,
       "Unstandardized Diff", "Simulated"
     )
-
     var_names_cor <- names(target_cor)
     if (is.null(var_names_cor)) var_names_cor <- paste0("Cor", seq_along(target_cor))
     df_cor <- data.frame(
@@ -95,8 +105,6 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
       standardised & abs(df_cor$Target) < eps,
       "Unstandardized Diff", "Simulated"
     )
-
-    # standard errors
     if (!is.null(target_se)) {
       se_dec    <- max(count_decimals(target_se))
       sim_se_r  <- round(sim_se, se_dec)
@@ -120,14 +128,12 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     } else {
       df_se <- NULL
     }
-
     df_all <- dplyr::bind_rows(df_reg, df_cor, df_se) %>%
       dplyr::group_by(.data$Measure) %>%
       dplyr::mutate(
         Variable = factor(.data$Variable, levels = unique(.data$Variable))
       ) %>%
       dplyr::ungroup()
-
     if (any(df_all$SimulatedType == "Unstandardized Diff", na.rm = TRUE)) {
       warning(
         "One or more target values were practically 0; ",
@@ -165,7 +171,6 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     centered <- compute_centered(sim_F_r, target_F)
     effect_names <- names(target_F)
     if (is.null(effect_names)) effect_names <- paste0("Effect", seq_along(target_F))
-
     df <- data.frame(
       Measure   = "F Statistic",
       Variable  = effect_names,
@@ -200,7 +205,7 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
             strip.text = ggplot2::element_text(face = "bold"))
     return(p)
 
-    # Vec module
+    # vec module
   } else {
     target_mean <- discourse_obj$inputs$target_mean
     target_sd   <- discourse_obj$inputs$target_sd
@@ -216,7 +221,6 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     sim_data <- as.data.frame(discourse_obj$data)
     vars <- colnames(sim_data)
     if (is.null(vars)) vars <- names(target_mean)
-
     df <- data.frame(
       Variable  = rep(vars, 2),
       Measure   = rep(c("Mean", "SD"), each = length(vars)),
@@ -255,5 +259,3 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     return(p)
   }
 }
-
-

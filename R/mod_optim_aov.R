@@ -36,7 +36,10 @@ mod_optim_aov_ui <- function(id) {
               style = "display:inline-block; vertical-align:top; margin-right:10px;",
             wellPanel(
               h4("Reported Summary Statistics"),
-
+              numericInput(ns("N"),  name_with_info(
+                "Sample Size",
+                "The length of the target vectors.")
+                , 443, min = 10, step = 1),
                 p(tags$b(name_with_info(
                   "Factors",
                   "Define each factor: its name, # levels, and whether between- or within-subjects."
@@ -246,10 +249,10 @@ mod_optim_aov_server <- function(id){
       result = NULL,
       dirty = TRUE
     )
-    last_action <- reactiveVal(NULL)
 
     observeEvent({
       list(
+      input$N,
       input$factor_table,
       input$add_factor,
       input$remove_factor,
@@ -269,7 +272,6 @@ mod_optim_aov_server <- function(id){
       input$return_best)
     }, {
       rv$dirty <- TRUE
-      last_action(NULL)
       for (btn in c(
         "plot_error","get_rmse","get_rmse_parallel",
         "plot_summary","plot_rmse","plot_cooling",
@@ -458,22 +460,19 @@ mod_optim_aov_server <- function(id){
     observeEvent(input$run, {
       shinyjs::show("processing_msg")
       on.exit(shinyjs::hide("processing_msg"), add = TRUE)
-      lapply(c(  "factor_table", "add_factor", "remove_factor",
-                 "subgroup_table",
-                 "anova_table", "add_effect", "remove_effect",
-                 "main_effects", "inter_effects",
-                 "range", "integer", "typeSS",
-                 "tolerance", "max_iter", "init_temp",
-                 "cooling_rate", "max_step", "max_starts",
-                 "parallel_start", "return_best",
-                 "run","plot_error","get_rmse","get_rmse_parallel",
-                 "plot_summary","plot_rmse","plot_cooling",
-                 "display_data","download","dataset_selector"), shinyjs::disable)
-      rv$status <- "running"
       levels_int         <- as.integer(rv$factors$levels)
       target_group_means <- rv$subgroups$Mean
       subgroup_sizes     <- rv$subgroups$Size[rv$factors$type == "between"]
-      N                  <- sum(subgroup_sizes)
+      N                  <- input$N
+      total_subgroups <- sum(subgroup_sizes)
+      if (N != total_subgroups) {
+        showNotification(
+          sprintf("Total N (%d) must equal sum of subgroup sizes (%d).", N, total_subgroups),
+          type = "error"
+        )
+        return()
+      }
+
       aov_df             <- hot_to_r(input$anova_table)
       target_f_list      <- list(
         effect          = aov_df$effect,
@@ -522,15 +521,30 @@ mod_optim_aov_server <- function(id){
         max_starts           = max_starts,
         checkGrim            = checkGrim,
         parallel_start       = parallel_start,
-        return_best_solution = return_best_solution
+        return_best_solution = return_best_solution,
+        progress_mode        = "shiny"
       )
-      cat(paste(unlist(fn_args), collapse = ", "), "\n")
+      # cat(paste(unlist(fn_args), collapse = ", "), "\n")
+      lapply(c(  "factor_table", "add_factor", "remove_factor",
+                 "subgroup_table",
+                 "anova_table", "add_effect", "remove_effect",
+                 "main_effects", "inter_effects",
+                 "range", "integer", "typeSS",
+                 "tolerance", "max_iter", "init_temp",
+                 "cooling_rate", "max_step", "max_starts",
+                 "parallel_start", "return_best",
+                 "run","plot_error","get_rmse","get_rmse_parallel",
+                 "plot_summary","plot_rmse","plot_cooling",
+                 "display_data","download","dataset_selector"), shinyjs::disable)
+      rv$status <- "running"
+      withProgress(message = "Running optimization...", value = 0, {
       if (parallel_start > 1) {
         rv$result <- do.call(parallel_aov, fn_args)
         } else {
         seq_args <- fn_args[names(fn_args) %in% names(formals(optim_aov))]
         rv$result <- do.call(optim_aov, seq_args)
-      }
+        }
+      })
       is_parallel <- input$parallel_start > 1 && !input$return_best
       rv$status <- "done"
       rv$dirty <- FALSE
@@ -574,8 +588,9 @@ mod_optim_aov_server <- function(id){
 
     output$best_error <- renderTable({
       if (rv$dirty) return(NULL)
-      req(rv$result)
-      bes <- rv$result$best_error
+      ds <- selected_dataset()
+      req(ds)
+      bes <- ds$best_error
       is_conv <- (bes == 0) | (bes <= input$tolerance)
       disp <- ifelse(is_conv, "converged", format(bes))
       data.frame(
@@ -583,8 +598,10 @@ mod_optim_aov_server <- function(id){
         stringsAsFactors = FALSE,
         check.names = FALSE
       )
-    }, rownames = FALSE)
+    }, rownames = FALSE,
+    colnames = FALSE)
 
+    last_action <- reactiveVal(NULL)
     observeEvent(input$plot_error, last_action("plot_error"))
     observeEvent(input$get_rmse,       last_action("get_rmse"))
     observeEvent(input$get_rmse_parallel,  last_action("get_rmse_parallel"))
@@ -687,7 +704,6 @@ mod_optim_aov_server <- function(id){
 
     selected_dataset <- reactive({
       if (rv$dirty) return(NULL)
-      req(last_action())
       if (is.list(rv$result) && input$parallel_start > 1 && !input$return_best) {
         rv$result[[as.integer(input$dataset_selector)]]
       } else rv$result

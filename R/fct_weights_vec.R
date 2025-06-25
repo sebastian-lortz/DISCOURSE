@@ -1,19 +1,37 @@
-#' weights_vec
+#' Estimate weighting factors for mean and SD errors
+#'
+#' Computes quasi-optimal weights balancing mean and standard deviation errors for multiple variables
+#' by running Monte Carlo optimization to estimate relative baseline contribution of each term in the objective function.
 #'
 #' @description Compute weighting factors to match a target mean and SD across variables.
-#' @param N Sample size for generated vectors.
-#' @param target_mean Numeric vector of desired means.
-#' @param target_sd Numeric vector of desired standard deviations.
-#' @param range Numeric matrix (2 x length(target_mean)) specifying [min, max] for each variable.
-#' @param obj_weight Weighting for objective terms (mean vs. SD).
-#' @param int.probs Numeric; a list with a vector of sampling probabilities for each variable.
+#' @param N Integer. Number of values in each vector.
+#' @param target_mean Named numeric vector. Desired means for each variable (names identify columns).
+#' @param target_sd Named numeric vector. Desired standard deviations for each variable.
+#' @param range Numeric vector of length 2 or numeric matrix. Allowed value range for all variables (vector),
+#'   or per-variable bounds as a two-row matrix matching `target_mean`.
+#' @param obj_weight List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `c(1,1)`.
+#' @param int.probs List of numeric vectors, one per variable. Sampling probabilities for integer moves; NULL for uniform.
 #' @param integer Logical vector: TRUE for integer-valued vectors.
+#' @param eps Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.
 #' @param est_iter Number of Monte Carlo iterations to estimate weights.
-#' @param eps Small constant to avoid division by zero.
 #' @param max_weight Maximum allowed weight magnitude.
 #' @param metric Character: "mean" or "median" for summarizing estimated weights.
-#' @return A list of weight pairs (mean, SD) for each target variable.
+#'
+#' @return A list of length equal to `target_mean`, where each element is a numeric vector
+#'   of length 2 containing the estimated weights for mean vs. SD error for that variable.
+#'
+#' @example
+#' # Estimate weights
+#' weights_vec(
+#'   N = 100,
+#'   target_mean = c(5,10),
+#'   target_sd   = c(2,3),
+#'   integer     = c(TRUE,TRUE),
+#'   range       = matrix(c(0,15, 0,20), nrow = 2),
+#' )
+#'
 #' @export
+#'
 weights_vec <- function(N, target_mean, target_sd, range,
                         obj_weight = c(1, 1),
                         integer,

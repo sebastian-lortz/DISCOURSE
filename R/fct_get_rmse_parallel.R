@@ -1,6 +1,24 @@
 #' Compute RMSE metrics across discourse.object runs
-#' @param object_list A discourse.object or list thereof
-#' @return List with between-run and target RMSE summaries and raw values
+#'
+#' Calculates root-mean-square error (RMSE) metrics for both between-run variability and deviations
+#' from specified target values across one or more `discourse.object` results.
+#'
+#' @param object_list A `discourse.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`, `parallel_lme()`.
+#' @return A list with components:
+#' \describe{
+#'   \item{between_rmse}{A `data.frame` summarizing RMSE metrics (Mean_RMSE, SD_RMSE, Min_RMSE, Max_RMSE) for between-run differences (not taking into account targets).}
+#'   \item{target_rmse}{A `data.frame` summarizing RMSE metrics for deviations from the original target inputs (not taking into account the mean across runs).}
+#'   \item{data_rmse}{A `list` with raw RMSE values:
+#'     \describe{
+#'       \item{between}{Named numeric vector of between-run RMSEs (`rmse_cor`, `rmse_reg`, etc.).}
+#'       \item{target}{Named numeric vector of target-run RMSEs.}
+#'     }
+#'   }
+#' }
+#' @example
+#' # Multiple-run RMSE comparison
+#' result <- parallel_lm(args = ..., ...)
+#' get_rmse_parallel(result)
 #' @export
 get_rmse_parallel <- function(object_list) {
   # input checks
@@ -10,19 +28,17 @@ get_rmse_parallel <- function(object_list) {
   }
   first_obj <- object_list[[1]]
 
-  # branch 1: regression-based objects
+  # LM and LME module
   if (!is.null(first_obj$inputs$target_reg)) {
-    # collect computed stats from runs
     opt_metrics <- lapply(object_list, get_stats)
     n_runs      <- length(opt_metrics)
-    # determine rounding precision
+    # rounding
     target_cor <- first_obj$inputs$target_cor
     target_reg <- first_obj$inputs$target_reg
     target_se  <- first_obj$inputs$target_se
     cor_dec    <- max(count_decimals(target_cor))
     reg_dec    <- max(count_decimals(target_reg))
     se_dec     <- if (!is.null(target_se)) max(count_decimals(target_se))
-    # round each run's metrics
     opt_metrics <- lapply(opt_metrics, function(run) {
       list(
         cor = if (!is.null(target_cor)) round(run$cor, cor_dec),
@@ -43,9 +59,8 @@ get_rmse_parallel <- function(object_list) {
         )
       }
     }
-    # compute between-run RMSEs
+    # between-run RMSE
     between_differences <- lapply(opt_metrics, function(run) {
-      # recompute overall means inside loop (equivalent to original overall_mean)
       na.cor <- is.na(target_cor)
       na.reg <- is.na(target_reg)
       if (!is.null(target_se)) na.se <- is.na(target_se)
@@ -64,7 +79,6 @@ get_rmse_parallel <- function(object_list) {
     rmse_cor_vec <- sapply(between_differences, `[[`, "rmse_cor")
     rmse_reg_vec <- sapply(between_differences, `[[`, "rmse_reg")
     rmse_se_vec  <- sapply(between_differences, `[[`, "rmse_se")
-    # assemble between-run summary
     between_summary <- data.frame(
       Metric    = c("rmse_cor","rmse_reg","rmse_se"),
       Mean_RMSE = c(calc_summary(rmse_cor_vec)["Mean_RMSE"],
@@ -80,7 +94,7 @@ get_rmse_parallel <- function(object_list) {
                     calc_summary(rmse_reg_vec)["Max_RMSE"],
                     calc_summary(rmse_se_vec)["Max_RMSE"])
     )
-    # compute target-run RMSEs
+    # target-run RMSE
     target_differences <- lapply(opt_metrics, function(run) {
       diff_cor <- run$cor - target_cor
       diff_reg <- run$reg - target_reg
@@ -94,7 +108,6 @@ get_rmse_parallel <- function(object_list) {
     target_rmse_cor_vec <- sapply(target_differences, `[[`, "rmse_cor")
     target_rmse_reg_vec <- sapply(target_differences, `[[`, "rmse_reg")
     target_rmse_se_vec  <- sapply(target_differences, `[[`, "rmse_se")
-    # assemble target-run summary
     target_summary <- data.frame(
       Metric    = c("rmse_cor","rmse_reg","rmse_se"),
       Mean_RMSE = c(calc_summary(target_rmse_cor_vec)["Mean_RMSE"],
@@ -110,7 +123,7 @@ get_rmse_parallel <- function(object_list) {
                     calc_summary(target_rmse_reg_vec)["Max_RMSE"],
                     calc_summary(target_rmse_se_vec)["Max_RMSE"])
     )
-    # raw RMSE values
+    # combine output
     data_rmse <- list(between = list(rmse_cor = rmse_cor_vec,
                                      rmse_reg = rmse_reg_vec,
                                      rmse_se  = rmse_se_vec),
@@ -122,14 +135,14 @@ get_rmse_parallel <- function(object_list) {
                 data_rmse    = data_rmse))
 
   } else if (!is.null(first_obj$inputs$target_f_list)) {
-    # branch 2: ANOVA-based objects
+    # aov module
     target_F_values <- first_obj$inputs$target_f_list$F
     F_dec           <- max(count_decimals(target_F_values))
     opt_metrics     <- lapply(object_list, function(res) {
       stats <- get_stats(res)
       round(stats$F_value, F_dec)
     })
-    # between-run RMSE for F
+    # between-run RMSE
     F_mat <- do.call(rbind, opt_metrics)
     overall_F <- colMeans(F_mat, na.rm = TRUE)
     between_differences <- apply(F_mat, 1, function(F_run) {
@@ -143,7 +156,7 @@ get_rmse_parallel <- function(object_list) {
       Max_RMSE  = max(between_differences,  na.rm = TRUE),
       stringsAsFactors = FALSE
     )
-    # target-run RMSE for F
+    # target-run RMSE
     target_differences <- apply(F_mat, 1, function(F_run) {
       sqrt( mean((F_run - target_F_values)^2, na.rm = TRUE) )
     })
@@ -155,14 +168,13 @@ get_rmse_parallel <- function(object_list) {
       Max_RMSE  = max(target_differences,  na.rm = TRUE),
       stringsAsFactors = FALSE
     )
-    # raw F RMSEs
+    # combine output
     data_rmse <- list(between = between_differences, target = target_differences)
     return(list(between_rmse = between_summary,
                 target_rmse  = target_summary,
                 data_rmse    = data_rmse))
-
   } else {
-    # branch 3: vector-based objects
+    # vec module
     target_mean <- first_obj$inputs$target_mean
     target_sd   <- first_obj$inputs$target_sd
     mean_dec    <- max(count_decimals(target_mean))
@@ -206,7 +218,7 @@ get_rmse_parallel <- function(object_list) {
       Min_RMSE  = apply(target_matrix, 2, min,  na.rm = TRUE),
       Max_RMSE  = apply(target_matrix, 2, max,  na.rm = TRUE)
     )
-    # raw mean/sd RMSEs
+    # combine output
     data_rmse <- list(between = between_differences, target = target_differences)
     return(list(between_rmse = between_summary,
                 target_rmse  = target_summary,

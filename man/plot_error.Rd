@@ -2,22 +2,25 @@
 % Please edit documentation in R/fct_plot_error.R
 \name{plot_error}
 \alias{plot_error}
-\title{Plot Error Evolution}
+\title{Plot Error Ratio Evolution for a discourse.object}
 \usage{
 plot_error(discourse_obj, run = 1, show_best = TRUE, first_iter = 1)
 }
 \arguments{
-\item{discourse_obj}{S3 object of class "discourse.object"}
+\item{discourse_obj}{A `discourse.object` S3 object produced by `optim_*` functions,
+containing a `track_error` element (numeric vector or list of vectors).}
 
-\item{run}{Integer; which run to plot (default 1)}
+\item{run}{Integer. Index of the run to plot when `track_error` is a list; default `1`.}
 
-\item{show_best}{Logical; highlight the minimum error (default TRUE)}
+\item{show_best}{Logical. If `TRUE`, adds a point marking the minimum error; default `TRUE`.}
 
-\item{first_iter}{Numeric; first iteration to be displayed in plot}
+\item{first_iter}{Integer. Number of initial iterations to skip before plotting (zero-based);
+default `1` (plots from iteration 2 onward).}
 }
 \value{
-Invisibly returns the ggplot2 object
+A `ggplot2` object.
 }
 \description{
-Generate an iteration-wise error plot for a discourse object.
+Creates a plot of error versus iteration, to assess the trajectory of the
+objective function value of a `discourse.object`.
 }

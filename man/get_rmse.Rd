@@ -7,11 +7,20 @@
 get_rmse(result)
 }
 \arguments{
-\item{result}{A discourse.object with optimized data and inputs}
+\item{result}{A `discourse.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).}
 }
 \value{
-Named list of RMSE values
+A named `list` of RMSE values. Possible elements:
+\describe{
+  \item{rmse_cor}{Numeric. RMSE of correlation estimates for LM- and LME-based objects.}
+  \item{rmse_reg}{Numeric. RMSE of regression coefficient estimates for LM- and LME-based objects.}
+  \item{rmse_se}{Numeric. RMSE of standard error estimates for LM- and LME-based objects.}
+  \item{rmse_F}{Numeric. RMSE of F-values for ANOVA-based objects.}
+  \item{rmse_mean}{Numeric. RMSE of means for vector-based objects.}
+  \item{rmse_sd}{Numeric. RMSE of standard deviations for vector-based objects.}
+}
 }
 \description{
-Compute RMSE for a single discourse.object result
+Calculates root-mean-square error (RMSE) metrics for a single `discourse.object` output,
+comparing model estimates of the simulated data against original target inputs.
 }

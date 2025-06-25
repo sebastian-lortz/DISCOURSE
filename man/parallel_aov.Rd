@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_parallel_aov.R
 \name{parallel_aov}
 \alias{parallel_aov}
-\title{parallel_aov: parallel ANOVA optimization}
+\title{#' Optimize multiple data sets to match ANOVA F-values}
 \usage{
 parallel_aov(
   parallel_start = 3,
@@ -25,52 +25,72 @@ parallel_aov(
   max_step = 0.2,
   max_starts = 1,
   checkGrim = FALSE,
-  min_decimals = 1
+  min_decimals = 1,
+  progress_mode = "console"
 )
 }
 \arguments{
-\item{parallel_start}{Number of independent parallel runs}
+\item{parallel_start}{Number of independent runs (parallel or sequential) to simulate data sets.}
 
-\item{return_best_solution}{Logical; return only the best run if TRUE}
+\item{return_best_solution}{Logical; return only the best run if TRUE.}
 
-\item{N}{Total sample size of participants}
+\item{N}{Integer. Total number of subjects (sum of `subgroup_sizes`).}
 
-\item{levels}{Vector specifying number of levels for each factor}
+\item{levels}{Integer vector. Number of factor levels per factor in the design.}
 
-\item{target_group_means}{Vector of target means for each group}
+\item{target_group_means}{Numeric vector. Desired means for each group in the design.}
 
-\item{target_f_list}{List with target F-values and related parameters}
+\item{target_f_list}{List with components:
+\describe{
+  \item{F}{Numeric vector of target F-statistics.}
+  \item{effect}{Character vector of effect names matching `F`.}
+  \item{contrast}{Optional character formula for contrasts.}
+  \item{contrast_method}{Optional character specifying contrast method.}
+}}
 
-\item{integer}{Logical; treat candidate values as integers if TRUE}
+\item{integer}{Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continous values.}
 
-\item{range}{Numeric vector of length 2 specifying candidate value range}
+\item{range}{Numeric vector of length 2. Lower and upper bounds for candidate means.}
 
-\item{formula}{Model formula for computing F statistics}
+\item{formula}{Formula or character. Model formula used to compute F-values (e.g., `y ~ A + B + A*B`).}
 
-\item{factor_type}{Vector indicating factor types ("between"/"within")}
+\item{factor_type}{Character vector. Type of each factor (`"between"` or `"within"`) matching length of `levels`.}
 
-\item{subgroup_sizes}{Optional subgroup sizes for unbalanced designs}
+\item{subgroup_sizes}{Numeric vector. Optional sizes of each between-subjects group for unbalanced designs; length must equal product of `levels` for between factors.}
 
-\item{df_effects}{Degrees of freedom for each effect}
+\item{df_effects}{Numeric vector. Degrees of freedom of the model effects. Default is `NULL`.}
 
-\item{tolerance}{Convergence tolerance for the optimization}
+\item{tolerance}{Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.}
 
-\item{typeSS}{Type of sums of squares (e.g., 3 for Type III)}
+\item{typeSS}{Integer. Type of sums-of-squares for ANOVA (2 or 3). Default is 3.}
 
-\item{max_iter}{Maximum iterations for simulated annealing}
+\item{max_iter}{Integer. Maximum iterations per restart. Default is 1e3.}
 
-\item{init_temp}{Initial temperature for annealing}
+\item{init_temp}{Numeric. Initial temperature for annealing. Default is 1.}
 
-\item{cooling_rate}{Cooling rate per iteration}
+\item{cooling_rate}{Numeric. Cooling rate per iteration (between 0 and 1); if NULL, calculated automatically as `(init_temp-10)/init_temp`.}
 
-\item{max_step}{Proportion; The maximum step size for modifications as proportion of the range}
+\item{max_step}{Numeric. Maximum move size as proportion of `range`. Default is 0.2.}
 
-\item{max_starts}{Number of restart cycles}
+\item{max_starts}{Integer. Number of annealing restarts. Default is 1.}
 
-\item{checkGrim}{Logical; perform GRIM consistency checks if TRUE}
+\item{checkGrim}{Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.}
 
-\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
+\item{min_decimals}{Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.}
+
+\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
+}
+\value{
+A list of multiple `discourse.object`s, each containing:
+\describe{
+  \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
+  \item{data}{Data frame of optimized outcome values (and grouping variables).}
+  \item{inputs}{List of all input arguments.}
+  \item{track_error}{Numeric vector of best error at each iteration.}
+  \item{grim}{List of the GRIM results.}
+}
 }
 \description{
-Run ANOVA optimization across multiple parallel workers
+Uses the DISCOURSE algorithmic framework to simulate multiple data sets that
+produce target ANOVA F-statistics under a specified factorial design given input parameters.
 }

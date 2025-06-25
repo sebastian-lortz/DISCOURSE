@@ -1,21 +1,45 @@
-#' Optimize simulated data to match target correlations and regression fits
+#' Optimize simulated data to match target correlations and fixed-effects regression estimates
 #'
-#' @param sim_data   Data frame with predictors and outcome in last column
-#' @param target_cor Target vector of correlations (upper-triangular elements)
-#' @param target_reg Target regression coefficients
-#' @param reg_equation Regression formula as character, e.g. "Y ~ X1 + X2 + X1:X2"
-#' @param target_se  Optional target standard errors for coefficients
-#' @param weight     Two-element vector weighting cor vs reg error
-#' @param max_iter   Max iterations for simulated annealing
-#' @param init_temp  Initial temperature
-#' @param cooling_rate Cooling rate per iteration (auto if NA)
-#' @param tol        Error tolerance for convergence
-#' @param prob_global_move Prob of global move vs local swap
-#' @param progress_bar  Show progress bar if TRUE
-#' @param max_starts     Number of annealing restarts
-#' @param hill_climbs Optional hill-climbing iterations for refinement
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
-#' @return A "discourse.object" with best error, data, inputs, and trace
+#' Uses the DISCOURSE algorithmic framework to simulate
+#' data such that the resulting correlations and regression coefficients
+#' match specified targets under a given regression model and input parameters.
+#'
+#' @param sim_data Data frame. Predictor variables and outcome to be optimized; at least two columns.
+#' @param target_cor Numeric vector. Target upper-triangular (excluding diagonal) correlation values for predictor and outcome variables.
+#' @param target_reg Numeric vector. Target regression coefficients including intercept, matching terms in `reg_equation`.
+#' @param reg_equation Character or formula. Regression model (e.g., "Y ~ X1 + X2 + X1:X2").
+#' @param target_se Numeric vector, optional. Target standard errors for regression coefficients (same length as `target_reg`).
+#' @param weight Numeric vector of length 2. Weights for correlation vs. regression error in the objective function. Default `c(1, 1)`.
+#' @param max_iter Integer. Maximum iterations for simulated annealing per start. Default `1e5`.
+#' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
+#' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
+#' @param prob_global_move Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.
+#' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
+#' @param max_starts Integer. Number of annealing restarts. Default `1`.
+#' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#'
+#' @return A `discourse.object` list containing:
+#' \describe{
+#'   \item{best_error}{Numeric. Minimum objective error achieved.}
+#'   \item{data}{Data frame of optimized predictor and outcome values.}
+#'   \item{inputs}{List of all input parameters for reproducibility.}
+#'   \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+#'   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
+#' }
+#'
+#' @example
+#' # Optimize given sim_data from the Descriptives module matching means and SDs.
+#' res <- optim_lm(
+#'   sim_data = sim_data,
+#'   target_cor = c(.23),
+#'   target_reg = c(2.1, 1.2, -0.8),
+#'   reg_equation = "Y ~ X1 + X2",
+#'   max_iter = 10000,
+#'   hill_climbs = 50
+#' )
 #' @export
 optim_lm <- function(
     sim_data,
@@ -27,12 +51,13 @@ optim_lm <- function(
     max_iter = 1e5,
     init_temp = 1,
     cooling_rate = NULL,
-    tol = 1e-6,
+    tolerance = 1e-6,
     prob_global_move = 0.1,
     progress_bar = TRUE,
     max_starts = 1,
-    hill_climbs = 100,
-    min_decimals = 2
+    hill_climbs = NULL,
+    min_decimals = 1,
+    progress_mode = "console"
 ) {
 # input checks
   if (!is.data.frame(sim_data) || ncol(sim_data) < 2) {
@@ -41,8 +66,8 @@ optim_lm <- function(
   if (!is.character(reg_equation) || length(reg_equation) != 1) {
     stop("`reg_equation` must be a single character string giving the regression formula.")
   }
-  p       <- ncol(sim_data)
-  exp_cor <- p*(p-1)/2
+  pred       <- ncol(sim_data)
+  exp_cor <- pred*(pred-1)/2
   term_lbls<- attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   if (length(target_cor) != exp_cor) {
@@ -79,8 +104,8 @@ optim_lm <- function(
   )) {
     stop("`cooling_rate` must be a single numeric between 0 and 1, or NULL.")
   }
-  if (!is.numeric(tol) || length(tol) != 1 || tol < 0) {
-    stop("`tol` must be a single non-negative numeric value.")
+  if (!is.numeric(tolerance) || length(tolerance) != 1 || tolerance < 0) {
+    stop("`tolerance` must be a single non-negative numeric value.")
   }
   if (!is.numeric(prob_global_move) || length(prob_global_move) != 1 ||
       prob_global_move < 0 || prob_global_move > 1) {
@@ -103,11 +128,16 @@ optim_lm <- function(
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {
     stop("`min_decimals` must be a single non-negative integer.")
   }
-  # determine rounding precision
+  if (!is.character(progress_mode) ||
+      length(progress_mode) != 1 ||
+      !progress_mode %in% c("console", "shiny")) {
+    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\".")
+  }
+  # get decimals
   cor_dec <- max(count_decimals(target_cor, min_decimals = min_decimals))
   reg_dec <- max(count_decimals(target_reg, min_decimals = min_decimals))
 
-  # Pull DV and predictors in order of reg_equation
+  # get variable info
   frm        <- stats::as.formula(reg_equation)
   all_vars   <- all.vars(frm)
   dv_name    <- all_vars[1]
@@ -128,7 +158,7 @@ optim_lm <- function(
   # map the target cor
   target_cor <- remap_target_cor(target_cor, sim_data, col_names)
 
-  # define error function based on rcpp and target_se
+  # objective function
   if (is.null(target_se)) {
     error_function <- function(candidate) {
       error_function_cpp(
@@ -158,100 +188,131 @@ optim_lm <- function(
     }
   }
 
-  # initialize cooling schedule
+  # init parameters
   if (is.null(cooling_rate)) {
     cooling_rate <- (max_iter - 10) / max_iter
   }
   temp <- init_temp
 
-  # outer restarts
-  for (start in seq_len(max_starts)) {
-    if (progress_bar) {
-      pb_interval <- floor(max_iter / 100)
-      pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
-      on.exit(close(pb), add = TRUE)
-    }
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+  pb_interval_sa <- floor(max_iter / 100)
+  pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
+  n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
+   length(seq_len(max_iter)[seq_len(max_iter) %% pb_interval_sa == 0])
+  }, integer(1)))
+  n_hc_calls <- if (!is.null(hill_climbs)) {
+    length(seq_len(hill_climbs)[seq_len(hill_climbs) %% pb_interval_hc == 0])
+  } else 0
+  total_calls <- n_sa_calls + n_hc_calls
 
-    track_error       <- numeric(max_iter)
-    track_error_ratio <- numeric(max_iter)
-
-    # initial candidate for first start
-    if (start == 1) {
-      current_candidate <- predictors
-    }
-    initial <- error_function(current_candidate)
-    current_error <- initial$total_error
-    best_candidate <- current_candidate
-    best_error     <- current_error
-    best_ratio     <- initial$error_ratio
-
-    # simulated annealing loop
-    for (iter in seq_len(max_iter)) {
-      candidate <- current_candidate
-      if (stats::runif(1) < prob_global_move) {
-        perm      <- sample(N)
-        candidate <- candidate[perm, ]
-      } else {
-        col_idx <- sample(num_preds, 1)
-        idx     <- sample(N, 2)
-        candidate[idx, col_idx] <- candidate[rev(idx), col_idx]
-      }
-
-      err <- error_function(candidate)
-      if (err$total_error < current_error ||
-          stats::runif(1) < exp((current_error - err$total_error) / temp)) {
-        current_candidate <- candidate
-        current_error     <- err$total_error
-        if (current_error < best_error) {
-          best_candidate <- current_candidate
-          best_error     <- current_error
-          best_ratio     <- err$error_ratio
+ # Optimization process
+ progressr::with_progress({
+    p <- progressr::progressor(steps = total_calls)
+      for (start in seq_len(max_starts)) {
+        if (progress_bar) {
+          pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
+          on.exit(close(pb), add = TRUE)
         }
+        track_error       <- numeric(max_iter)
+        track_error_ratio <- numeric(max_iter)
+        if (start == 1) {
+          current_candidate <- predictors
+        }
+        initial <- error_function(current_candidate)
+        current_error <- initial$total_error
+        best_candidate <- current_candidate
+        best_error     <- current_error
+        best_ratio     <- initial$error_ratio
+        for (iter in seq_len(max_iter)) {
+          candidate <- current_candidate
+          if (stats::runif(1) < prob_global_move) {
+            perm      <- sample(N)
+            candidate <- candidate[perm, ]
+          } else {
+            col_idx <- sample(num_preds, 1)
+            idx     <- sample(N, 2)
+            candidate[idx, col_idx] <- candidate[rev(idx), col_idx]
+          }
+          err <- error_function(candidate)
+          if (err$total_error < current_error ||
+              stats::runif(1) < exp((current_error - err$total_error) / temp)) {
+            current_candidate <- candidate
+            current_error     <- err$total_error
+            if (current_error < best_error) {
+              best_candidate <- current_candidate
+              best_error     <- current_error
+              best_ratio     <- err$error_ratio
+            }
+          }
+          temp <- temp * cooling_rate
+          track_error[iter]       <- best_error
+          track_error_ratio[iter] <- best_ratio
+          if (progress_bar && (iter %% pb_interval_sa == 0)) {
+            utils::setTxtProgressBar(pb, iter)
+            p()
+          }
+          if (best_error < tolerance) {
+            cat("\nconverged!\n")
+            break
+          }
+        }
+        cat("\nBest error in start", start, "is", best_error, "\n")
+        current_candidate <- best_candidate
+        temp <- init_temp / (2 ^ start)
       }
-
-      temp <- temp * cooling_rate
-      track_error[iter]       <- best_error
-      track_error_ratio[iter] <- best_ratio
-
-      if (progress_bar && (iter %% pb_interval == 0)) {
-        utils::setTxtProgressBar(pb, iter)
+      if (progress_bar) {close(pb)}
+      # hill climbing optimization
+      if (!is.null(hill_climbs)) {
+        local_opt <- hill_climb(
+          current_candidate = current_candidate,
+          outcome = outcome,
+          N = N,
+          error_function = error_function,
+          hill_climbs = hill_climbs,
+          LME = FALSE,
+          num_preds = num_preds,
+          progress_bar = progress_bar,
+          progressor = p,
+          pb_interval       = pb_interval_hc
+        )
+        best_error     <- local_opt$best_error
+        best_candidate <- local_opt$best_candidate
       }
+     },
+ handlers = handler
+ )
 
-      if (best_error < tol) {
-        cat("\nconverged!\n")
-        break
-      }
-    }
-    cat("\nBest error in start", start, "is", best_error, "\n")
-    current_candidate <- best_candidate
-    temp <- init_temp / (2 ^ start)
-  }
-  if (progress_bar) {close(pb)}
-
-  # optional hill-climbing refinement
-  if (!is.null(hill_climbs)) {
-    local_opt <- hill_climb(
-      current_candidate = current_candidate,
-      outcome = outcome,
-      N = N,
-      error_function = error_function,
-      hill_climbs = hill_climbs,
-      LME = FALSE,
-      num_preds = num_preds,
-      progress_bar = progress_bar
-    )
-    best_error     <- local_opt$best_error
-    best_candidate <- local_opt$best_candidate
-  }
-
-  # assemble final solution
+  # combine results
   best_solution <- cbind(best_candidate, outcome)
   colnames(best_solution) <- col_names
 
+  # assemble output
   result <- list(
     best_error        = best_error,
     data              = as.data.frame(best_solution),
-    inputs            = as.list(environment()),
+    inputs            = list(
+      sim_data = sim_data,
+      target_cor = target_cor,
+      target_reg = target_reg,
+      reg_equation = reg_equation,
+      target_se = target_se,
+      weight = weight,
+      max_iter = max_iter,
+      init_temp = init_temp,
+      cooling_rate = cooling_rate,
+      tolerance = tolerance,
+      prob_global_move = prob_global_move,
+      max_starts = max_starts,
+      hill_climbs = hill_climbs,
+      min_decimals = min_decimals,
+      progress_bar = progress_bar,
+      progress_mode = progress_mode
+    ),
     track_error       = track_error,
     track_error_ratio = track_error_ratio
   )

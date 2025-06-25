@@ -2,16 +2,18 @@
 % Please edit documentation in R/fct_plot_cooling.R
 \name{plot_cooling}
 \alias{plot_cooling}
-\title{Plot cooling schedule of a \code{discourse.object}}
+\title{Plot cooling schedule of a discourse.object}
 \usage{
 plot_cooling(discourse_obj)
 }
 \arguments{
-\item{discourse_obj}{Output from \code{optim_*} functions, with class \code{discourse.object}.}
+\item{discourse_obj}{A `discourse.object` returned by one of the `optim_*` functions, containing
+`inputs$max_iter`, `inputs$init_temp`, and `inputs$cooling_rate`.}
 }
 \value{
-A \pkg{ggplot2} line plot of squared temperature vs. iteration number.
+A `ggplot2` object.
 }
 \description{
-Plot cooling schedule of a \code{discourse.object}
+Visualizes the squared annealing temperature across iterations for a given
+`discourse.object`, allowing inspection of the cooling schedule used in optimization.
 }

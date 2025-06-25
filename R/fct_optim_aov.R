@@ -1,31 +1,60 @@
-#' Optimize group means via simulated annealing to match ANOVA F-values
+#' Optimize simulated data to match ANOVA F-values
 #'
+#' Uses the DISCOURSE algorithmic framework to simulate data that
+#' produce target ANOVA F-statistics under a specified factorial design given input parameters.
 #'
-#' @param N Total number of subjects
-#' @param levels Vector of factor levels per factor
-#' @param subgroup_sizes Optional subgroup sizes for unbalanced designs
-#' @param target_group_means Numeric vector of target means for each group
-#' @param target_f_list List with:
-#'   - F: target F statistics vector
-#'   - effect: character vector of effect names
-#'   - contrast: (optional) contrast formula
-#'   - contrast_method: (optional) contrast method name
-#' @param df_effects Degrees of freedom for each effect (consider removing)
-#' @param range Numeric vector length 2 specifying allowed candidate range
-#' @param formula Model formula for F extraction
-#' @param tolerance Convergence tolerance for optimization
-#' @param factor_type Factor types ("between"/"within") for mixed models
-#' @param typeSS Type of sums of squares (2 or 3)
-#' @param max_iter Maximum iterations per start
-#' @param init_temp Initial temperature for annealing
-#' @param cooling_rate Cooling rate per iteration
-#' @param max_step Proportion; The maximum step size for modifications as proportion of the range
-#' @param progress_bar  Show progress bar if TRUE
-#' @param integer Logical; treat candidate values as integers
-#' @param max_starts Number of annealing restarts
-#' @param checkGrim Logical; perform GRIM checks on target means
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the target
-#' @return A "discourse.object" list with optimized data, error, inputs, and trace
+#' @param N Integer. Total number of subjects (sum of `subgroup_sizes`).
+#' @param levels Integer vector. Number of factor levels per factor in the design.
+#' @param subgroup_sizes Numeric vector. Optional sizes of each between-subjects group for unbalanced designs; length must equal product of `levels` for between factors.
+#' @param target_group_means Numeric vector. Desired means for each group in the design.
+#' @param target_f_list List with components:
+#'   \describe{
+#'     \item{F}{Numeric vector of target F-statistics.}
+#'     \item{effect}{Character vector of effect names matching `F`.}
+#'     \item{contrast}{Optional character formula for contrasts.}
+#'     \item{contrast_method}{Optional character specifying contrast method.}
+#'   }
+#' @param formula Formula or character. Model formula used to compute F-values (e.g., `y ~ A + B + A*B`).
+#' @param factor_type Character vector. Type of each factor (`"between"` or `"within"`) matching length of `levels`.
+#' @param range Numeric vector of length 2. Lower and upper bounds for candidate means.
+#' @param integer Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continous values.
+#' @param typeSS Integer. Type of sums-of-squares for ANOVA (2 or 3). Default is 3.
+#' @param df_effects Numeric vector. Degrees of freedom of the model effects. Default is `NULL`.
+#' @param max_iter Integer. Maximum iterations per restart. Default is 1e3.
+#' @param max_starts Integer. Number of annealing restarts. Default is 1.
+#' @param init_temp Numeric. Initial temperature for annealing. Default is 1.
+#' @param cooling_rate Numeric. Cooling rate per iteration (between 0 and 1); if NULL, calculated automatically as `(init_temp-10)/init_temp`.
+#' @param max_step Numeric. Maximum move size as proportion of `range`. Default is 0.2.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
+#' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param progress_bar Logical. Show text progress bar during optimization. Default is TRUE.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#'
+#' @return A `discourse.object` list containing:
+#' \describe{
+#'   \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
+#'   \item{data}{Data frame of optimized outcome values (and grouping variables).}
+#'   \item{inputs}{List of all input arguments.}
+#'   \item{track_error}{Numeric vector of best error at each iteration.}
+#'   \item{grim}{List of the GRIM results.}
+#' }
+#'
+#' @example
+#' # Balanced 2x2 design
+#' optim_aov(
+#'   N = 40,
+#'   levels = c(2, 2),
+#'   target_group_means = c(1, 2, 3, 4),
+#'   target_f_list = list(effect = c("A", "B"),
+#'                        F = c(5.6, 8.3), ),
+#'   formula = y ~ A + B + A*B,
+#'   factor_type = c("between", "between"),
+#'   range = c(0, 5),
+#'   integer = FALSE,
+#'   max_iter = 1000,
+#'   max_starts = 3
+#' )
 #'
 #' @export
 optim_aov <- function(
@@ -45,12 +74,12 @@ optim_aov <- function(
     init_temp = 1,
     cooling_rate = NULL,
     max_step = .2,
-    progress_bar = TRUE,
     max_starts = 1,
     checkGrim = FALSE,
-    min_decimals = 1
+    min_decimals = 1,
+    progress_bar = TRUE,
+    progress_mode = "console"
 ) {
-
 
   # input checks
   if (!is.numeric(N) || length(N) != 1 || N <= 0 || N != as.integer(N)) {
@@ -85,6 +114,9 @@ optim_aov <- function(
       (!is.numeric(subgroup_sizes) ||
        length(subgroup_sizes) != n_between)) {
     stop("`subgroup_sizes`, if provided, must be a numeric vector matching the number of between-subject groups.")
+  }
+  if (N != sum(subgroup_sizes)) {
+    stop("`N` must equal the sum of `subgroup_sizes` and thus, the number of subjects (not observations).")
   }
   if (!is.null(df_effects) &&
       (!is.numeric(df_effects) ||
@@ -137,7 +169,8 @@ optim_aov <- function(
   } else if (typeSS == 2) {
     options(contrasts = c(unordered = "contr.treatment", ordered = "contr.poly"))
   }
-  # prepare design matrix
+
+  # design matrix
   if (all(factor_type == "between")) {
     factor_mat <- factor_matrix(N, levels, subgroup_sizes)
   } else {
@@ -151,19 +184,19 @@ optim_aov <- function(
   target_F    <- target_f_list$F
   group_sizes <- as.vector(table(group_ids))
   balanced <- FALSE
-
   if (length(unique(group_sizes)) == 1) {
     balanced = TRUE
   }
-  # GRIM consistency checks
+
+  # GRIM
   mean_dec <- count_decimals(target_group_means, min_decimals = min_decimals)
   if (checkGrim && integer) {
     for (i in seq_along(group_sizes)) {
-      check_grim(n = group_sizes[i], target_mean = target_group_means[i], decimals = mean_dec[i])
+    grim <- check_grim(n = group_sizes[i], target_mean = target_group_means[i], decimals = mean_dec[i])
     }
   }
 
-  # F-value extraction function
+  # F value extraction
   if (all(factor_type == "between")) {
     extract_F <- function(data, effect, contrast, contrast_method, type) {
       fit    <- stats::lm(formula, data = data)
@@ -223,9 +256,9 @@ optim_aov <- function(
       sqrt((pooled - MSE)^2)
     }
   }
-  max_step_cont <- (range[2]-range[1])*max_step
 
-  # continous move
+  # heuristic move continuous data
+  max_step_cont <- (range[2]-range[1])*max_step
   heuristic_move_cont <- function(candidate) {
     idx <- sample(group_idx[[sample.int(length(group_idx), 1)]], 2)
     v   <- candidate[idx]
@@ -240,10 +273,9 @@ optim_aov <- function(
     candidate[idx] <- v + c(inc, -inc)
     candidate
   }
-  # set max integer step
-  max_step_int <- as.integer(max(1,round((range[2]-range[1])*max_step)))
 
-  # integer move
+  # heuristic move integer data
+  max_step_int <- as.integer(max(1,round((range[2]-range[1])*max_step)))
   heuristic_move_int <- function(candidate) {
     idx <- sample(group_idx[[sample.int(length(group_idx), 1)]], 2)
     v   <- candidate[idx]
@@ -259,10 +291,10 @@ optim_aov <- function(
     candidate
   }
 
-  # set move
+  # move function
   move_fun <- if (integer) heuristic_move_int else heuristic_move_cont
 
-  # initial solution
+  # init parameters
   if (integer) {
       elements   <- mapply(
       generate_candidate_group,
@@ -275,11 +307,9 @@ optim_aov <- function(
         idxs <- group_idx[[unique(group_ids)[j]]]
         current_candidate[idxs] <- elements[[j]]
       }
-
     } else {
     current_candidate <- target_group_means[match(group_ids, unique(group_ids))]
   }
-
   if (is.null(cooling_rate)) {
     cooling_rate <- (max_iter - 10) / max_iter
   }
@@ -287,56 +317,90 @@ optim_aov <- function(
   best_candidate <- current_candidate
   best_error <- objective(current_candidate)
 
-  # simulated annealing
-  for (s in seq_len(max_starts)) {
-    if (progress_bar) {
-      pb_interval <- floor(max_iter / 100)
-      pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
-      on.exit(close(pb), add = TRUE)
-    }
-    track_error       <- numeric(max_iter)
-    for (i in seq_len(max_iter)) {
-      candidate <- current_candidate
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+  pb_interval <- max(floor(max_iter / 100), 1)
 
-      candidate <- move_fun(candidate)
-
-      #cat("Means:", tapply(candidate, group_ids, mean), "\n")
-      #cat("SDs:", tapply(candidate, group_ids, sd), "\n")
-      current_error   <- objective(candidate)
-      prob  <- exp((best_error - current_error) / temp)
-      if (current_error < best_error || stats::runif(1) < prob) {
-        current_candidate    <- candidate
-        if (current_error < best_error) {
-        best_error <- current_error
-        best_candidate <- current_candidate
+  # Optimization Process
+  progressr::with_progress({
+    p <- progressr::progressor(steps = (max_iter*max_starts)/pb_interval)
+      for (s in seq_len(max_starts)) {
+        if (progress_bar) {
+          pb_interval <- floor(max_iter / 100)
+          pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
+          on.exit(close(pb), add = TRUE)
         }
-      }
-      temp <- temp * cooling_rate
-      track_error[i]       <- best_error
-      if (progress_bar && (i %% pb_interval == 0)) {
-        utils::setTxtProgressBar(pb, i)
-      }
-      if (best_error < tolerance) break
-    }
-    if (progress_bar) {close(pb)}
-    current_candidate <- best_candidate
-    if (best_error < tolerance) break
-    cat("\nBest error in start", s, "is", best_error, "\n")
-    temp <- init_temp / (2 ^ s)
-    }
+        track_error       <- numeric(max_iter)
+        for (i in seq_len(max_iter)) {
+          candidate <- current_candidate
+          candidate <- move_fun(candidate)
+          current_error   <- objective(candidate)
+          prob  <- exp((best_error - current_error) / temp)
+          if (current_error < best_error || stats::runif(1) < prob) {
+            current_candidate    <- candidate
+            if (current_error < best_error) {
+            best_error <- current_error
+            best_candidate <- current_candidate
+            }
+          }
+          temp <- temp * cooling_rate
+          track_error[i]       <- best_error
+          if (progress_bar && (i %% pb_interval == 0)) {
+            utils::setTxtProgressBar(pb, i)
+            p()
+          }
+          if (best_error < tolerance) break
+        }
+        if (progress_bar) {close(pb)}
+        current_candidate <- best_candidate
+        if (best_error < tolerance) break
+        cat("\nBest error in start", s, "is", best_error, "\n")
+        temp <- init_temp / (2 ^ s)
+        }
+      },
+  handlers = handler
+  )
 
-  # result assembly
+  # combine results
   out_data <- if (!all(factor_type == "between")) {
     data.frame(ID = ID, factor_mat, outcome = best_candidate)
   } else {
     data.frame(factor_mat, outcome = best_candidate)
   }
 
+  # assemble output
   res <- list(
     best_error  = best_error,
     data        = out_data,
-    inputs      = as.list(environment()),
-    track_error = track_error
+    inputs      = list(
+      N = N,
+      levels = levels,
+      target_group_means = target_group_means,
+      target_f_list = target_f_list,
+      integer = integer,
+      range = range,
+      formula = formula,
+      factor_type = factor_type,
+      subgroup_sizes = subgroup_sizes,
+      df_effects = df_effects,
+      tolerance = tolerance,
+      typeSS = typeSS,
+      max_iter = max_iter,
+      init_temp = init_temp,
+      cooling_rate = cooling_rate,
+      max_step = max_step,
+      max_starts = max_starts,
+      checkGrim = checkGrim,
+      min_decimals = min_decimals,
+      progress_bar = progress_bar,
+      progress_mode = progress_mode
+    ),
+    track_error = track_error,
+    grim        = grim
   )
   class(res) <- "discourse.object"
   res

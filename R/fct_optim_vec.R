@@ -1,32 +1,50 @@
-#' Optimize a vector matrix to match target means and SDs
+#' Optimize a vector or matrix to match target means and SDs
 #'
-#' @param N Integer, number of values.
-#' @param target_mean Named numeric vector of desired means.
-#' @param target_sd Named numeric vector of desired SDs.
-#' @param range Numeric of length 2 or matrix; allowed value ranges.
-#' @param tolerance Numeric; stop when objective < tolerance.
-#' @param integer Logical; use integer values if TRUE.
-#' @param max_iter Integer; max annealing iterations (default 1e5).
-#' @param init_temp Numeric; starting temperature.
-#' @param cooling_rate Numeric; decay rate (default auto).
-#' @param int.probs Numeric; a list with a vector of sampling probabilities for each variable.
-#' @param progress_bar  Show progress bar if TRUE
-#' @param obj_weight List of two numerics; weights for mean vs SD.
-#' @param maxit_pso Integer; max PSO iterations (continuous mode).
-#' @param eps Numeric; small constant to avoid zero division.
-#' @param max_starts Integer; annealing restarts.
-#' @param checkGrim Logical; run GRIM check for integers.
-#' @param prob_heuristic Numeric; heuristic move probability.
-#' @param parallel Logical; run per-variable in parallel.
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
+#' Uses the DISCOURSE algorithmic framework to simulate one or multiple
+#' vectors so that each matches specified target means and standard deviations under given input parameters.
 #'
-#' @importFrom foreach %dopar%
+#' @param N Integer. Number of values in each vector.
+#' @param target_mean Named numeric vector. Desired means for each variable (names identify columns).
+#' @param target_sd Named numeric vector. Desired standard deviations for each variable.
+#' @param range Numeric vector of length 2 or numeric matrix. Allowed value range for all variables (vector),
+#'   or per-variable bounds as a two-row matrix matching `target_mean`.
+#' @param integer Logical or logical vector. If TRUE, optimize integer values; length 1 or same length as `target_mean`.
+#' @param max_iter Integer. Maximum iterations for simulated annealing per start. Default `1e5`.
+#' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
+#' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-12`.
+#' @param int.probs List of numeric vectors, one per variable. Sampling probabilities for integer moves; NULL for uniform.
+#' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
+#' @param obj_weight List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `list(c(1,1))`.
+#' @param maxit_pso Integer. Maximum PSO iterations for continuous variables. Default `2000`.
+#' @param eps Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.
+#' @param max_starts Integer. Number of annealing restarts. Default `3`.
+#' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.
+#' @param prob_heuristic Numeric. Probability of heuristic move vs. random swap in integer mode. Default `0.1`.
+#' @param parallel Logical. If TRUE, optimize each variable in parallel. Default `FALSE`.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#' @return A `discourse.object` with:
-#' * `data`: matrix of optimized vectors.
-#' * `best_error`: list of final errors.
-#' * `track_error`: list of error paths.
-#' * `inputs`: list of input parameters.
+#' @return A `discourse.object` list containing:
+#' \describe{ A list with the following elements for each variable:
+#'     \item{best_error}{Numeric. Minimum objective error achieved.}
+#'     \item{data}{Data.frame or matrix of optimized vectors (columns named by `target_mean`).}
+#'     \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+#'     \item{inputs}{List of all input parameters for reproducibility.}
+#'     \item{grim}{List of the GRIM results.}
+#' }
+#'
+#' @example
+#' # Optimize a vector of length 100
+#' res <- optim_vec(
+#'   N            = 100,
+#'   target_mean  = 10,
+#'   target_sd    = 2,
+#'   range        = c(0, 20),
+#'   integer      = TRUE,
+#'   max_iter     = 50000,
+#'   max_starts   = 2
+#' )
 #' @export
 optim_vec <- function(
     N,
@@ -47,7 +65,8 @@ optim_vec <- function(
     checkGrim       = TRUE,
     prob_heuristic  = 0.1,
     parallel        = FALSE,
-    min_decimals = 1
+    min_decimals = 1,
+    progress_mode = "console"
 ) {
   ## Adjust default cooling rate
   if (is.null(cooling_rate)) {
@@ -119,6 +138,7 @@ optim_vec <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
+  # transform input
   n_var <- length(target_mean)
   if (is.null(int.probs)) {
     int.probs <- vector("list", n_var)
@@ -131,17 +151,19 @@ optim_vec <- function(
     integer <- rep(integer[1], n_var)
   }
 
-  ## Single run optimizer
+  # Single optimizatino process
   optim_vec_single <- function(
     N, target_mean, target_sd, range, tolerance,
     max_iter, init_temp, cooling_rate, int.probs,
     progress_bar, obj_weight, integer, maxit_pso,
     eps, max_starts, checkGrim, prob_heuristic
   ) {
+
+    # get decimals
     mean_dec <- count_decimals(target_mean, min_decimals = min_decimals)
     sd_dec   <- count_decimals(target_sd, min_decimals = min_decimals)
 
-    ## Optional GRIM check
+    # GRIM
     if (checkGrim && integer) {
       grim <- check_grim(N, target_mean, mean_dec)
       cat(grim$message)
@@ -149,13 +171,13 @@ optim_vec <- function(
       grim <- NULL
     }
 
-    ## Define objective
+    # Objective function
       objective <- function(x) {
         objective_cpp(x, target_mean, target_sd, obj_weight, eps, mean_dec, sd_dec)
       }
 
+    # Optimization Integer
     if (integer) {
-      ## Integer value optimization
       allowed   <- seq(range[1], range[2])
       n_allowed <- length(allowed)
       if (is.null(int.probs)) {
@@ -163,14 +185,12 @@ optim_vec <- function(
       } else {
         probs <- int.probs
       }
-
       x_current     <- sample(allowed,   N, replace = TRUE, prob = probs)
       obj_current   <- objective(x_current)
       best_solution <- x_current
       best_obj      <- obj_current
       track_error   <- numeric(max_iter)
       temp          <- init_temp
-
       if (range[1] != range[2]) {
       for (start in seq_len(max_starts)) {
         if (progress_bar) {
@@ -178,7 +198,6 @@ optim_vec <- function(
           pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
           on.exit(close(pb), add = TRUE)
         }
-
         for (i in seq_len(max_iter)) {
           candidate <- if (stats::runif(1) < prob_heuristic) {
             heuristic_move(x_current, target_sd, range)
@@ -199,20 +218,17 @@ optim_vec <- function(
               best_obj      <- obj_cand
             }
           }
-
           temp        <- temp * cooling_rate
           track_error[i] <- best_obj
           if (progress_bar && (i %% pb_interval == 0)) {
             utils::setTxtProgressBar(pb, i)
           }
-
           if (best_obj < tolerance) {
-            utils::setTxtProgressBar(pb, i)
             cat("\nconverged!\n")
             break
           }
         }
-        close(pb)
+        if (progress_bar) {close(pb)}
         track_error <- track_error[seq_len(i)]
         x_current   <- best_solution
         if (i < max_iter) break
@@ -223,7 +239,7 @@ optim_vec <- function(
         track_error   <- 0
       }
     } else {
-      ## Continuous PSO optimization
+      # Optimization continuous
       init_par   <- stats::runif(N, range[1], range[2])
       if (range[1] != range[2]) {
       cat("\nPSO is running...\n")
@@ -250,6 +266,7 @@ optim_vec <- function(
       }
     }
 
+    # combine results
     list(
       data        = best_solution,
       best_error  = best_obj,
@@ -258,45 +275,70 @@ optim_vec <- function(
     )
   }
 
-  ## Prepare storage
+  # storage
   solution_matrix <- matrix(NA, nrow = N, ncol = n_var)
   best_error_vec  <- vector("list",      n_var)
   track_error     <- vector("list",      n_var)
   grim_list       <- vector("list",      n_var)
 
+  # Multiple Runs Parallel
   if (parallel) {
-    cores <- parallel::detectCores() - 1
-    cl <- parallel::makeCluster(cores)
-    doSNOW::registerDoSNOW(cl)
-    cat("\nParallel backend registered with:", cores, "cores.\n")
-
-    # ensure cluster stop and cleanup on exit
-    on.exit({
-      parallel::stopCluster(cl)
-      gc()
-    })
-
-    # Define packages for parallel workers
+    old_plan <- future::plan()
+    on.exit( future::plan(old_plan), add = TRUE )
+    cat("There are ", future::availableCores() , "available workers. \n")
+    real_cores <- future::availableCores()
+    n_workers  <- min(n_var, max(real_cores-1,1))
+    if (n_workers > 1L) {
+      future::plan(future::multisession, workers = n_workers)
+    } else {
+      future::plan(future::sequential)
+    }
+    cat("Running with", n_workers, "worker(s). \n")
     pkgs <- c("discourse", "Rcpp")
-
     cat("\nParallel optimization is running...\n")
     start_time <- Sys.time()
-
-    values <- foreach::foreach(
-      i = seq_len(n_var),
-      .packages = pkgs
-    ) %dopar% {
-      optim_vec_single(
-        N, target_mean[i], target_sd[i], range[, i], tolerance,
-        max_iter, init_temp, cooling_rate, int.probs[[i]],
-        progress_bar, obj_weight[[i]], integer[i], maxit_pso, eps,
-        max_starts, checkGrim, prob_heuristic
-      )
+    if(progress_mode == "shiny") {
+      handler <- list(progressr::handler_shiny())
+    } else {
+      handler <-list(progressr::handler_txtprogressbar())
     }
+    values <- progressr::with_progress({
+      p <- progressr::progressor(steps = n_var)
+        future.apply::future_lapply(
+          X           = seq_len(n_var),
+          FUN         = function(i) {
+          res <- optim_vec_single(
+            N,
+            target_mean[i],
+            target_sd[i],
+            range[, i],
+            tolerance,
+            max_iter,
+            init_temp,
+            cooling_rate,
+            int.probs[[i]],
+            progress_bar = FALSE,
+            obj_weight[[i]],
+            integer[i],
+            maxit_pso,
+            eps,
+            max_starts,
+            checkGrim,
+            prob_heuristic
+          )
+            p()
+            res
+          },
+          future.seed = TRUE
+        )},
+    handlers = handler
+    )
+
     cat(" finished.\n")
     stop_time <- Sys.time()
     cat("\nParallel optimization time was", stop_time - start_time, "seconds.\n")
 
+    # combine results
     for (i in seq_len(n_var)) {
       sol                 <- values[[i]]$data
       solution_matrix[, i] <- sol
@@ -305,20 +347,34 @@ optim_vec <- function(
       grim_list[[i]]      <- values[[i]]$grim
     }
   } else {
-    for (i in seq_len(n_var)) {
-      res <- optim_vec_single(
-        N, target_mean[i], target_sd[i], range[, i], tolerance,
-        max_iter, init_temp, cooling_rate, int.probs[[i]],
-        progress_bar, obj_weight[[i]], integer[i], maxit_pso, eps,
-        max_starts, checkGrim, prob_heuristic
-      )
-      solution_matrix[, i] <- res$data
-      best_error_vec[[i]] <- res$best_error
-      track_error[[i]]    <- res$track_error
-      grim_list[[i]]      <- res$grim
-    }
+
+    # Multiple Runs Sequential
+      if(progress_mode == "shiny") {
+        handler <- list(progressr::handler_shiny())
+      } else {
+        handler <-list(progressr::handler_txtprogressbar())
+      }
+    progressr::with_progress({
+        p <- progressr::progressor(steps = n_var)
+          for (i in seq_len(n_var)) {
+            res <- optim_vec_single(
+              N, target_mean[i], target_sd[i], range[, i], tolerance,
+              max_iter, init_temp, cooling_rate, int.probs[[i]],
+              progress_bar, obj_weight[[i]], integer[i], maxit_pso, eps,
+              max_starts, checkGrim, prob_heuristic
+            )
+            solution_matrix[, i] <- res$data
+            best_error_vec[[i]] <- res$best_error
+            track_error[[i]]    <- res$track_error
+            grim_list[[i]]      <- res$grim
+            p()
+          }
+            },
+    handlers = handler
+    )
   }
 
+  # assemble output
   colnames(solution_matrix) <- names(target_mean)
   solution_matrix <- as.data.frame(solution_matrix)
   result <- list(

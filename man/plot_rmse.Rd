@@ -2,16 +2,17 @@
 % Please edit documentation in R/fct_plot_rmse.R
 \name{plot_rmse}
 \alias{plot_rmse}
-\title{Plot RMSE Comparison}
+\title{Plot RMSE Comparison for discourse.object runs}
 \usage{
 plot_rmse(object_list)
 }
 \arguments{
-\item{object_list}{List of discourse objects.}
+\item{object_list}{A `discourse.object` or list thereof, typically output from `optim_*` functions.}
 }
 \value{
-ggplot2 object
+A `ggplot2` object.
 }
 \description{
-Plot RMSE distributions (Between vs. Target) across metrics.
+Visualizes the root-mean-square error (RMSE) distributions for between-run variability
+versus deviations from target values across multiple `discourse.object` runs (e.g. parallel_aov()).
 }

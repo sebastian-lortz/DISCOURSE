@@ -338,6 +338,7 @@ mod_optim_vec_server <- function(id, root_session) {
                   ns(tbl))
         )
       }
+      withProgress(message = "Running optimization...", value = 0, {
       rv$result <- optim_vec(
         N            = input$N,
         target_mean  = stats::setNames(df$Mean, df$Variable),
@@ -351,8 +352,10 @@ mod_optim_vec_server <- function(id, root_session) {
         max_starts   = input$max_starts,
         obj_weight   = lapply(seq_len(nrow(wdf)), function(i)
           c(wdf$WeightMean[i], wdf$WeightSD[i])),
-        parallel     = input$parallel
+        parallel     = input$parallel,
+        progress_mode        = "shiny"
       )
+      })
       rv$status <- "done"
       rv$dirty <- FALSE
       shinyjs::enable("run")
@@ -427,21 +430,49 @@ mod_optim_vec_server <- function(id, root_session) {
       )
     })
 
+    observeEvent(rv$params$Variable, {
+      if (!is.null(input$run_select)) {
+      vars <- rv$params$Variable
+      sel  <- input$run_select
+      if (is.null(sel) || !(sel %in% vars)) {
+        sel <- vars[1]
+      }
+      updateSelectizeInput(
+        session,
+        "run_select",
+        choices  = vars,
+        selected = sel,
+        options  = list(dropdownParent = "body")
+      )
+    }
+      })
+
     output$main_output <- renderUI({
       if (rv$dirty) return(NULL)
       req(rv$last)
+      vars <- rv$params$Variable
+      old     <- isolate(input$run_select)
+      run_id  <- if (!is.null(old) && old %in% vars) old else vars[1]
+      idx     <- match(run_id, vars)
+
+      all_runs <- seq_along(rv$result$track_error)
+      idx      <- match(run_id, vars, nomatch = 1)
+      if (!(idx %in% all_runs)) idx <- all_runs[1]
+
+      n_iters <- length(rv$result$track_error[[idx]])
+      max_it  <- if (n_iters >= 1) n_iters else 1
+
       switch(
         rv$last(),
         traj = tagList(
           plotOutput(ns("error_plot"), width = "600px", height = "400px"),
           fluidRow(
-            { run_id <- isolate(input$run_select %||% rv$params$Variable[1]); idx <- which(rv$params$Variable == run_id) ; NULL},
             column(
               width = 3,
               selectizeInput(
                 ns("run_select"),
                 name_with_info("Variable", "Select which variable's (i.e. run's) error trajectory to plot."),
-                choices = rv$params$Variable,
+                choices = vars,
                 selected = run_id,
                 options = list(dropdownParent = 'body'),
                 width = "100px"
@@ -457,9 +488,7 @@ mod_optim_vec_server <- function(id, root_session) {
                 ),
                 value = isolate(input$iter_select %||% 1),
                 min   = 1,
-                max   = length(
-                  rv$result$track_error[[idx]]
-                ),
+                max   = max_it,
                 step  = 100,
                 width = "100px"
               )

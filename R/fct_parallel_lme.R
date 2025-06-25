@@ -1,28 +1,50 @@
-#' Run mixed-effects linear regression optimization in parallel
+#' Optimize multiple simulated longitudinal mixed-effects data to match target correlations and regression estimates
 #'
-#' Executes multiple starts of `optim_lme` across available cores and returns either all results or the best solution.
+#' Uses the DISCOURSE algorithmic framework to simulate multiple data sets
+#' such that the resulting correlations and regression coefficients including random-intercept SD
+#' match specified targets under a given mixed-effects regression model and input parameters.
 #'
-#' @param sim_data Data frame or list; input data for mixed-effects modeling.
-#' @param target_cor Numeric; target correlation(s) to achieve.
-#' @param target_reg Numeric; target regression coefficient(s).
-#' @param reg_equation Formula or character; regression model specification.
-#' @param target_se Numeric, optional; target standard error(s) for coefficients.
-#' @param weight Numeric or NA; observation weights.
-#' @param max_iter Integer; maximum number of iterations per start (default 1e5).
-#' @param init_temp Numeric; initial temperature for simulated annealing.
-#' @param cooling_rate Numeric; decay rate of temperature.
-#' @param tol Numeric; convergence tolerance (default 1e-6).
-#' @param max_starts Integer; number of optimization restarts (default 1).
-#' @param parallel_start Integer; number of parallel runs to launch.
-#' @param hill_climbs Integer or NA; number of hill-climb refinements post-annealing.
-#' @param return_best_solution Logical; if TRUE, return only the best fit (default FALSE).
-#' @param move_prob List containing start and end probabilities of move selection
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
+#' @param parallel_start Number of independent runs (parallel or sequential) to simulate data sets.
+#' @param return_best_solution Logical; return only the best run if TRUE.
+#' @param sim_data Data.frame. Wide-format predictors and outcome columns for longitudinal data.
+#' @param target_cor Numeric vector. Target upper-triangular (excluding diagonal) correlation values for predictor and outcome variables.
+#' @param target_reg Numeric vector. Target fixed-effect coefficients (including intercept and random-intercept SD).
+#' @param reg_equation Character or formula. Mixed-effects model formula (e.g., "Y ~ X1 + X2 + (1|ID)").
+#' @param target_se Numeric vector, optional. Target standard errors for fixed-effect estimates; length matches `target_reg` minus 1 (random-intercept SD).
+#' @param weight Numeric vector of length 2. Weights for correlation vs. regression error in the objective function. Default `c(1, 1)`.
+#' @param max_iter Integer. Maximum iterations for simulated annealing per start. Default `1e5`.
+#' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
+#' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
+#' @param max_starts Integer. Number of annealing restarts. Default `1`.
+#' @param move_prob List. Start/end move probabilities for operations: residual swap, k-cycle, local swap, tau reordering.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#' @importFrom foreach %dopar%
+#' @return A list of multiple `discourse.object`s, each containing:
+#' \describe{
+#'   \item{best_error}{Numeric. Minimum objective error achieved.}
+#'   \item{data}{Data.frame. Optimized wide-format longitudinal data.}
+#'   \item{inputs}{List of all input parameters for reproducibility.}
+#'   \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+#'   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
+#'   \item{track_move_best}{Character vector. Move types that produced best improvements.}
+#'   \item{track_move_acc}{Character vector. Move types accepted per iteration.}
+#' }
 #'
-#' @return A list of `discourse.object` results from each parallel start,
-#'         or a single `discourse.object` if `return_best_solution = TRUE`.
+#' @example
+#' # Optimize data
+#' parallel_lme(
+#'   parallel_start = 7,
+#'   return_best_solution = FALSE,
+#'   sim_data       = sim_data,
+#'   target_cor     = c(0.4),
+#'   target_reg     = c(1, 0.5, 4),
+#'   reg_equation   = "Y ~ X1 + (1|ID)",
+#'   max_iter       = 2000,
+#'   hill_climbs    = 50
+#' )
 #' @export
 parallel_lme <- function(
     parallel_start,
@@ -36,7 +58,7 @@ parallel_lme <- function(
     max_iter = 1e4,
     init_temp = 1,
     cooling_rate = NULL,
-    tol = 1e-6,
+    tolerance = 1e-6,
     max_starts = 1,
     hill_climbs = NULL,
     move_prob = list(
@@ -49,7 +71,8 @@ parallel_lme <- function(
                 local    = 0.70,
                 tau      = 0.00)
     ),
-    min_decimals = 1
+    min_decimals = 1,
+    progress_mode = "console"
 ) {
 
   # input check
@@ -91,8 +114,8 @@ parallel_lme <- function(
   )) {
     stop("`cooling_rate` must be a single numeric between 0 and 1, or NULL.")
   }
-  if (!is.numeric(tol) || length(tol) != 1 || tol < 0) {
-    stop("`tol` must be a single non-negative numeric value.")
+  if (!is.numeric(tolerance) || length(tolerance) != 1 || tolerance < 0) {
+    stop("`tolerance` must be a single non-negative numeric value.")
   }
   if (!is.numeric(max_starts) || length(max_starts) != 1 || max_starts < 1) {
     stop("`max_starts` must be a single positive integer.")
@@ -123,69 +146,65 @@ parallel_lme <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
-  # Setup parallel backend
-  #cores <- parallel::detectCores() - 1
-  #cl    <- parallel::makeCluster(cores)
-  #doSNOW::registerDoSNOW(cl)
-  #cat("\nParallel backend registered with:", cores, "cores.\n")
-
-  # ensure cluster stop and cleanup on exit
-  #on.exit({
-  #  parallel::stopCluster(cl)
-  #  gc()
-  #})
-
+  # Set up backend
   old_plan <- future::plan()
   on.exit( future::plan(old_plan), add = TRUE )
-
   cat("There are ", future::availableCores() , "available workers. \n")
   real_cores <- future::availableCores()
-  n_workers  <- min(parallel_start, real_cores)
+  n_workers  <- min(parallel_start, max(real_cores-1,1))
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
   } else {
     future::plan(future::sequential)
   }
   cat("Running with", n_workers, "worker(s). \n")
-
-  # Define packages for parallel workers
   pkgs <- c("discourse", "Rcpp")
 
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
 
-  # run optim_lme in parallel
-  values <- future.apply::future_lapply(
-    X           = seq_len(parallel_start),
-    FUN         = function(i) {
-    optim_lme(
-      sim_data         = sim_data,
-      target_cor       = target_cor,
-      target_reg       = target_reg,
-      reg_equation     = reg_equation,
-      target_se        = target_se,
-      weight           = weight,
-      max_iter         = max_iter,
-      init_temp        = init_temp,
-      cooling_rate     = cooling_rate,
-      tol              = tol,
-      max_starts       = max_starts,
-      hill_climbs      = hill_climbs,
-      move_prob        = move_prob,
-      progress_bar     = FALSE
-    )
-    },
-    future.seed = TRUE    # safe RNG in each worker
-    #packages    = pkgs,
-    #error       = function(e) e
-  )
-  #str(values)
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+
+  # Optimization process
+  values <- progressr::with_progress({
+    p <- progressr::progressor(steps = parallel_start)
+      future.apply::future_lapply(
+        X           = seq_len(parallel_start),
+        FUN         = function(i) {
+        res <- optim_lme(
+          sim_data         = sim_data,
+          target_cor       = target_cor,
+          target_reg       = target_reg,
+          reg_equation     = reg_equation,
+          target_se        = target_se,
+          weight           = weight,
+          max_iter         = max_iter,
+          init_temp        = init_temp,
+          cooling_rate     = cooling_rate,
+          tolerance              = tolerance,
+          max_starts       = max_starts,
+          hill_climbs      = hill_climbs,
+          move_prob        = move_prob,
+          progress_bar     = FALSE
+        )
+        p()
+        res
+        },
+        future.seed = TRUE
+      )},
+handlers = handler
+)
 
   cat(" finished.\n")
   stop_time <- Sys.time()
   cat("\nParallel optimization time was", stop_time - start_time, "\n")
 
-  # return best solution if requested
+  # assemble output
   if (return_best_solution) {
     errors <- vapply(
       values,
@@ -204,7 +223,5 @@ parallel_lme <- function(
     return(result)
 
   }
-
-  # return all parallel results
   return(values)
 }

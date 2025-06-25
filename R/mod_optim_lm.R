@@ -238,7 +238,6 @@ mod_optim_lm_server <- function(id, root_session){
       input$estimate_weights)
     }, {
       rv$dirty <- TRUE
-      rv$last_action <- NULL
       for (btn in c(
         "plot_error", "plot_error_ratio", "get_rmse", "get_rmse_parallel",
         "plot_summary", "plot_rmse", "plot_cooling",
@@ -475,7 +474,7 @@ mod_optim_lm_server <- function(id, root_session){
       max_iter      <- input$max_iter
       init_temp     <- input$init_temp
       cooling_rate  <- input$cooling_rate
-      tol           <- input$tolerance
+      tolerance           <- input$tolerance
       max_starts    <- input$max_starts
       weight            <- c(1, 1)
       hill_climbs       <- input$hill_climbs
@@ -497,6 +496,7 @@ mod_optim_lm_server <- function(id, root_session){
                   ns(tbl))
         )
       }
+      withProgress(message = "Running optimization...", value = 0, {
       w_list <- weights_est(
         module = "lm",
         sim_runs = 1,
@@ -509,10 +509,12 @@ mod_optim_lm_server <- function(id, root_session){
         max_iter       = max_iter,
         init_temp      = init_temp,
         cooling_rate   = cooling_rate,
-        tol            = tol,
+        tolerance            = tolerance,
         max_starts     = max_starts,
         parallel_start = parallel_start,
+        progress_mode = "shiny"
       )
+      })
       w_mat <- w_list$weights
       weight_df(data.frame(
         Correlation = w_mat[1],
@@ -586,7 +588,7 @@ mod_optim_lm_server <- function(id, root_session){
       max_iter      <- input$max_iter
       init_temp     <- input$init_temp
       cooling_rate  <- input$cooling_rate
-      tol           <- input$tolerance
+      tolerance           <- input$tolerance
       max_starts    <- input$max_starts
       weight            <- c(1, 1)
       hill_climbs       <- input$hill_climbs
@@ -603,15 +605,16 @@ mod_optim_lm_server <- function(id, root_session){
         max_iter       = max_iter,
         init_temp      = init_temp,
         cooling_rate   = cooling_rate,
-        tol            = tol,
+        tolerance            = tolerance,
         max_starts     = max_starts,
         hill_climbs    = hill_climbs,
         parallel_start       = parallel_start,
-        return_best_solution = return_best_solution
+        return_best_solution = return_best_solution,
+        progress_mode = "shiny"
       )
       cat(
         paste(
-          unlist( fn_args[2:13] ),
+          unlist( fn_args[2:16] ),
           collapse = ", "
         ), "\n"
       )
@@ -621,12 +624,14 @@ mod_optim_lm_server <- function(id, root_session){
                   ns(tbl))
         )
       }
-      if (parallel_start > 1) {
+      withProgress(message = "Running optimization...", value = 0, {
+        if (parallel_start > 1) {
         rv$result <- do.call(parallel_lm, fn_args)
         } else {
         seq_args <- fn_args[names(fn_args) %in% names(formals(optim_lm))]
         rv$result <- do.call(optim_lm, seq_args)
-      }
+        }
+      })
       is_parallel <- input$parallel_start > 1 && !input$return_best
       rv$status <- "done"
       rv$dirty  <- FALSE
@@ -661,6 +666,14 @@ mod_optim_lm_server <- function(id, root_session){
       }
     })
 
+    selected_dataset <- reactive({
+      if (rv$dirty) return(NULL)
+      #req(last_action())
+      if (is.list(rv$result) && input$parallel_start > 1 && !input$return_best) {
+        rv$result[[as.integer(input$dataset_selector)]]
+      } else rv$result
+    })
+
     output$status_text <- renderText({
       if (rv$dirty) return(NULL)
       if (rv$status == "running") "Optimization is running..." else ""
@@ -668,8 +681,9 @@ mod_optim_lm_server <- function(id, root_session){
 
     output$best_error <- renderTable({
       if (rv$dirty) return(NULL)
-      req(rv$result)
-      bes <- rv$result$best_error
+      ds <- selected_dataset()
+      req(ds)
+      bes <- ds$best_error
       is_conv <- (bes == 0) | (bes <= input$tolerance)
       disp    <- ifelse(is_conv, "converged", format(bes))
       data.frame(
@@ -677,11 +691,12 @@ mod_optim_lm_server <- function(id, root_session){
         stringsAsFactors = FALSE,
         check.names = FALSE
       )
-    }, rownames = FALSE)
+    }, rownames = FALSE,
+    colnames = FALSE)
 
     last_action <- reactiveVal(NULL)
     observeEvent(input$plot_error,         last_action("plot_error"))
-    observeEvent(input$plot_error_ratio,         last_action("plot_error_ratio"))
+    observeEvent(input$plot_error_ratio,   last_action("plot_error_ratio"))
     observeEvent(input$get_rmse,           last_action("get_rmse"))
     observeEvent(input$get_rmse_parallel,  last_action("get_rmse_parallel"))
     observeEvent(input$plot_summary,       last_action("plot_summary"))
@@ -786,14 +801,6 @@ mod_optim_lm_server <- function(id, root_session){
              "plot_cooling"      = plotOutput(ns("plot_cooling"),   width = "600px", height = "400px"),
              "display_data"      = tableOutput(ns("display_data"))
       )
-    })
-
-    selected_dataset <- reactive({
-      if (rv$dirty) return(NULL)
-      req(last_action())
-      if (is.list(rv$result) && input$parallel_start > 1 && !input$return_best) {
-        rv$result[[as.integer(input$dataset_selector)]]
-      } else rv$result
     })
 
     output$dl_object <- downloadHandler(

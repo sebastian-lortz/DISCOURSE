@@ -7,13 +7,29 @@
 \method{summary}{discourse.object}(object, ...)
 }
 \arguments{
-\item{object}{A `discourse.object` to summarize}
+\item{object}{A `discourse.object` produced by `optim_*` functions.}
 
-\item{...}{Additional arguments (unused)}
+\item{...}{Additional arguments (unused).}
 }
 \value{
-An object of class `summary.discourse.object`
+An object of class `summary.discourse.object` containing:
+\describe{
+  \item{rmse}{Named list of RMSE values.}
+  \item{inputs}{Original input list.}
+  \item{data}{Optimized data frame.}
+  \item{best_error}{Numeric. Minimum objective error achieved.}
+  \item{track_error}{Numeric vector of best error at each iteration.}
+  \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration (if available).}
+  \item{model}{Fitted regression model or ANOVA table (if applicable).}
+  \item{coefficients}{regression estimates (LM/LME only).}
+  \item{std_errors}{Coefficient standard errors (LM/LME only).}
+  \item{correlations}{Correlation values (LM/LME only).}
+  \item{F_value}{ANOVA F statistics (ANOVA only).}
+  \item{means}{Group or variable means.}
+  \item{sds}{Group or variable standard deviations (vector only).}
+}
 }
 \description{
-Summarize a discourse.object
+Provides a comprehensive summary of a `discourse.object`, including RMSE,
+model components, and statistics depending on the analysis type (LM/LME, ANOVA, or vec).
 }

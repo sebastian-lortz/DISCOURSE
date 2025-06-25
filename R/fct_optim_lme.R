@@ -1,26 +1,48 @@
-#' optim_lme()
+#' Optimize simulated longitudinal mixed-effects data to match target correlations and regression estimates
 #'
-#' @description Optimize a longitudinal mixed‐model data set via simulated annealing.
+#' Uses the DISCOURSE algorithmic framework to simulate
+#' data such that the resulting correlations and regression coefficients including random-intercept SD
+#' match specified targets under a given mixed-effects regression model and input parameters.
 #'
-#' @param sim_data Data frame (wide) of predictors and outcome.
-#' @param target_cor Numeric vector of target correlations (upper‐tri of full corr matrix).
-#' @param target_reg Numeric vector of target regression coefficients.
-#' @param reg_equation Model formula string, e.g. "Y ~ X1 + X2 + X1:X2".
-#' @param target_se Optional target standard errors for regression.
-#' @param weight Numeric length‐2 vector of weights for (corr, reg) error.
-#' @param max_iter Maximum SA iterations per start.
-#' @param init_temp Initial temperature.
-#' @param cooling_rate Cooling rate per iteration (if NA, set to (max_iter-10)/max_iter).
-#' @param tol Error tolerance for early stopping.
-#' @param progress_bar Logical; show progress bar.
-#' @param max_starts Number of SA restarts.
-#' @param move_prob List containing start and end probabilities of move selection
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
-#' @param eps Numeric; the lower bound for the standardization to prevent division by zero
-#' @param hill_climbs Optional hill‐climb iterations after SA.
+#' @param sim_data Data.frame. Wide-format predictors and outcome columns for longitudinal data.
+#' @param target_cor Numeric vector. Target upper-triangular (excluding diagonal) correlation values for predictor and outcome variables.
+#' @param target_reg Numeric vector. Target fixed-effect coefficients (including intercept and random-intercept SD).
+#' @param reg_equation Character or formula. Mixed-effects model formula (e.g., "Y ~ X1 + X2 + (1|ID)").
+#' @param target_se Numeric vector, optional. Target standard errors for fixed-effect estimates; length matches `target_reg` minus 1 (random-intercept SD).
+#' @param weight Numeric vector of length 2. Weights for correlation vs. regression error in the objective function. Default `c(1, 1)`.
+#' @param max_iter Integer. Maximum iterations for simulated annealing per start. Default `1e5`.
+#' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
+#' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
+#' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
+#' @param max_starts Integer. Number of annealing restarts. Default `1`.
+#' @param move_prob List. Start/end move probabilities for operations: residual swap, k-cycle, local swap, tau reordering.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param eps Numeric. Small constant to stabilize scaling (prevent division by zero). Default `1e-5`.
+#' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#' @return A "discourse.object" with best error, data, inputs, and trace
+#'  @return A `discourse.object` list containing:
+#' \describe{
+#'   \item{best_error}{Numeric. Minimum objective error achieved.}
+#'   \item{data}{Data.frame. Optimized wide-format longitudinal data.}
+#'   \item{inputs}{List of all input parameters for reproducibility.}
+#'   \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+#'   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
+#'   \item{track_move_best}{Character vector. Move types that produced best improvements.}
+#'   \item{track_move_acc}{Character vector. Move types accepted per iteration.}
+#' }
 #'
+#' @example
+#' # Optimize data
+#' optim_lme(
+#'   sim_data       = sim_data,
+#'   target_cor     = c(0.4),
+#'   target_reg     = c(1, 0.5, 4),
+#'   reg_equation   = "Y ~ X1 + (1|ID)",
+#'   max_iter       = 2000,
+#'   hill_climbs    = 50
+#' )
 #' @export
 optim_lme <- function(sim_data,
                       target_cor,
@@ -31,10 +53,10 @@ optim_lme <- function(sim_data,
                       max_iter        = 1e5,
                       init_temp       = 1,
                       cooling_rate    = NULL,
-                      tol             = 1e-6,
+                      tolerance       = 1e-6,
                       progress_bar    = TRUE,
                       max_starts      = 1,
-                      hill_climbs     = NULL,
+                      hill_climbs     = 100,
                       move_prob = list(
                         start = c(residual = 0.00,
                                   k_cycle  = 0.00,
@@ -45,8 +67,9 @@ optim_lme <- function(sim_data,
                                   local    = 0.70,
                                   tau      = 0.00)
                       ),
-                      min_decimals = 0,
-                      eps = 1e-5
+                      min_decimals = 1,
+                      eps = 1e-5,
+                      progress_mode = "console"
 ) {
 
   # input checks
@@ -71,8 +94,8 @@ optim_lme <- function(sim_data,
   )) {
     stop("`cooling_rate` must be a single numeric between 0 and 1, or NULL.")
   }
-  if (!is.numeric(tol) || length(tol) != 1 || tol < 0) {
-    stop("`tol` must be a single non-negative numeric value.")
+  if (!is.numeric(tolerance) || length(tolerance) != 1 || tolerance < 0) {
+    stop("`tolerance` must be a single non-negative numeric value.")
   }
   if (!is.logical(progress_bar) || length(progress_bar) != 1) {
     stop("`progress_bar` must be a single logical value.")
@@ -106,8 +129,8 @@ optim_lme <- function(sim_data,
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
+  # get data info
   reg_equation <- stats::as.formula(reg_equation)
-  # get characteristics
   N <- nrow(sim_data)
   ID <- 1:nrow(sim_data)
   NA_cor <- is.na(target_cor)
@@ -115,7 +138,7 @@ optim_lme <- function(sim_data,
   w.length <- ncol(sim_data)
   reg.names <- names(target_reg)
 
-  ## decimals for rounding
+  # get decimals
   cor_dec <- max(count_decimals(target_cor, min_decimals = min_decimals))
   reg_dec <- max(count_decimals(target_reg, min_decimals = min_decimals))
   target_reg[length(target_reg)] <- round((target_reg[length(target_reg)])^2, reg_dec)
@@ -124,13 +147,13 @@ optim_lme <- function(sim_data,
     se_dec <- max(count_decimals(target_se, min_decimals = min_decimals))
   }
 
-  ## to long
+  # data to long format
   full_data <- cbind(ID, sim_data)
   long_data <- wide_to_long(full_data)
   long_ID <- long_data$ID
   long_num_cols <- ncol(long_data)
 
-  ## identify between‐ and within‐predictors
+  # get between and within predictors
   if ((which(colnames(long_data)=="time") - 2) > 0) {
     between_cols <- 2:(which(colnames(long_data)=="time")-1)
   } else {
@@ -139,24 +162,22 @@ optim_lme <- function(sim_data,
   time_cols <- (which(colnames(long_data)=="time")+1):(long_num_cols-1)
   long_candidate_cols <-
     if (any(!is.na(between_cols))) c(between_cols, time_cols) else time_cols
-
   pred_names    <- setdiff(names(long_data[,-long_num_cols]), c("ID","time"))
   times         <- long_data$time
   unique_times <- unique(times)
   col_names     <- colnames(long_data)
   y.name <- col_names[long_num_cols]
 
-  ## extract matrices
+  # get matrix
   predictors <- long_data[, long_candidate_cols]
   outcome    <- long_data[, long_num_cols]
 
-  # check cor and reg
+  # intput check cor and reg
   n.col <- length(long_candidate_cols)+1
   exp_cor <- (n.col*(n.col-1))/2
   term_lbls <- attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   names(target_reg) <- c("(Intercept)", term_lbls[-length(term_lbls)], "ID")
-
   if (length(target_cor) != exp_cor) {
     stop(sprintf("`target_cor` must be a numeric vector of length %d, not %d.",
                  exp_cor, length(target_cor)))
@@ -175,24 +196,19 @@ optim_lme <- function(sim_data,
     stop("`target_se`, if provided, must be a numeric vector matching the length of `target_reg` minus 1 (SD of random intercept).")
   }
 
-  ### helper wrappers
+  # tau reorder
   tau_order <- function(wide_df) {
-    # build the time‐columns for your outcome
     y.cols      <- paste0(y.name, "_", unique_times)
-    # pick one column to reorder
     col_j       <- sample(y.cols, 1)
-    # compute subject means *excluding* this column
     other_cols  <- setdiff(y.cols, col_j)
     subj_means  <- rowMeans(wide_df[, other_cols, drop = FALSE])
-    # get that column’s values
     vals        <- wide_df[,col_j]
-    # sort vals to match ascending subj_means
     new_vals    <- sort(vals)[order(subj_means)]
-    # assign and return
     wide_df[,col_j] <- new_vals
     wide_df
   }
 
+  # k_cycle
   max.k <- if (N/4 <= 3) {3} else {N/4}
   k_permute <- function(wide_df) {
     col_j <- sample(w.length, 1)
@@ -202,46 +218,37 @@ optim_lme <- function(sim_data,
     wide_df
   }
 
+  # residual swap
   residual_swap <- function(wide_df) {
-    # 1) pick time‐column
     col_j <- sample(w.length, 1)
     y.cols     <- paste0(y.name, "_", unique_times)
     subj_means <- rowMeans(wide_df[ , y.cols, drop=FALSE])
     g          <- subj_means - mean(subj_means)
-
-    # 3) sample one high‐g and one low‐g subject
     high_idx   <- which(g > 0)
     low_idx    <- which(g < 0)
     if (length(high_idx)==0 || length(low_idx)==0) {
-      # fallback to a random 2‐swap
-      # insert here a swap
       return(wide_df)
     } else {
       i <- sample(high_idx, 1, prob = g[high_idx])
       j <- sample(low_idx,  1, prob = -g[low_idx])
       pair <- c(i, j)
     }
-
-    # 4) perform the swap
     tmp <- wide_df[pair[1], col_j]
     wide_df[pair[1], col_j] <- wide_df[pair[2], col_j]
     wide_df[pair[2], col_j] <- tmp
-
     wide_df
   }
 
-
-    candidate_cor <- function(candidate) {
+  # objective function
+  candidate_cor <- function(candidate) {
       candidate_cor_cpp(
         as.matrix(candidate[, (names(candidate) %in% pred_names)]),
         candidate[,long_num_cols]
       )
     }
-
     if (is.null(target_se)) {
     candidate_reg <- function(candidate) {
       long_candidate <- candidate
-
       colnames(long_candidate) <- col_names
       tryCatch({
         model <- lme4::lmer(
@@ -255,10 +262,8 @@ optim_lme <- function(sim_data,
         )
         vc<- as.data.frame(lme4::VarCorr(model))
         tau <- vc[ vc$grp=="ID" & vc$var1=="(Intercept)", "vcov" ]
-        #cat("...LME.   ", tau)
         if (is.null(tau)) {
           tau <- var_tau(long_candidate, y.name)
-        #  cat("null ")
         }
         c(lme4::fixef(model),
           tau
@@ -267,7 +272,6 @@ optim_lme <- function(sim_data,
         rep(1e5, length(target_reg))
       })
     }
-  # error function
   error_function <- function(candidate) {
     cor_vec    <- candidate_cor(candidate)
     if (sum(!NA_cor) > 0) {
@@ -275,23 +279,20 @@ optim_lme <- function(sim_data,
         mean((round(cor_vec[!NA_cor], cor_dec) - target_cor[!NA_cor])^2)
       )
     } else {
-      cor_error <- 0  # or 0, or Inf—whichever makes sense for your downstream logic
+      cor_error <- 0
     }
     reg_vec   <- candidate_reg(candidate)
     coef_err  <- round(reg_vec[!NA_reg], reg_dec) - target_reg[!NA_reg]
     scales   <- pmax(abs(target_reg[!NA_reg]), eps)
     coef_err <- coef_err/scales
     reg_error <- sqrt(mean(c(coef_err)^2))
-
     total_error<- cor_error*weight[1] + reg_error*weight[2]
     error_ratio<- cor_error/coef_err
     list(total_error=total_error, error_ratio=error_ratio)
   }
-} else {
-      # including target SEs
+} else { # incl SE
       candidate_reg <- function(candidate) {
         long_candidate <- candidate
-
         colnames(long_candidate) <- col_names
         tryCatch({
         model <- lme4::lmer(
@@ -303,20 +304,14 @@ optim_lme <- function(sim_data,
             calc.derivs         = FALSE
           )
         )
-
         vc<- as.data.frame(lme4::VarCorr(model))
         tau <- vc[ vc$grp=="ID" & vc$var1=="(Intercept)", "vcov" ]
-        #cat("...LME.   ", tau)
-        #cat("....SE.", as.vector(stats::coef(summary(model))[ , "Std. Error"]))
 if (is.null(tau)) {
     tau <- var_tau(long_candidate, y.name)
-    #cat("null ")
 }
-       # cat(".....   ", tau)
         c(lme4::fixef(model),
           tau,
           as.vector(stats::coef(summary(model))[ , "Std. Error"]))
-
         } , error = function(e) {
           rep(1e5, length(c(target_reg, target_se)))
         })
@@ -340,19 +335,15 @@ if (is.null(tau)) {
         scales   <- pmax(abs(target_se[!NA_se]), eps)
         se_err <- se_err/ scales
         reg_error <- sqrt(mean(c(coef_err, se_err)^2))
-
         total_error <- cor_error * weight[1] + reg_error * weight[2]
         error_ratio <- cor_error / reg_error
         list(total_error = total_error, error_ratio = error_ratio)
       }
-
 }
 
-  ## SA parameter
+  # init parameters
   if (is.null(cooling_rate)) cooling_rate <- (max_iter-10)/max_iter
   temp <- init_temp
-
-  # move probs
   if (!all(c("start","end") %in% names(move_prob))) {
     stop("`move_prob` must be a list with elements `$start` and `$end`")
   }
@@ -364,136 +355,143 @@ if (is.null(tau)) {
   get_move_probs <- function(i) {
     frac <- i / max_iter
     p_i  <- p_start + frac * (p_end - p_start)
-    # numerical safety: renormalize to sum to 1
     p_i / sum(p_i)
   }
 
-  ## restart loop
-  for (start in seq_len(max_starts)) {
-    if (progress_bar) {
-      pb_update_interval <- floor(max_iter/100)
-      pb <- utils::txtProgressBar(min=0, max=max_iter, style=3)
-      on.exit(base::close(pb), add=TRUE)
-    }
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+  pb_interval_sa <- floor(max_iter / 100)
+  pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
+  n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
+    length(seq_len(max_iter)[seq_len(max_iter) %% pb_interval_sa == 0])
+  }, integer(1)))
+  n_hc_calls <- if (!is.null(hill_climbs)) {
+    length(seq_len(hill_climbs)[seq_len(hill_climbs) %% pb_interval_hc == 0])
+  } else 0
+  total_calls <- n_sa_calls + n_hc_calls
 
-    track_error       <- numeric(max_iter)
-    track_error_ratio <- numeric(max_iter)
-    track.move.best <- rep(NA,max_iter)
-    track.move.acc <- rep(NA,max_iter)
-
-    ## init candidate
-    if (start==1) {
-      current_candidate <- data.frame(
-        ID = long_data$ID,
-        time    = long_data$time,
-        long_data[, pred_names],
-        V4 = outcome
-      )
-      time_indices      <- split(seq_len(nrow(current_candidate)),
-                                 current_candidate$time)
-      within_names      <- pred_names
-      p_indices         <- split(seq_len(nrow(long_data)),
-                                 long_data$ID)
-      if (any(!is.na(between_cols))) {
-        between_names    <- names(long_data)[between_cols]
-        within_names     <- setdiff(pred_names, between_names)
-        current_candidate<- data.frame(
-          long_ID,
-          long_data[,between_names],
-          time=times,
-          long_data[,within_names],
-          V4 = outcome
-        )
-        colnames(current_candidate) <- col_names
-      }
-    }
-
-    current_error <- error_function(current_candidate)$total_error
-    best_candidate<- current_candidate
-    best_error    <- current_error
-    best_error_ratio <- error_function(current_candidate)$error_ratio
-
-    ## inner SA
-    for (i in seq_len(max_iter)) {
-
-      w.candidate <- long_to_wide(current_candidate)
-
-      probs <- get_move_probs(i)
-      move <- sample(names(probs), size = 1, prob = probs)
-      move.name <- move
-      if (move == "tau") {
-        # tau re-ordering
-        w.candidate <- tau_order(w.candidate)
-      } else if (move == "local") {
-        # local swap
-        col <- sample(1:w.length,1)
-        idx <- sample(N,2)
-        w.candidate[idx,col] <- w.candidate[rev(idx),col]
-      } else if (move == "k_cycle") {
-      # k-cycle
-      w.candidate <- k_permute(w.candidate)
-      } else if (move == "residual") {
-        w.candidate <- residual_swap(w.candidate)
-      }
-      candidate <- wide_to_long(w.candidate)
-      best <- NA
-      acc <- NA
-      err_list      <- error_function(candidate)
-      candidate_err <- err_list$total_error
-      if (candidate_err < current_error ||
-          stats::runif(1) < exp((current_error-candidate_err)/temp)) {
-        current_candidate <- candidate
-        current_error     <- candidate_err
-        acc <- move.name
-        if (current_error < best_error) {
-          best_candidate <- current_candidate
-          best_error     <- current_error
-          best_error_ratio<- err_list$error_ratio
-          best <- move.name
+  # Optimization process
+  progressr::with_progress({
+    p <- progressr::progressor(steps = total_calls)
+      for (start in seq_len(max_starts)) {
+        if (progress_bar) {
+          pb <- utils::txtProgressBar(min=0, max=max_iter, style=3)
+          on.exit(base::close(pb), add=TRUE)
         }
+        track_error       <- numeric(max_iter)
+        track_error_ratio <- numeric(max_iter)
+        track.move.best <- rep(NA,max_iter)
+        track.move.acc <- rep(NA,max_iter)
+        if (start==1) {
+          current_candidate <- data.frame(
+            ID = long_data$ID,
+            time    = long_data$time,
+            long_data[, pred_names],
+            V4 = outcome
+          )
+          time_indices      <- split(seq_len(nrow(current_candidate)),current_candidate$time)
+          within_names      <- pred_names
+          p_indices         <- split(seq_len(nrow(long_data)),long_data$ID)
+          if (any(!is.na(between_cols))) {
+            between_names    <- names(long_data)[between_cols]
+            within_names     <- setdiff(pred_names, between_names)
+            current_candidate<- data.frame(
+              long_ID,
+              long_data[,between_names],
+              time=times,
+              long_data[,within_names],
+              V4 = outcome
+            )
+            colnames(current_candidate) <- col_names
+          }
+        }
+        current_error <- error_function(current_candidate)$total_error
+        best_candidate<- current_candidate
+        best_error    <- current_error
+        best_error_ratio <- error_function(current_candidate)$error_ratio
+
+        for (i in seq_len(max_iter)) {
+          w.candidate <- long_to_wide(current_candidate)
+          probs <- get_move_probs(i)
+          move <- sample(names(probs), size = 1, prob = probs)
+          move.name <- move
+          if (move == "tau") {
+            w.candidate <- tau_order(w.candidate)
+          } else if (move == "local") {
+            col <- sample(1:w.length,1)
+            idx <- sample(N,2)
+            w.candidate[idx,col] <- w.candidate[rev(idx),col]
+          } else if (move == "k_cycle") {
+          w.candidate <- k_permute(w.candidate)
+          } else if (move == "residual") {
+            w.candidate <- residual_swap(w.candidate)
+          }
+          candidate <- wide_to_long(w.candidate)
+          best <- NA
+          acc <- NA
+          err_list      <- error_function(candidate)
+          candidate_err <- err_list$total_error
+          if (candidate_err < current_error ||
+              stats::runif(1) < exp((current_error-candidate_err)/temp)) {
+            current_candidate <- candidate
+            current_error     <- candidate_err
+            acc <- move.name
+            if (current_error < best_error) {
+              best_candidate <- current_candidate
+              best_error     <- current_error
+              best_error_ratio<- err_list$error_ratio
+              best <- move.name
+            }
+          }
+          temp             <- temp * cooling_rate
+          track_error[i]   <- best_error
+          track_error_ratio[i] <- best_error_ratio
+          track.move.best[i] <- best
+          track.move.acc[i] <- acc
+          if (progress_bar && (i%%pb_interval_sa==0)) {
+            utils::setTxtProgressBar(pb, i)
+            p()
+          }
+          if (best_error < tolerance) {
+            cat("\nconverged!\n")
+            break
+          }
+        }
+        cat("\nBest error in start", start, "is", best_error, "\n")
+        current_candidate <- best_candidate
+        temp              <- init_temp
       }
-
-      cat("                  error:       ",best_error,"\n")
-      temp             <- temp * cooling_rate
-      track_error[i]   <- best_error
-      track_error_ratio[i] <- best_error_ratio
-      track.move.best[i] <- best
-      track.move.acc[i] <- acc
-
-      if (progress_bar && (i%%pb_update_interval==0)) {
-        utils::setTxtProgressBar(pb, i)
+      if (progress_bar) {close(pb)}
+      # hill climbing
+      if (!is.null(hill_climbs)) {
+        local_opt <- hill_climb(
+          current_candidate = current_candidate,
+          error_function    = error_function,
+          N = N,
+          hill_climbs       = hill_climbs,
+          LME               = TRUE,
+          w.length          = w.length,
+          progress_bar      = progress_bar,
+          progressor = p,
+          pb_interval       = pb_interval_hc
+        )
+        best_error     <- local_opt$best_error
+        best_candidate <- local_opt$best_candidate
       }
-      if (best_error < tol) {
-        cat("\nconverged!\n")
-        break
-      }
-    }
+      },
+  handlers = handler
+)
 
-    cat("\nBest error in start", start, "is", best_error, "\n")
-    current_candidate <- best_candidate
-    temp              <- init_temp
-  }
-  if (progress_bar) {close(pb)}
-
-  ## optional hill‐climb
-  if (!is.null(hill_climbs)) {
-    local_opt <- hill_climb(
-      current_candidate = current_candidate,
-      error_function    = error_function,
-      N = N,
-      hill_climbs       = hill_climbs,
-      LME               = TRUE,
-      w.length          = w.length,
-      progress_bar      = progress_bar
-    )
-    best_error     <- local_opt$best_error
-    best_candidate <- local_opt$best_candidate
-  }
-
-  ## assemble output
+  # combine results
   target_reg[length(target_reg)] <- round((sqrt(target_reg[length(target_reg)])), reg_dec)
   best_solution <- best_candidate
   colnames(best_solution) <- col_names
+
+  # assemble output
   result <- list(
     best_error       = best_error,
     data             = best_solution,

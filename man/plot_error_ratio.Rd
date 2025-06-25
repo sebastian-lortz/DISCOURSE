@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_plot_error_ratio.R
 \name{plot_error_ratio}
 \alias{plot_error_ratio}
-\title{plot_error_ratio}
+\title{Plot Error Ratio Evolution for a discourse.object}
 \usage{
 plot_error_ratio(
   discourse_obj,
@@ -13,19 +13,21 @@ plot_error_ratio(
 )
 }
 \arguments{
-\item{discourse_obj}{A discourse object with track_error_ratio data.}
+\item{discourse_obj}{A `discourse.object` S3 object produced by `optim_*` functions,
+containing a `track_error` element (numeric vector or list of vectors).}
 
-\item{run}{Integer index for list-based track_error_ratio (default = 1).}
+\item{run}{Integer. Index of the run to plot when `track_error` is a list; default `1`.}
 
-\item{show_mean}{Logical; add mean line (default = TRUE).}
+\item{show_mean}{Logical. If `TRUE`, draws a horizontal line at the mean error ratio; default `TRUE`.}
 
-\item{show_median}{Logical; add median line (default = TRUE).}
+\item{show_median}{Logical. If `TRUE`, draws a horizontal line at the median error ratio; default `TRUE`.}
 
-\item{show_final}{Logical; add final value line (default = TRUE).}
+\item{show_final}{Logical. If `TRUE`, draws a horizontal line at the final iteration's error ratio; default `TRUE`.}
 }
 \value{
-A ggplot2 plot of error ratio evolution.
+A `ggplot2` object.
 }
 \description{
-Plot error ratio over iterations for a discourse object.
+Displays how the ratio of correlation to regression error evolves across iterations
+for a `discourse.object`, enabling assessment of balance between objectives.
 }

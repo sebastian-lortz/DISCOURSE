@@ -1,12 +1,23 @@
-#' Plot Error Evolution
+#' Plot Error Ratio Evolution for a discourse.object
 #'
-#' @description Generate an iteration-wise error plot for a discourse object.
-#' @param discourse_obj S3 object of class "discourse.object"
-#' @param run Integer; which run to plot (default 1)
-#' @param show_best Logical; highlight the minimum error (default TRUE)
-#' @param first_iter Numeric; first iteration to be displayed in plot
-#' @return Invisibly returns the ggplot2 object
+#' Creates a plot of error versus iteration, to assess the trajectory of the
+#' objective function value of a `discourse.object`.
+#'
+#' @param discourse_obj A `discourse.object` S3 object produced by `optim_*` functions,
+#'   containing a `track_error` element (numeric vector or list of vectors).
+#' @param run Integer. Index of the run to plot when `track_error` is a list; default `1`.
+#' @param show_best Logical. If `TRUE`, adds a point marking the minimum error; default `TRUE`.
+#' @param first_iter Integer. Number of initial iterations to skip before plotting (zero-based);
+#'   default `1` (plots from iteration 2 onward).
+#'
+#' @return A `ggplot2` object.
+#'
+#' @example
+#' result <- optim_lme(args = ..., ...)
+#' plot_error(result, first_iter = 500)
+#'
 #' @importFrom rlang .data
+#' @import ggplot2
 #' @export
 plot_error <- function(discourse_obj, run = 1, show_best = TRUE, first_iter = 1) {
 
@@ -30,7 +41,8 @@ if (run<1) {
     stop("Input must be a .discourse object.")
   }
   if (is.null(discourse_obj$track_error)) {
-    stop("No track_error element found. PSO routines in the Descriptives module do not have a track_error element.")
+    return(NULL)
+    stop(sprintf("No track_error element found. PSO routines in the Descriptives module do not have a track_error element."))
   }
 
   # data
@@ -39,7 +51,7 @@ if (run<1) {
     n_runs <- length(err_data)
     if (run < 1 || run > n_runs) {
       stop(sprintf(
-        "Run index out of bounds. There %s only %d run%s.",
+        "Run index out of bounds. There %s only %d run%s using integer data. PSO routines (continous data) in the Descriptives module do not have a track_error element.",
         if (n_runs == 1) "is" else "are",
         n_runs,
         if (n_runs == 1) "" else "s"

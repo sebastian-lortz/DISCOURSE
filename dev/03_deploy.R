@@ -15,6 +15,7 @@
 
 ## Run checks ----
 ## Check the package before sending to prod
+Sys.setenv('_R_CHECK_SYSTEM_CLOCK_' = 0)
 devtools::check()
 rhub::check_for_cran()
 

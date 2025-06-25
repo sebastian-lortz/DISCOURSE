@@ -7,11 +7,22 @@
 get_rmse_parallel(object_list)
 }
 \arguments{
-\item{object_list}{A discourse.object or list thereof}
+\item{object_list}{A `discourse.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`, `parallel_lme()`.}
 }
 \value{
-List with between-run and target RMSE summaries and raw values
+A list with components:
+\describe{
+  \item{between_rmse}{A `data.frame` summarizing RMSE metrics (Mean_RMSE, SD_RMSE, Min_RMSE, Max_RMSE) for between-run differences (not taking into account targets).}
+  \item{target_rmse}{A `data.frame` summarizing RMSE metrics for deviations from the original target inputs (not taking into account the mean across runs).}
+  \item{data_rmse}{A `list` with raw RMSE values:
+    \describe{
+      \item{between}{Named numeric vector of between-run RMSEs (`rmse_cor`, `rmse_reg`, etc.).}
+      \item{target}{Named numeric vector of target-run RMSEs.}
+    }
+  }
+}
 }
 \description{
-Compute RMSE metrics across discourse.object runs
+Calculates root-mean-square error (RMSE) metrics for both between-run variability and deviations
+from specified target values across one or more `discourse.object` results.
 }

@@ -1,35 +1,50 @@
-#' Estimate simulation weights via simulated annealing
+#' Estimate objective function weights via pilot simulations
 #'
-#' @description
-#' Run multiple simulated‑annealing optimizations (LM or LME) to find weights that
-#' reproduce target correlations and regression coefficients.
+#' Runs single or multiple optimizations (i.e. optim_lm, optim_lme) to calibrate the balance between correlation and regression
+#' components in the objective function, yielding suggested weights.
 #'
-#' @param module     Character; either `"lm"` or `"lme"` to select the model type.
+#' @param module     Character; either `"lm"` or `"lme"` to select the module type.
 #' @param sim_runs   Integer; number of simulation runs.
-#' @param sim_data   Data frame or matrix of predictors and outcome.
-#' @param target_cor Numeric vector of target correlations.
-#' @param target_reg Numeric vector of target regression coefficients.
-#' @param target_se  Numeric vector of target standard errors (optional).
-#' @param reg_equation Character string of the regression formula.
-#' @param max_iter   Integer; maximum number of iterations (default `1e5`).
-#' @param init_temp  Numeric; initial temperature for simulated annealing.
-#' @param cooling_rate Numeric; per‑iteration cooling rate.
-#' @param tol        Numeric; convergence tolerance.
-#' @param prob_global_move Numeric; probability of taking a global move.
-#' @param progress_bar   Logical; if `TRUE`, print progress.
-#' @param weight     Numeric vector; initial weights (default `c(1,1)`).
-#' @param pool_range Integer; how many recent error ratios to average.
-#' @param max_starts     Integer; number of restarts.
-#' @param parallel_start Integer; number of parallel workers (0 = sequential).
-#' @param move_prob List containing start and end probabilities of move selection
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
+#' @param pool_range Integer; the range of best error values to pool for estimating the weights. Default is `10`.
+#' @param sim_data Data frame. Predictor variables and outcome to be optimized; at least two columns.
+#' @param target_cor Numeric vector. Target upper-triangular (excluding diagonal) correlation values for predictor and outcome variables.
+#' @param target_reg Numeric vector. Target regression coefficients including intercept, matching terms in `reg_equation`.
+#' @param reg_equation Character or formula. Regression model (e.g., "Y ~ X1 + X2 + X1:X2").
+#' @param target_se Numeric vector, optional. Target standard errors for regression coefficients (same length as `target_reg`).
+#' @param weight Numeric vector of length 2. Weights for correlation vs. regression error in the objective function. Default `c(1, 1)`.
+#' @param max_iter Integer. Maximum iterations for simulated annealing per start. Default `1e5`.
+#' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
+#' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
+#' @param prob_global_move Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.
+#' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
+#' @param max_starts Integer. Number of annealing restarts. Default `1`.
+#' @param parallel_start Number of independent runs (parallel or sequential) to simulate the weights.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#' @param move_prob List. Start/end move probabilities for operations: residual swap, k-cycle, local swap, tau reordering.
 #'
-#' @return
-#' A list with components:
+#' @return A list with components:
 #' \describe{
-#'   \item{weights}{Numeric vector of estimated weights.}
-#'   \item{best_solution}{Best solution object from the last optimizer run.}
-#' }
+#'   \item{weights}{Numeric vector of estimated weights for (correlation/regression).}
+#'   \item{data}{The optimized data set from the final run.}
+#'   \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+#'   \item{error_ratio}{Numeric vector of pilot-run error ratios used in weight estimation.}
+#'   }
+#'
+#' @example
+#' # estimate weights of objective function
+#' parallel_lm(
+#' sim_runs = 1,
+#'   parallel_start = 7,
+#'   return_best_solution = FALSE,
+#'   sim_data = sim_data,
+#'   target_cor = c(.23),
+#'   target_reg = c(2.1, 1.2, -0.8),
+#'   reg_equation = "Y ~ X1 + X2",
+#'   max_iter = 10000,
+#'   hill_climbs = 50
+#' )
 #'
 #' @export
 weights_est <- function(module,
@@ -42,7 +57,7 @@ weights_est <- function(module,
                         max_iter = 1e5,
                         init_temp = 1,
                         cooling_rate = NULL,
-                        tol = 1e-6,
+                        tolerance = 1e-6,
                         prob_global_move = 0.05,
                         progress_bar = TRUE,
                         weight = c(1, 1),
@@ -59,7 +74,8 @@ weights_est <- function(module,
                                     local    = 0.70,
                                     tau      = 0.00)
                         ),
-                        min_decimals = 0
+                        min_decimals = 0,
+                        progress_mode = "console"
 ) {
 
   # input checks
@@ -71,9 +87,11 @@ weights_est <- function(module,
     stop("`sim_runs` must be a single positive integer indicating the number of simulation runs.")
   }
 
+  # storage
   error_ratios <- numeric(sim_runs)
   last_opt_run <- NULL
 
+  # optimization process
   for (runs in seq_len(sim_runs)) {
     if (parallel_start == 1) {
       if (module == "lme") {
@@ -87,12 +105,13 @@ weights_est <- function(module,
           max_iter         = max_iter,
           init_temp        = init_temp,
           cooling_rate     = cooling_rate,
-          tol              = tol,
+          tolerance              = tolerance,
           progress_bar     = progress_bar,
           max_starts       = max_starts,
           hill_climbs      = NULL,
           move_prob        = move_prob,
-          min_decimals     = min_decimals
+          min_decimals     = min_decimals,
+          progress_mode    = progress_mode
           )
       } else {
         opt_run <- optim_lm(
@@ -105,12 +124,13 @@ weights_est <- function(module,
           max_iter         = max_iter,
           init_temp        = init_temp,
           cooling_rate     = cooling_rate,
-          tol              = tol,
+          tolerance              = tolerance,
           prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
           max_starts       = max_starts,
           hill_climbs      = NULL,
-          min_decimals     = min_decimals
+          min_decimals     = min_decimals,
+          progress_mode    = progress_mode
         )
       }
     } else {
@@ -125,13 +145,14 @@ weights_est <- function(module,
           max_iter             = max_iter,
           init_temp            = init_temp,
           cooling_rate         = cooling_rate,
-          tol                  = tol,
+          tolerance                  = tolerance,
           max_starts           = max_starts,
           parallel_start       = parallel_start,
           hill_climbs          = NULL,
           return_best_solution = TRUE,
           move_prob            = move_prob,
-          min_decimals     = min_decimals
+          min_decimals         = min_decimals,
+          progress_mode        = progress_mode
         )
       } else {
         opt_run <- parallel_lm(
@@ -144,19 +165,20 @@ weights_est <- function(module,
           max_iter             = max_iter,
           init_temp            = init_temp,
           cooling_rate         = cooling_rate,
-          tol                  = tol,
+          tolerance                  = tolerance,
           prob_global_move     = prob_global_move,
           max_starts           = max_starts,
           parallel_start       = parallel_start,
           hill_climbs          = NULL,
           return_best_solution = TRUE,
-          min_decimals     = min_decimals
+          min_decimals         = min_decimals,
+          progress_mode        = progress_mode
           )
       }
     }
 
+    # combine results
     last_opt_run <- opt_run
-
     errs <- unique(opt_run$track_error_ratio)
     n_errs <- length(errs)
     if (n_errs > pool_range) {
@@ -165,11 +187,12 @@ weights_est <- function(module,
       error_ratios[runs] <- mean(errs, na.rm = TRUE)
     }
   }
-
   mean_error <- mean(error_ratios)
   weights <- round(c(mean_error, 1) / min(mean_error, 1), 3)
 
   cat("The estimated weights are:", weights, "\n")
+
+  # assemble output
   list(
     weights       = weights,
     data = last_opt_run$data,

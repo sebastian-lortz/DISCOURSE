@@ -1,23 +1,47 @@
 #' Perform hill-climbing optimization
 #'
-#' @param N The sample size
-#' @param current_candidate Initial candidate data structure
-#' @param error_function Function returning list with element $total_error
-#' @param hill_climbs Maximum iterations (default 1e4)
-#' @param LME Logical, use mixed-model moves if TRUE
-#' @param num_preds Number of predictors for standard models
-#' @param progress_bar Show progress bar if TRUE
-#' @param w.length The length of the LME data in wide format
-#' @param neighborhood_size Moves per iteration
-#' @param outcome The outcome vector in the LM module
-#' @return List with best_candidate and best_error
+#' Executes a hill-climbing algorithm to iteratively improve a candidate data set
+#' by minimizing a supplied error function. Supports both the LM and LME modules.
+#'
+#' @param current_candidate A data frame representing the initial candidate solution to be optimized.
+#' @param error_function An objective function that takes a candidate and returns a list containing element `$total_error`.
+#' @param N Integer. Sample size; the number of subjects in `current_candidate`.
+#' @param hill_climbs Integer. Maximum number of iterations for hill climbing. Default is 1e2.
+#' @param LME Logical. If TRUE, perform moves appropriate for mixed-effects data (long-to-wide swaps). Default is FALSE.
+#' @param num_preds Integer. Number of predictors (columns) when `LME = FALSE`. Required if not mixed-effects.
+#' @param progress_bar Logical. Whether to display a text progress bar. Default is TRUE.
+#' @param neighborhood_size Integer. Number of candidate moves evaluated per iteration. Default is 4.
+#' @param w.length Integer. Number of columns in the wide-format data when `LME = TRUE`. Required for mixed-effects.
+#' @param outcome Optional vector. Outcome variable for standard model moves (unused if error_function handles it).
+#' @param progressor Optional function. Callback for external progress updates (internal use).
+#' @param pb_interval Optional numeric. Interval (in iterations) between progressor calls.
+#'
+#' @return A list with components:
+#' \describe{
+#'   \item{best_candidate}{The optimized candidate structure achieving lowest error.}
+#'   \item{best_error}{Numeric. The minimum value of the objective function found during optimization.}
+#' }
+#'
+#' @example
+#' hill_climb(
+#'  current_candidate = data.frame(),
+#'  outcome = NULL,
+#'  N = 100,
+#'  error_function = function(candidate) {},
+#'  hill_climbs = 100,
+#'  LME = TRUE,
+#'  num_preds = NULL,
+#'  progress_bar = TRUE,
+#'  progressor = NULL,
+#'  pb_interval= NULL)
 #' @export
 hill_climb <- function(current_candidate, error_function, N,
                        hill_climbs = 1e2, LME = FALSE,
                        num_preds = NULL, progress_bar = TRUE,
                        neighborhood_size = 4, w.length = NULL,
-                       outcome = NULL
-                       ) {
+                       outcome = NULL,
+                       progressor = NULL,
+                       pb_interval = NULL) {
   # input checks
   if (missing(current_candidate)) {
     stop("`current_candidate` must be provided, the data frame to be optimized.")
@@ -93,8 +117,9 @@ hill_climb <- function(current_candidate, error_function, N,
       best_cand <- loc_cand; best_err <- loc_err
     }
     # update bar
-    if (progress_bar && (i %% pb_int == 0)) {
+    if (progress_bar &&  !is.null(progressor) && (i %% pb_int == 0)) {
       utils::setTxtProgressBar(pb, i)
+      progressor()
     }
   }
 

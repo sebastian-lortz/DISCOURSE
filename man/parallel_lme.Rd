@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_parallel_lme.R
 \name{parallel_lme}
 \alias{parallel_lme}
-\title{Run mixed-effects linear regression optimization in parallel}
+\title{Optimize multiple simulated longitudinal mixed-effects data to match target correlations and regression estimates}
 \usage{
 parallel_lme(
   parallel_start,
@@ -16,51 +16,64 @@ parallel_lme(
   max_iter = 10000,
   init_temp = 1,
   cooling_rate = NULL,
-  tol = 1e-06,
+  tolerance = 1e-06,
   max_starts = 1,
   hill_climbs = NULL,
   move_prob = list(start = c(residual = 0, k_cycle = 0, local = 0.25, tau = 0.75), end =
     c(residual = 0.2, k_cycle = 0.1, local = 0.7, tau = 0)),
-  min_decimals = 1
+  min_decimals = 1,
+  progress_mode = "console"
 )
 }
 \arguments{
-\item{parallel_start}{Integer; number of parallel runs to launch.}
+\item{parallel_start}{Number of independent runs (parallel or sequential) to simulate data sets.}
 
-\item{return_best_solution}{Logical; if TRUE, return only the best fit (default FALSE).}
+\item{return_best_solution}{Logical; return only the best run if TRUE.}
 
-\item{sim_data}{Data frame or list; input data for mixed-effects modeling.}
+\item{sim_data}{Data.frame. Wide-format predictors and outcome columns for longitudinal data.}
 
-\item{target_cor}{Numeric; target correlation(s) to achieve.}
+\item{target_cor}{Numeric vector. Target upper-triangular (excluding diagonal) correlation values for predictor and outcome variables.}
 
-\item{target_reg}{Numeric; target regression coefficient(s).}
+\item{target_reg}{Numeric vector. Target fixed-effect coefficients (including intercept and random-intercept SD).}
 
-\item{reg_equation}{Formula or character; regression model specification.}
+\item{reg_equation}{Character or formula. Mixed-effects model formula (e.g., "Y ~ X1 + X2 + (1|ID)").}
 
-\item{target_se}{Numeric, optional; target standard error(s) for coefficients.}
+\item{target_se}{Numeric vector, optional. Target standard errors for fixed-effect estimates; length matches `target_reg` minus 1 (random-intercept SD).}
 
-\item{weight}{Numeric or NA; observation weights.}
+\item{weight}{Numeric vector of length 2. Weights for correlation vs. regression error in the objective function. Default `c(1, 1)`.}
 
-\item{max_iter}{Integer; maximum number of iterations per start (default 1e5).}
+\item{max_iter}{Integer. Maximum iterations for simulated annealing per start. Default `1e5`.}
 
-\item{init_temp}{Numeric; initial temperature for simulated annealing.}
+\item{init_temp}{Numeric. Initial temperature for annealing. Default `1`.}
 
-\item{cooling_rate}{Numeric; decay rate of temperature.}
+\item{cooling_rate}{Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.}
 
-\item{tol}{Numeric; convergence tolerance (default 1e-6).}
+\item{tolerance}{Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.}
 
-\item{max_starts}{Integer; number of optimization restarts (default 1).}
+\item{max_starts}{Integer. Number of annealing restarts. Default `1`.}
 
-\item{hill_climbs}{Integer or NA; number of hill-climb refinements post-annealing.}
+\item{hill_climbs}{Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.}
 
-\item{move_prob}{List containing start and end probabilities of move selection}
+\item{move_prob}{List. Start/end move probabilities for operations: residual swap, k-cycle, local swap, tau reordering.}
 
-\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
+\item{min_decimals}{Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.}
+
+\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
 }
 \value{
-A list of `discourse.object` results from each parallel start,
-        or a single `discourse.object` if `return_best_solution = TRUE`.
+A list of multiple `discourse.object`s, each containing:
+\describe{
+  \item{best_error}{Numeric. Minimum objective error achieved.}
+  \item{data}{Data.frame. Optimized wide-format longitudinal data.}
+  \item{inputs}{List of all input parameters for reproducibility.}
+  \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+  \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
+  \item{track_move_best}{Character vector. Move types that produced best improvements.}
+  \item{track_move_acc}{Character vector. Move types accepted per iteration.}
+}
 }
 \description{
-Executes multiple starts of `optim_lme` across available cores and returns either all results or the best solution.
+Uses the DISCOURSE algorithmic framework to simulate multiple data sets
+such that the resulting correlations and regression coefficients including random-intercept SD
+match specified targets under a given mixed-effects regression model and input parameters.
 }

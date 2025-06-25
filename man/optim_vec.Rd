@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_optim_vec.R
 \name{optim_vec}
 \alias{optim_vec}
-\title{Optimize a vector matrix to match target means and SDs}
+\title{Optimize a vector or matrix to match target means and SDs}
 \usage{
 optim_vec(
   N,
@@ -23,55 +23,63 @@ optim_vec(
   checkGrim = TRUE,
   prob_heuristic = 0.1,
   parallel = FALSE,
-  min_decimals = 1
+  min_decimals = 1,
+  progress_mode = "console"
 )
 }
 \arguments{
-\item{N}{Integer, number of values.}
+\item{N}{Integer. Number of values in each vector.}
 
-\item{target_mean}{Named numeric vector of desired means.}
+\item{target_mean}{Named numeric vector. Desired means for each variable (names identify columns).}
 
-\item{target_sd}{Named numeric vector of desired SDs.}
+\item{target_sd}{Named numeric vector. Desired standard deviations for each variable.}
 
-\item{range}{Numeric of length 2 or matrix; allowed value ranges.}
+\item{range}{Numeric vector of length 2 or numeric matrix. Allowed value range for all variables (vector),
+or per-variable bounds as a two-row matrix matching `target_mean`.}
 
-\item{tolerance}{Numeric; stop when objective < tolerance.}
+\item{tolerance}{Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-12`.}
 
-\item{integer}{Logical; use integer values if TRUE.}
+\item{integer}{Logical or logical vector. If TRUE, optimize integer values; length 1 or same length as `target_mean`.}
 
-\item{max_iter}{Integer; max annealing iterations (default 1e5).}
+\item{max_iter}{Integer. Maximum iterations for simulated annealing per start. Default `1e5`.}
 
-\item{init_temp}{Numeric; starting temperature.}
+\item{init_temp}{Numeric. Initial temperature for annealing. Default `1`.}
 
-\item{cooling_rate}{Numeric; decay rate (default auto).}
+\item{cooling_rate}{Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.}
 
-\item{int.probs}{Numeric; a list with a vector of sampling probabilities for each variable.}
+\item{int.probs}{List of numeric vectors, one per variable. Sampling probabilities for integer moves; NULL for uniform.}
 
-\item{progress_bar}{Show progress bar if TRUE}
+\item{progress_bar}{Logical. Show text progress bar during optimization. Default `TRUE`.}
 
-\item{obj_weight}{List of two numerics; weights for mean vs SD.}
+\item{obj_weight}{List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `list(c(1,1))`.}
 
-\item{maxit_pso}{Integer; max PSO iterations (continuous mode).}
+\item{maxit_pso}{Integer. Maximum PSO iterations for continuous variables. Default `2000`.}
 
-\item{eps}{Numeric; small constant to avoid zero division.}
+\item{eps}{Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.}
 
-\item{max_starts}{Integer; annealing restarts.}
+\item{max_starts}{Integer. Number of annealing restarts. Default `3`.}
 
-\item{checkGrim}{Logical; run GRIM check for integers.}
+\item{checkGrim}{Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.}
 
-\item{prob_heuristic}{Numeric; heuristic move probability.}
+\item{prob_heuristic}{Numeric. Probability of heuristic move vs. random swap in integer mode. Default `0.1`.}
 
-\item{parallel}{Logical; run per-variable in parallel.}
+\item{parallel}{Logical. If TRUE, optimize each variable in parallel. Default `FALSE`.}
 
-\item{min_decimals}{Integer; then minimum number of decimals (trailing zeros) of the targets}
+\item{min_decimals}{Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.}
+
+\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
 }
 \value{
-A `discourse.object` with:
-* `data`: matrix of optimized vectors.
-* `best_error`: list of final errors.
-* `track_error`: list of error paths.
-* `inputs`: list of input parameters.
+A `discourse.object` list containing:
+\describe{ A list with the following elements for each variable:
+    \item{best_error}{Numeric. Minimum objective error achieved.}
+    \item{data}{Data.frame or matrix of optimized vectors (columns named by `target_mean`).}
+    \item{track_error}{Numeric vector of best error at each iteration of annealing.}
+    \item{inputs}{List of all input parameters for reproducibility.}
+    \item{grim}{List of the GRIM results.}
+}
 }
 \description{
-Optimize a vector matrix to match target means and SDs
+Uses the DISCOURSE algorithmic framework to simulate one or multiple
+vectors so that each matches specified target means and standard deviations under given input parameters.
 }

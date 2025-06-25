@@ -18,18 +18,16 @@ Imports:
     afex,
     car,
     config,
-    doSNOW,
     dplyr,
     emmeans,
-    foreach,
     future,
     future.apply,
     ggplot2,
     golem,
     htmltools,
     lme4,
-    parallel,
     pso,
+    progressr,
     Rcpp,
     rhandsontable,
     rlang,
@@ -40,7 +38,7 @@ Imports:
     tidyr,
     tidyselect,
     utils
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
     spelling,

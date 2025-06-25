@@ -6,6 +6,8 @@
 #' @noRd
 app_server <- function(input, output, session) {
   # Your application server logic
+  #progressr::handlers(handler_shiny, session = NULL)
+
   ##––– navigation for the workflow button
   observeEvent(input$show_workflow, {
     updateNavbarPage(session, "main", selected = "High Level Workflow")

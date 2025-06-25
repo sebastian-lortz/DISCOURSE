@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_weights_vec.R
 \name{weights_vec}
 \alias{weights_vec}
-\title{weights_vec}
+\title{Estimate weighting factors for mean and SD errors}
 \usage{
 weights_vec(
   N,
@@ -19,31 +19,37 @@ weights_vec(
 )
 }
 \arguments{
-\item{N}{Sample size for generated vectors.}
+\item{N}{Integer. Number of values in each vector.}
 
-\item{target_mean}{Numeric vector of desired means.}
+\item{target_mean}{Named numeric vector. Desired means for each variable (names identify columns).}
 
-\item{target_sd}{Numeric vector of desired standard deviations.}
+\item{target_sd}{Named numeric vector. Desired standard deviations for each variable.}
 
-\item{range}{Numeric matrix (2 x length(target_mean)) specifying [min, max] for each variable.}
+\item{range}{Numeric vector of length 2 or numeric matrix. Allowed value range for all variables (vector),
+or per-variable bounds as a two-row matrix matching `target_mean`.}
 
-\item{obj_weight}{Weighting for objective terms (mean vs. SD).}
+\item{obj_weight}{List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `c(1,1)`.}
 
 \item{integer}{Logical vector: TRUE for integer-valued vectors.}
 
-\item{int.probs}{Numeric; a list with a vector of sampling probabilities for each variable.}
+\item{int.probs}{List of numeric vectors, one per variable. Sampling probabilities for integer moves; NULL for uniform.}
 
 \item{est_iter}{Number of Monte Carlo iterations to estimate weights.}
 
-\item{eps}{Small constant to avoid division by zero.}
+\item{eps}{Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.}
 
 \item{max_weight}{Maximum allowed weight magnitude.}
 
 \item{metric}{Character: "mean" or "median" for summarizing estimated weights.}
 }
 \value{
-A list of weight pairs (mean, SD) for each target variable.
+A list of length equal to `target_mean`, where each element is a numeric vector
+  of length 2 containing the estimated weights for mean vs. SD error for that variable.
 }
 \description{
 Compute weighting factors to match a target mean and SD across variables.
+}
+\details{
+Computes quasi-optimal weights balancing mean and standard deviation errors for multiple variables
+by running Monte Carlo optimization to estimate relative baseline contribution of each term in the objective function.
 }

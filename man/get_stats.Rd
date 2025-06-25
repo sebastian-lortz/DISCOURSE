@@ -7,11 +7,21 @@
 get_stats(result)
 }
 \arguments{
-\item{result}{A discourse.object with data and inputs}
+\item{result}{A `discourse.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).}
 }
 \value{
-List containing model fit and summary stats or ANOVA/F stats or vectors
+A named `list` containing elements dependent on the input type:
+\describe{
+  \item{model}{Model object or ANOVA table used for estimating parameters.}
+  \item{reg}{Numeric vector of regression coefficients (fixed effects) and random intercept (last element, for LME only) for regression-based objects.}
+  \item{se}{Numeric vector of standard errors corresponding to `reg` (excluding the random intercept for LME).}
+  \item{cor}{Numeric vector of bivariate correlations for regression-based objects.}
+  \item{mean}{Numeric vector of means: for regression-based, variable means (columns in wide format); for vector-based, variable means; for ANOVA, (sub)group means.}
+  \item{sd}{Numeric vector of standard deviations for regression- and vector-based objects.}
+  \item{F_value}{Numeric vector of F-statistics for ANOVA-based objects.}
+}
 }
 \description{
-Extract statistics from a single discourse.object
+Computes and returns key analytical outputs from one `discourse.object`, including model fits,
+parameter estimates, and summary statistics appropriate for regression, ANOVA, or vector-based analyses.
 }

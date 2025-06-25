@@ -2,20 +2,24 @@
 % Please edit documentation in R/fct_plot_summary.R
 \name{plot_summary}
 \alias{plot_summary}
-\title{plot_summary: visualize discrepancies between simulated and target statistics}
+\title{Plot Summary of Simulated vs. Target Statistics for a discourse.object}
 \usage{
 plot_summary(discourse_obj, standardised = TRUE, eps = 1e-12)
 }
 \arguments{
-\item{discourse_obj}{A discourse.object containing inputs$target_* and data}
+\item{discourse_obj}{A `discourse.object` produced by `optim_*` functions,
+containing both simulated data/results and `inputs$target_*` values.}
 
-\item{standardised}{Logical; if TRUE, differences are divided by target values}
+\item{standardised}{Logical; if `TRUE`, differences are divided by target values
+(except when targets are near zero); default `TRUE`.}
 
-\item{eps}{Numeric; threshold below which target is treated as zero}
+\item{eps}{Numeric; threshold below which a target is treated as zero for standardisation;
+default `1e-12`.}
 }
 \value{
-A ggplot2 object showing (simulated - target) or standardized differences
+A `ggplot2` object.
 }
 \description{
-Create a faceted point plot of centered differences
+Visualizes discrepancies between simulated and target summary statistics
+(e.g., means, SDs, F-values, correlations, regression coefficients) for a single `discourse.object`.
 }

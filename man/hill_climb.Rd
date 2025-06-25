@@ -14,33 +14,44 @@ hill_climb(
   progress_bar = TRUE,
   neighborhood_size = 4,
   w.length = NULL,
-  outcome = NULL
+  outcome = NULL,
+  progressor = NULL,
+  pb_interval = NULL
 )
 }
 \arguments{
-\item{current_candidate}{Initial candidate data structure}
+\item{current_candidate}{A data frame representing the initial candidate solution to be optimized.}
 
-\item{error_function}{Function returning list with element $total_error}
+\item{error_function}{An objective function that takes a candidate and returns a list containing element `$total_error`.}
 
-\item{N}{The sample size}
+\item{N}{Integer. Sample size; the number of subjects in `current_candidate`.}
 
-\item{hill_climbs}{Maximum iterations (default 1e4)}
+\item{hill_climbs}{Integer. Maximum number of iterations for hill climbing. Default is 1e2.}
 
-\item{LME}{Logical, use mixed-model moves if TRUE}
+\item{LME}{Logical. If TRUE, perform moves appropriate for mixed-effects data (long-to-wide swaps). Default is FALSE.}
 
-\item{num_preds}{Number of predictors for standard models}
+\item{num_preds}{Integer. Number of predictors (columns) when `LME = FALSE`. Required if not mixed-effects.}
 
-\item{progress_bar}{Show progress bar if TRUE}
+\item{progress_bar}{Logical. Whether to display a text progress bar. Default is TRUE.}
 
-\item{neighborhood_size}{Moves per iteration}
+\item{neighborhood_size}{Integer. Number of candidate moves evaluated per iteration. Default is 4.}
 
-\item{w.length}{The length of the LME data in wide format}
+\item{w.length}{Integer. Number of columns in the wide-format data when `LME = TRUE`. Required for mixed-effects.}
 
-\item{outcome}{The outcome vector in the LM module}
+\item{outcome}{Optional vector. Outcome variable for standard model moves (unused if error_function handles it).}
+
+\item{progressor}{Optional function. Callback for external progress updates (internal use).}
+
+\item{pb_interval}{Optional numeric. Interval (in iterations) between progressor calls.}
 }
 \value{
-List with best_candidate and best_error
+A list with components:
+\describe{
+  \item{best_candidate}{The optimized candidate structure achieving lowest error.}
+  \item{best_error}{Numeric. The minimum value of the objective function found during optimization.}
+}
 }
 \description{
-Perform hill-climbing optimization
+Executes a hill-climbing algorithm to iteratively improve a candidate data set
+by minimizing a supplied error function. Supports both the LM and LME modules.
 }

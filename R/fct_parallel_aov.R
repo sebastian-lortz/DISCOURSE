@@ -1,29 +1,63 @@
-#' parallel_aov: parallel ANOVA optimization
-#' @description Run ANOVA optimization across multiple parallel workers
-#' @param N Total sample size of participants
-#' @param levels Vector specifying number of levels for each factor
-#' @param subgroup_sizes Optional subgroup sizes for unbalanced designs
-#' @param target_group_means Vector of target means for each group
-#' @param target_f_list List with target F-values and related parameters
-#' @param df_effects Degrees of freedom for each effect
-#' @param range Numeric vector of length 2 specifying candidate value range
-#' @param formula Model formula for computing F statistics
-#' @param tolerance Convergence tolerance for the optimization
-#' @param factor_type Vector indicating factor types ("between"/"within")
-#' @param typeSS Type of sums of squares (e.g., 3 for Type III)
-#' @param max_iter Maximum iterations for simulated annealing
-#' @param max_step Proportion; The maximum step size for modifications as proportion of the range
-#' @param init_temp Initial temperature for annealing
-#' @param cooling_rate Cooling rate per iteration
-#' @param integer Logical; treat candidate values as integers if TRUE
-#' @param max_starts Number of restart cycles
-#' @param checkGrim Logical; perform GRIM consistency checks if TRUE
-#' @param parallel_start Number of independent parallel runs
-#' @param return_best_solution Logical; return only the best run if TRUE
-#' @param min_decimals Integer; then minimum number of decimals (trailing zeros) of the targets
+#' #' Optimize multiple data sets to match ANOVA F-values
 #'
-#' @importFrom foreach %dopar%
+#' Uses the DISCOURSE algorithmic framework to simulate multiple data sets that
+#' produce target ANOVA F-statistics under a specified factorial design given input parameters.
 #'
+#' @param N Integer. Total number of subjects (sum of `subgroup_sizes`).
+#' @param levels Integer vector. Number of factor levels per factor in the design.
+#' @param subgroup_sizes Numeric vector. Optional sizes of each between-subjects group for unbalanced designs; length must equal product of `levels` for between factors.
+#' @param target_group_means Numeric vector. Desired means for each group in the design.
+#' @param target_f_list List with components:
+#'   \describe{
+#'     \item{F}{Numeric vector of target F-statistics.}
+#'     \item{effect}{Character vector of effect names matching `F`.}
+#'     \item{contrast}{Optional character formula for contrasts.}
+#'     \item{contrast_method}{Optional character specifying contrast method.}
+#'   }
+#' @param parallel_start Number of independent runs (parallel or sequential) to simulate data sets.
+#' @param return_best_solution Logical; return only the best run if TRUE.
+#' @param formula Formula or character. Model formula used to compute F-values (e.g., `y ~ A + B + A*B`).
+#' @param factor_type Character vector. Type of each factor (`"between"` or `"within"`) matching length of `levels`.
+#' @param range Numeric vector of length 2. Lower and upper bounds for candidate means.
+#' @param integer Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continous values.
+#' @param typeSS Integer. Type of sums-of-squares for ANOVA (2 or 3). Default is 3.
+#' @param df_effects Numeric vector. Degrees of freedom of the model effects. Default is `NULL`.
+#' @param max_iter Integer. Maximum iterations per restart. Default is 1e3.
+#' @param max_starts Integer. Number of annealing restarts. Default is 1.
+#' @param init_temp Numeric. Initial temperature for annealing. Default is 1.
+#' @param cooling_rate Numeric. Cooling rate per iteration (between 0 and 1); if NULL, calculated automatically as `(init_temp-10)/init_temp`.
+#' @param max_step Numeric. Maximum move size as proportion of `range`. Default is 0.2.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
+#' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.
+#' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
+#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#'
+#' @return A list of multiple `discourse.object`s, each containing:
+#' \describe{
+#'   \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
+#'   \item{data}{Data frame of optimized outcome values (and grouping variables).}
+#'   \item{inputs}{List of all input arguments.}
+#'   \item{track_error}{Numeric vector of best error at each iteration.}
+#'   \item{grim}{List of the GRIM results.}
+#' }
+#'
+#' @example
+#' # Balanced 2x2 design
+#' parallel_aov(
+#'   parallel_start = 7,
+#'   return_best_solution = FALSE,
+#'   N = 40,
+#'   levels = c(2, 2),
+#'   target_group_means = c(1, 2, 3, 4),
+#'   target_f_list = list(effect = c("A", "B"),
+#'                        F = c(5.6, 8.3), ),
+#'   formula = y ~ A + B + A*B,
+#'   factor_type = c("between", "between"),
+#'   range = c(0, 5),
+#'   integer = FALSE,
+#'   max_iter = 1000,
+#'   max_starts = 3
+#' )
 #' @export
 parallel_aov <- function(
     parallel_start = 3,
@@ -46,7 +80,8 @@ parallel_aov <- function(
     max_step = .2,
     max_starts = 1,
     checkGrim = FALSE,
-    min_decimals = 1
+    min_decimals = 1,
+    progress_mode = "console"
 ) {
   # input check
   if (!is.numeric(parallel_start) || length(parallel_start) != 1 ||
@@ -129,61 +164,69 @@ parallel_aov <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
+  # set up backend
   old_plan <- future::plan()
   on.exit( future::plan(old_plan), add = TRUE )
-
   cat("There are ", future::availableCores() , "available workers. \n")
   real_cores <- future::availableCores()
-  n_workers  <- min(parallel_start, real_cores)
+  n_workers  <- min(parallel_start, max(real_cores-1,1))
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
   } else {
     future::plan(future::sequential)
   }
   cat("Running with", n_workers, "worker(s). \n")
-
   pkgs <- c("discourse", "Rcpp")
-
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
 
-  # parallel optim_aov
-  values <- future.apply::future_lapply(
-    X           = seq_len(parallel_start),
-    FUN         = function(i) {
-                                optim_aov(
-                                N       = N,
-                                levels            = levels,
-                                subgroup_sizes    = subgroup_sizes,
-                                target_group_means= target_group_means,
-                                target_f_list      = target_f_list,
-                                df_effects        = df_effects,
-                                range             = range,
-                                formula           = formula,
-                                tolerance         = tolerance,
-                                factor_type       = factor_type,
-                                typeSS            = typeSS,
-                                max_iter          = max_iter,
-                                init_temp         = init_temp,
-                                cooling_rate      = cooling_rate,
-                                progress_bar      = FALSE,
-                                integer           = integer,
-                                max_starts        = max_starts,
-                                checkGrim         = checkGrim,
-                                max_step          = max_step
-                              )
-                             },
-  future.seed = TRUE    # safe RNG in each worker
-  #packages    = pkgs,
-  #error       = function(e) e
-  )
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
 
+  # Optimization process
+  values <- progressr::with_progress({
+  p <- progressr::progressor(steps = parallel_start)
+    future.apply::future_lapply(
+      X           = seq_len(parallel_start),
+      FUN         = function(i) {
+                              res <- optim_aov(
+                                  N       = N,
+                                  levels            = levels,
+                                  subgroup_sizes    = subgroup_sizes,
+                                  target_group_means= target_group_means,
+                                  target_f_list      = target_f_list,
+                                  df_effects        = df_effects,
+                                  range             = range,
+                                  formula           = formula,
+                                  tolerance         = tolerance,
+                                  factor_type       = factor_type,
+                                  typeSS            = typeSS,
+                                  max_iter          = max_iter,
+                                  init_temp         = init_temp,
+                                  cooling_rate      = cooling_rate,
+                                  progress_bar      = FALSE,
+                                  integer           = integer,
+                                  max_starts        = max_starts,
+                                  checkGrim         = checkGrim,
+                                  max_step          = max_step
+                                )
+                                p()
+                                res
+                               },
+    future.seed = TRUE
+    )
+    },
+  handlers = handler)
 
   cat(" finished.\n")
   stop_time <- Sys.time()
   cat("\nParallel optimization time was", stop_time - start_time, "\n")
 
-  # return best solution if requested
+  # assemble output
   if (return_best_solution) {
     errors <- sapply(values, function(x) {
       if (inherits(x, "error")) NA_real_ else x$best_error
