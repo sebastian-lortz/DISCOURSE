@@ -24,3 +24,10 @@ A named `list` of RMSE values. Possible elements:
 Calculates root-mean-square error (RMSE) metrics for a single `discourse.object` output,
 comparing model estimates of the simulated data against original target inputs.
 }
+\examples{
+ \dontrun{
+# Regression-based result
+result <- optim_lm(args = ..., ...)
+get_rmse(result)
+}
+}

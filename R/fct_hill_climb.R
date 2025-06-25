@@ -22,7 +22,8 @@
 #'   \item{best_error}{Numeric. The minimum value of the objective function found during optimization.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' hill_climb(
 #'  current_candidate = data.frame(),
 #'  outcome = NULL,
@@ -34,6 +35,7 @@
 #'  progress_bar = TRUE,
 #'  progressor = NULL,
 #'  pb_interval= NULL)
+#'  }
 #' @export
 hill_climb <- function(current_candidate, error_function, N,
                        hill_climbs = 1e2, LME = FALSE,

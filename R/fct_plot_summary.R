@@ -12,10 +12,11 @@
 #'
 #' @return A `ggplot2` object.
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' res <- optim_aov(...)
 #' plot_summary(res, standardised = FALSE)
-#'
+#' }
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @import dplyr

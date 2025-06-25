@@ -4,6 +4,7 @@
 #' comparing model estimates of the simulated data against original target inputs.
 #'
 #' @param result A `discourse.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
+#'
 #' @return A named `list` of RMSE values. Possible elements:
 #' \describe{
 #'   \item{rmse_cor}{Numeric. RMSE of correlation estimates for LM- and LME-based objects.}
@@ -13,11 +14,13 @@
 #'   \item{rmse_mean}{Numeric. RMSE of means for vector-based objects.}
 #'   \item{rmse_sd}{Numeric. RMSE of standard deviations for vector-based objects.}
 #' }
-#' @example
+#'
+#' @examples
+#'  \dontrun{
 #' # Regression-based result
 #' result <- optim_lm(args = ..., ...)
 #' get_rmse(result)
-#'
+#'}
 #' @export
 get_rmse <- function(result) {
   if (!inherits(result, "discourse.object")) {

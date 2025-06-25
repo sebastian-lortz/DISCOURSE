@@ -31,7 +31,8 @@
 #'   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Optimize given sim_data from the Descriptives module matching means and SDs.
 #' res <- parallel_lm(
 #'   parallel_start = 7,
@@ -43,6 +44,7 @@
 #'   max_iter = 10000,
 #'   hill_climbs = 50
 #' )
+#' }
 #' @export
 parallel_lm <- function(
     parallel_start,

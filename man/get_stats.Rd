@@ -25,3 +25,8 @@ A named `list` containing elements dependent on the input type:
 Computes and returns key analytical outputs from one `discourse.object`, including model fits,
 parameter estimates, and summary statistics appropriate for regression, ANOVA, or vector-based analyses.
 }
+\examples{
+ \dontrun{
+get_stats(discourse.object)
+}
+}

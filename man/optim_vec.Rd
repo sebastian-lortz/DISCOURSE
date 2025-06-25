@@ -83,3 +83,17 @@ A `discourse.object` list containing:
 Uses the DISCOURSE algorithmic framework to simulate one or multiple
 vectors so that each matches specified target means and standard deviations under given input parameters.
 }
+\examples{
+ \dontrun{
+# Optimize a vector of length 100
+res <- optim_vec(
+  N            = 100,
+  target_mean  = 10,
+  target_sd    = 2,
+  range        = c(0, 20),
+  integer      = TRUE,
+  max_iter     = 50000,
+  max_starts   = 2
+)
+}
+}

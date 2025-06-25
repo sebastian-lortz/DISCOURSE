@@ -24,3 +24,9 @@ A `ggplot2` object.
 Creates a plot of error versus iteration, to assess the trajectory of the
 objective function value of a `discourse.object`.
 }
+\examples{
+ \dontrun{
+result <- optim_lme(args = ..., ...)
+plot_error(result, first_iter = 500)
+}
+}

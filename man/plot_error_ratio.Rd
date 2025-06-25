@@ -31,3 +31,9 @@ A `ggplot2` object.
 Displays how the ratio of correlation to regression error evolves across iterations
 for a `discourse.object`, enabling assessment of balance between objectives.
 }
+\examples{
+ \dontrun{
+result <- optim_lm(args = ..., ...)
+plot_error(result, run = 1)
+}
+}

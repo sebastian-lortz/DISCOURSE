@@ -33,3 +33,9 @@ An object of class `summary.discourse.object` containing:
 Provides a comprehensive summary of a `discourse.object`, including RMSE,
 model components, and statistics depending on the analysis type (LM/LME, ANOVA, or vec).
 }
+\examples{
+ \dontrun{
+res_lm <- optim_lm(args = ..., ...)
+summary(res_lm)
+}
+}

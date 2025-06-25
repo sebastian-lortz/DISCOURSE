@@ -20,7 +20,8 @@
 #' @return A list of length equal to `target_mean`, where each element is a numeric vector
 #'   of length 2 containing the estimated weights for mean vs. SD error for that variable.
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Estimate weights
 #' weights_vec(
 #'   N = 100,
@@ -29,7 +30,7 @@
 #'   integer     = c(TRUE,TRUE),
 #'   range       = matrix(c(0,15, 0,20), nrow = 2),
 #' )
-#'
+#' }
 #' @export
 #'
 weights_vec <- function(N, target_mean, target_sd, range,

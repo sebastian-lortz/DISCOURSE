@@ -82,3 +82,19 @@ A list with components:
 Runs single or multiple optimizations (i.e. optim_lm, optim_lme) to calibrate the balance between correlation and regression
 components in the objective function, yielding suggested weights.
 }
+\examples{
+ \dontrun{
+# estimate weights of objective function
+parallel_lm(
+sim_runs = 1,
+  parallel_start = 7,
+  return_best_solution = FALSE,
+  sim_data = sim_data,
+  target_cor = c(.23),
+  target_reg = c(2.1, 1.2, -0.8),
+  reg_equation = "Y ~ X1 + X2",
+  max_iter = 10000,
+  hill_climbs = 50
+)
+}
+}

@@ -23,10 +23,11 @@
 #'   \item{sds}{Group or variable standard deviations (vector only).}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' res_lm <- optim_lm(args = ..., ...)
 #' summary(res_lm)
-#'
+#' }
 #' @export
 summary.discourse.object <- function(object, ...) {
 

@@ -8,10 +8,11 @@
 #'
 #' @return A `ggplot2` object.
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' result <- optim_aov(args = ..., ...)
 #' plot_cooling(result)
-#'
+#' }
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @export

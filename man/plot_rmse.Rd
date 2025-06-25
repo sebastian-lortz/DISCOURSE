@@ -16,3 +16,9 @@ A `ggplot2` object.
 Visualizes the root-mean-square error (RMSE) distributions for between-run variability
 versus deviations from target values across multiple `discourse.object` runs (e.g. parallel_aov()).
 }
+\examples{
+ \dontrun{
+results <- parallel_aov(args = ..., ...)
+plot_rmse(results)
+}
+}

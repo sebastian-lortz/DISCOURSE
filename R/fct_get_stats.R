@@ -4,6 +4,7 @@
 #' parameter estimates, and summary statistics appropriate for regression, ANOVA, or vector-based analyses.
 #'
 #' @param result A `discourse.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
+#'
 #' @return A named `list` containing elements dependent on the input type:
 #' \describe{
 #'   \item{model}{Model object or ANOVA table used for estimating parameters.}
@@ -14,10 +15,11 @@
 #'   \item{sd}{Numeric vector of standard deviations for regression- and vector-based objects.}
 #'   \item{F_value}{Numeric vector of F-statistics for ANOVA-based objects.}
 #' }
-#' @example
-#' result <- optim_aov(args = ..., ...)
-#' get_stats(result)
 #'
+#' @examples
+#'  \dontrun{
+#' get_stats(discourse.object)
+#' }
 #' @export
 get_stats <- function(result) {
   if (!inherits(result, "discourse.object")) {

@@ -34,7 +34,8 @@
 #'     \item{grim}{List of the GRIM results.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Optimize a vector of length 100
 #' res <- optim_vec(
 #'   N            = 100,
@@ -45,6 +46,7 @@
 #'   max_iter     = 50000,
 #'   max_starts   = 2
 #' )
+#' }
 #' @export
 optim_vec <- function(
     N,

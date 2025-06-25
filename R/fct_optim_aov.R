@@ -40,7 +40,8 @@
 #'   \item{grim}{List of the GRIM results.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Balanced 2x2 design
 #' optim_aov(
 #'   N = 40,
@@ -55,7 +56,7 @@
 #'   max_iter = 1000,
 #'   max_starts = 3
 #' )
-#'
+#'}
 #' @export
 optim_aov <- function(
     N,

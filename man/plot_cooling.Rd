@@ -17,3 +17,9 @@ A `ggplot2` object.
 Visualizes the squared annealing temperature across iterations for a given
 `discourse.object`, allowing inspection of the cooling schedule used in optimization.
 }
+\examples{
+ \dontrun{
+result <- optim_aov(args = ..., ...)
+plot_cooling(result)
+}
+}

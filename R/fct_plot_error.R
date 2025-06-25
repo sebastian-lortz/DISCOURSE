@@ -12,10 +12,11 @@
 #'
 #' @return A `ggplot2` object.
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' result <- optim_lme(args = ..., ...)
 #' plot_error(result, first_iter = 500)
-#'
+#' }
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @export

@@ -32,7 +32,8 @@
 #'   \item{error_ratio}{Numeric vector of pilot-run error ratios used in weight estimation.}
 #'   }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # estimate weights of objective function
 #' parallel_lm(
 #' sim_runs = 1,
@@ -45,7 +46,7 @@
 #'   max_iter = 10000,
 #'   hill_climbs = 50
 #' )
-#'
+#' }
 #' @export
 weights_est <- function(module,
                         sim_runs,

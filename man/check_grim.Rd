@@ -26,3 +26,8 @@ A list with components:
 Performs the GRIM (Granularity-Related Inconsistency of Means) test to assess
 whether a reported mean is numerically possible given the sample size.
 }
+\examples{
+\dontrun{
+check_grim(10, 3.7, 1)
+}
+}

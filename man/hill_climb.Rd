@@ -55,3 +55,18 @@ A list with components:
 Executes a hill-climbing algorithm to iteratively improve a candidate data set
 by minimizing a supplied error function. Supports both the LM and LME modules.
 }
+\examples{
+ \dontrun{
+hill_climb(
+ current_candidate = data.frame(),
+ outcome = NULL,
+ N = 100,
+ error_function = function(candidate) {},
+ hill_climbs = 100,
+ LME = TRUE,
+ num_preds = NULL,
+ progress_bar = TRUE,
+ progressor = NULL,
+ pb_interval= NULL)
+ }
+}

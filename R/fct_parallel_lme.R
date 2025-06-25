@@ -33,7 +33,8 @@
 #'   \item{track_move_acc}{Character vector. Move types accepted per iteration.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Optimize data
 #' parallel_lme(
 #'   parallel_start = 7,
@@ -45,6 +46,7 @@
 #'   max_iter       = 2000,
 #'   hill_climbs    = 50
 #' )
+#' }
 #' @export
 parallel_lme <- function(
     parallel_start,

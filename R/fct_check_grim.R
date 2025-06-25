@@ -12,12 +12,10 @@
 #'   \item{test}{Logical. TRUE if the reported mean is plausible.}
 #'   \item{grim_mean}{Numeric. The adjusted mean that is numerically plausible (rounded to `decimals`).}
 #' }
-#' @example
-#' # A mean of 3.7 over 10 observations cannot occur; returns adjusted plausible mean
+#' @examples
+#' \dontrun{
 #' check_grim(10, 3.7, 1)
-#'
-#' # A mean of 2.5 over 4 observations is possible
-#' check_grim(4, 2.5, 1)
+#' }
 #' @export
 check_grim <- function(n, target_mean, decimals, tol.r = .Machine$double.eps^0.5) {
   # input check

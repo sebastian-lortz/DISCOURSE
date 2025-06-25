@@ -41,7 +41,8 @@
 #'   \item{grim}{List of the GRIM results.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Balanced 2x2 design
 #' parallel_aov(
 #'   parallel_start = 7,
@@ -58,6 +59,7 @@
 #'   max_iter = 1000,
 #'   max_starts = 3
 #' )
+#' }
 #' @export
 parallel_aov <- function(
     parallel_start = 3,

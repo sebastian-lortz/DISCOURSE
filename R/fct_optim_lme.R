@@ -33,7 +33,8 @@
 #'   \item{track_move_acc}{Character vector. Move types accepted per iteration.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Optimize data
 #' optim_lme(
 #'   sim_data       = sim_data,
@@ -43,6 +44,7 @@
 #'   max_iter       = 2000,
 #'   hill_climbs    = 50
 #' )
+#' }
 #' @export
 optim_lme <- function(sim_data,
                       target_cor,

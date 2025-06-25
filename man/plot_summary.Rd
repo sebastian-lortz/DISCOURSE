@@ -23,3 +23,9 @@ A `ggplot2` object.
 Visualizes discrepancies between simulated and target summary statistics
 (e.g., means, SDs, F-values, correlations, regression coefficients) for a single `discourse.object`.
 }
+\examples{
+ \dontrun{
+res <- optim_aov(...)
+plot_summary(res, standardised = FALSE)
+}
+}

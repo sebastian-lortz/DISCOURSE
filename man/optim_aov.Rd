@@ -91,3 +91,21 @@ A `discourse.object` list containing:
 Uses the DISCOURSE algorithmic framework to simulate data that
 produce target ANOVA F-statistics under a specified factorial design given input parameters.
 }
+\examples{
+ \dontrun{
+# Balanced 2x2 design
+optim_aov(
+  N = 40,
+  levels = c(2, 2),
+  target_group_means = c(1, 2, 3, 4),
+  target_f_list = list(effect = c("A", "B"),
+                       F = c(5.6, 8.3), ),
+  formula = y ~ A + B + A*B,
+  factor_type = c("between", "between"),
+  range = c(0, 5),
+  integer = FALSE,
+  max_iter = 1000,
+  max_starts = 3
+)
+}
+}

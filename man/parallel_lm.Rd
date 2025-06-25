@@ -74,3 +74,18 @@ Uses the DISCOURSE algorithmic framework to simulate multiple data sets
 such that the resulting correlations and regression coefficients
 match specified targets under a given regression model and input parameters.
 }
+\examples{
+ \dontrun{
+# Optimize given sim_data from the Descriptives module matching means and SDs.
+res <- parallel_lm(
+  parallel_start = 7,
+  return_best_solution = FALSE,
+  sim_data = sim_data,
+  target_cor = c(.23),
+  target_reg = c(2.1, 1.2, -0.8),
+  reg_equation = "Y ~ X1 + X2",
+  max_iter = 10000,
+  hill_climbs = 50
+)
+}
+}

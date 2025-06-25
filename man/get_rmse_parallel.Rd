@@ -26,3 +26,10 @@ A list with components:
 Calculates root-mean-square error (RMSE) metrics for both between-run variability and deviations
 from specified target values across one or more `discourse.object` results.
 }
+\examples{
+ \dontrun{
+# Multiple-run RMSE comparison
+result <- parallel_lm(args = ..., ...)
+get_rmse_parallel(result)
+}
+}

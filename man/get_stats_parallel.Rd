@@ -23,3 +23,10 @@ A `list` of `data.frame` objects. Each data.frame corresponds to one numeric com
 Computes summary metrics (mean, median, standard deviation, minimum, and maximum)
 for each numeric output component across multiple `discourse.object` results.
 }
+\examples{
+ \dontrun{
+# Single-threaded example
+result <- parallel_lm(args = ..., ...)
+get_stats_parallel(result)
+}
+}

@@ -7,10 +7,11 @@
 #'
 #' @return A `ggplot2` object.
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' results <- parallel_aov(args = ..., ...)
 #' plot_rmse(results)
-#'
+#' }
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @export

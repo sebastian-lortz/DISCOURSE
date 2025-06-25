@@ -15,10 +15,12 @@
 #'     }
 #'   }
 #' }
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Multiple-run RMSE comparison
 #' result <- parallel_lm(args = ..., ...)
 #' get_rmse_parallel(result)
+#' }
 #' @export
 get_rmse_parallel <- function(object_list) {
   # input checks

@@ -4,6 +4,7 @@
 #' for each numeric output component across multiple `discourse.object` results.
 #'
 #' @param object_list A `list` of `discourse.object` instances. Outputs from functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
+#'
 #' @return A `list` of `data.frame` objects. Each data.frame corresponds to one numeric component (e.g., `reg`, `se`, `cor`, `mean`, `sd`), and contains columns:
 #' \describe{
 #'   \item{mean}{Numeric. Mean of the component across runs.}
@@ -12,10 +13,13 @@
 #'   \item{min}{Numeric. Minimum value observed across runs.}
 #'   \item{max}{Numeric. Maximum value observed across runs.}
 #' }
-#' @example
+#'
+#' @examples
+#'  \dontrun{
 #' # Single-threaded example
 #' result <- parallel_lm(args = ..., ...)
 #' get_stats_parallel(result)
+#' }
 #' @export
 get_stats_parallel <- function(object_list) {
   # validate input

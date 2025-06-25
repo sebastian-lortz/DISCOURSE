@@ -53,3 +53,15 @@ Compute weighting factors to match a target mean and SD across variables.
 Computes quasi-optimal weights balancing mean and standard deviation errors for multiple variables
 by running Monte Carlo optimization to estimate relative baseline contribution of each term in the objective function.
 }
+\examples{
+ \dontrun{
+# Estimate weights
+weights_vec(
+  N = 100,
+  target_mean = c(5,10),
+  target_sd   = c(2,3),
+  integer     = c(TRUE,TRUE),
+  range       = matrix(c(0,15, 0,20), nrow = 2),
+)
+}
+}

@@ -30,7 +30,8 @@
 #'   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
 #' }
 #'
-#' @example
+#' @examples
+#'  \dontrun{
 #' # Optimize given sim_data from the Descriptives module matching means and SDs.
 #' res <- optim_lm(
 #'   sim_data = sim_data,
@@ -40,6 +41,7 @@
 #'   max_iter = 10000,
 #'   hill_climbs = 50
 #' )
+#' }
 #' @export
 optim_lm <- function(
     sim_data,

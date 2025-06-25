@@ -1270,12 +1270,11 @@
         "Package": "discourse",
         "Title": "Data-simulation via Iterative Stochastic Combinatorial Optimization\nUsing Reported Summary Estimates",
         "Version": "0.0.1.000",
-        "Authors@R": "person(\"Sebastian A. J.\", \"Lortz\", , \"s.a.j.lortz@gmail.com\", role = c(\"aut\", \"cre\"),\ncomment = c(ORCID = \"0009-0007-0281-7996\"))",
-        "Description": "We introduce the DISCOURSE framework – this algorithmic\nframework is designed to reconstruct complete data sets solely from\nsummary statistics.  It provides researchers with a tool to follow-up\nanalyses even when raw data are unavailable.",
+        "Authors@R": "\n    person(\"Sebastian A. J.\", \"Lortz\", , \"s.a.j.lortz@gmail.com\", role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"0009-0007-0281-7996\"))",
+        "Description": "We introduce the DISCOURSE framework – this algorithmic\n    framework is designed to reconstruct complete data sets solely from\n    summary statistics.  It provides researchers with a tool to follow-up\n    analyses even when raw data are unavailable.",
         "License": "MIT + file LICENSE",
         "URL": "https://github.com/sebastian-lortz/discourse",
         "BugReports": "https://github.com/sebastian-lortz/discourse/issues",
-        "Remotes": "github::sebastian-lortz/discourse",
         "Imports": "afex,\ncar,\nconfig,\ndplyr,\nemmeans,\nfuture,\nfuture.apply,\nggplot2,\ngolem,\nhtmltools,\nlme4,\npso,\nprogressr,\nRcpp,\nrhandsontable,\nrlang,\nshiny,\nshinyjs,\nshinyWidgets,\nstats,\ntidyr,\ntidyselect,\nutils",
         "Suggests": "knitr,\nrmarkdown,\nspelling,\ntestthat (>= 3.0.0)",
         "LinkingTo": "Rcpp,\nRcppArmadillo",
@@ -1285,7 +1284,22 @@
         "Encoding": "UTF-8",
         "Language": "en-US",
         "LazyData": "true",
-        "RoxygenNote": "7.3.2"
+        "RoxygenNote": "7.3.2",
+        "Author": "Sebastian A. J. Lortz [aut, cre]\n    (<https://orcid.org/0009-0007-0281-7996>)",
+        "Maintainer": "Sebastian A. J. Lortz <s.a.j.lortz@gmail.com>",
+        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-25 13:02:00 UTC; unix",
+        "RemoteType": "github",
+        "RemoteHost": "api.github.com",
+        "RemoteUsername": "sebastian-lortz",
+        "RemoteRepo": "discourse",
+        "RemoteRef": "main",
+        "RemoteSha": "f6d5640be67286c1cb0754f0680cc6052d6338a4",
+        "GithubHost": "api.github.com",
+        "GithubRepo": "discourse",
+        "GithubUsername": "sebastian-lortz",
+        "GithubRef": "main",
+        "GithubSHA1": "f6d5640be67286c1cb0754f0680cc6052d6338a4",
+        "Remotes": "github::sebastian-lortz/discourse"
       }
     },
     "doBy": {
@@ -5162,25 +5176,16 @@
       "checksum": "11579cb4dd811370dfb029acf916a507"
     },
     "renv.lock": {
-      "checksum": "d009e4fbef79aec7203f9153bfbab194"
-    },
-    "src/discourse.so": {
-      "checksum": "cbb3aa8e24210d09a1588a2a071376c7"
+      "checksum": "9a8c695fdeeaf777883ab00d974a7a31"
     },
     "src/helpers.cpp": {
       "checksum": "14a251d6e23dff47705e09fad87bf184"
-    },
-    "src/helpers.o": {
-      "checksum": "b4d6ecd45f32c55ffac9f536a2755259"
     },
     "src/Makevars": {
       "checksum": "86422ed58742e4d4f9b3d3c58d01ab7f"
     },
     "src/RcppExports.cpp": {
       "checksum": "2515311c226321988dfc3d13a229191d"
-    },
-    "src/RcppExports.o": {
-      "checksum": "e7733381c4a7175635090cea617a50cb"
     }
   },
   "users": null

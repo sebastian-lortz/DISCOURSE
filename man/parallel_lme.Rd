@@ -77,3 +77,18 @@ Uses the DISCOURSE algorithmic framework to simulate multiple data sets
 such that the resulting correlations and regression coefficients including random-intercept SD
 match specified targets under a given mixed-effects regression model and input parameters.
 }
+\examples{
+ \dontrun{
+# Optimize data
+parallel_lme(
+  parallel_start = 7,
+  return_best_solution = FALSE,
+  sim_data       = sim_data,
+  target_cor     = c(0.4),
+  target_reg     = c(1, 0.5, 4),
+  reg_equation   = "Y ~ X1 + (1|ID)",
+  max_iter       = 2000,
+  hill_climbs    = 50
+)
+}
+}
