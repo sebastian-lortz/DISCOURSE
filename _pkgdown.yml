@@ -2,3 +2,9 @@ url: https://sebastian-lortz.github.io/discourse/
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left:
+      - home
+      - reference
+      - articles

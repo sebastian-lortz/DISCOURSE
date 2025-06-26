@@ -26,7 +26,7 @@ computation time compared to running the app locally.
 
 ### Installation
 
-You can install the latest version of the R package `{discourse}` like
+You can install the latest version of the R package `discoursee` like
 so:
 
 ``` r
@@ -79,5 +79,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 16:38:57 CEST"
+#> [1] "2025-06-26 16:48:10 CEST"
 ```

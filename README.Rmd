@@ -31,7 +31,7 @@ You can use the app at [https://sebastian-lortz.shinyapps.io/discourse/](https:/
 
 ### Installation
 
-You can install the latest version of the R package `{discourse}` like so:
+You can install the latest version of the R package `discoursee` like so:
 
 ```{r install-from-github, eval = FALSE, echo = TRUE}
 # install devtools if you don’t have it yet
