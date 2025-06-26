@@ -12,8 +12,8 @@ output: github_document
     out.width = "100%"
 )
 ```
-
-# DISCOURSE <a href="https://sebastian-lortz.github.io/discourse/" style="float:right; margin-top:-0.4em; border:none;"><img src="man/figures/logo-comp.png" alt="DISCOURSE package logo" height="150" style="border:none; display:block;" /></a>
+<a href="https://sebastian-lortz.github.io/discourse/" style="float: right; margin: 0;"> <img src="man/figures/logo-comp.png" alt="DISCOURSE package logo" height="150" style="border: none; display: block;"/> </a>
+# DISCOURSE
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
