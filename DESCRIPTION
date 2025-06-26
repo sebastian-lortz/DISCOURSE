@@ -2,10 +2,16 @@ Package: discourse
 Title: Data-simulation via Iterative Stochastic Combinatorial Optimization
     Using Reported Summary Estimates
 Version: 0.0.1.000
+Date: 2025-06-27
 Authors@R:
-    person("Sebastian A. J.", "Lortz", , "s.a.j.lortz@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0009-0007-0281-7996"))
-Description: We introduce DISCOURSE – this algorithmic
+    person(
+      given   = c("Sebastian", "A.", "J."),
+      family  = "Lortz",
+      email   = "s.a.j.lortz@gmail.com",
+      role    = c("aut", "cre"),
+      comment = c(ORCID = "0009-0007-0281-7996")
+    )
+Description: I introduce DISCOURSE – this algorithmic
     framework is designed to reconstruct complete data sets solely from
     summary statistics.  It provides researchers with a tool to follow-up
     analyses even when raw data are unavailable.

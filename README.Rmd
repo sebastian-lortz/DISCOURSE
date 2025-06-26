@@ -23,7 +23,7 @@ I introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic
 
 ## Usage
 
-The method is available as R package discourse and comprehensive ShinyApp. The corresponding research article can be found [HERE] (https://example.com/research_article.pdf) soon.
+The method is available as R package and comprehensive ShinyApp.
 
 ### Web App
 

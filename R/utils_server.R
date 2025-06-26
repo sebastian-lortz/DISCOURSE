@@ -5,7 +5,6 @@
 #' @return The return value, if any, from executing the utility.
 #'
 #' @noRd
-
 # info logo in name html wrapper
 name_with_info <- function(name, description) {
   HTML(
@@ -24,8 +23,6 @@ if (getRversion() >= "2.15.1") utils::globalVariables(".")
 # input checks vec
 #' Validate inputs for optim_vec (in Shiny)
 #'
-#' @return TRUE if all inputs are valid; otherwise shows an error notification
-#'   and returns FALSE.
 #' @noRd
 check_vec_inputs <- function(
     N,
@@ -112,8 +109,6 @@ check_vec_inputs <- function(
 # input checks aov
 #' Validate inputs for optim_aov (in Shiny)
 #'
-#' @return TRUE if all inputs are valid; otherwise shows an error notification
-#'   and returns FALSE.
 #' @noRd
 check_aov_inputs <- function(
     N,
@@ -217,8 +212,6 @@ check_aov_inputs <- function(
 # input checks lm
 #' Validate inputs for optim_lm (in Shiny)
 #'
-#' @return TRUE if all inputs are valid; otherwise shows an error notification
-#'   and returns FALSE.
 #' @noRd
 check_lm_inputs <- function(
     tolerance,
@@ -298,8 +291,6 @@ check_lm_inputs <- function(
 # input checks lme
 #' Validate inputs for optim_lme (in Shiny)
 #'
-#' @return TRUE if all inputs are valid; otherwise shows an error notification
-#'   and returns FALSE.
 #' @noRd
 check_lme_inputs <- function(
     tolerance,

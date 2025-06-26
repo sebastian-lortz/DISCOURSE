@@ -18,9 +18,7 @@ decision‑making.
 
 ## Usage
 
-The method is available as R package discourse and comprehensive
-ShinyApp. The corresponding research article can be found \[HERE\]
-(<https://example.com/research_article.pdf>) soon.
+The method is available as R package and comprehensive ShinyApp.
 
 ### Web App
 
@@ -53,10 +51,7 @@ discourse::run_app()
 
 Please cite `discourse` if you use it. To cite the software, use:
 
-    #> Warning in citation("discourse"): could not determine year for 'discourse' from
-    #> package DESCRIPTION file
-
-Lortz S (????). *discourse: Data-simulation via Iterative Stochastic
+Lortz SAJ (2025). *discourse: Data-simulation via Iterative Stochastic
 Combinatorial Optimization Using Reported Summary Estimates*. R package
 version 0.0.1.000, <https://sebastian-lortz.github.io/discourse/>,
 <https://github.com/sebastian-lortz/discourse>.
@@ -65,13 +60,10 @@ Or copy the reference information to your BibTeX file:
 
 \~\~~bibtex
 
-    #> Warning in citation("discourse"): could not determine year for 'discourse' from
-    #> package DESCRIPTION file
-
 @Manual{, title = {discourse: Data-simulation via Iterative Stochastic
 Combinatorial Optimization Using Reported Summary Estimates}, author =
-{Sebastian A. J. Lortz}, note = {R package version 0.0.1.000,
-<https://sebastian-lortz.github.io/discourse/>}, url =
+{Sebastian A. J. Lortz}, year = {2025}, note = {R package version
+0.0.1.000, <https://sebastian-lortz.github.io/discourse/>}, url =
 {<https://github.com/sebastian-lortz/discourse>}, }
 
 ## Code of Conduct
@@ -87,5 +79,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 15:53:53 CEST"
+#> [1] "2025-06-26 16:01:50 CEST"
 ```
