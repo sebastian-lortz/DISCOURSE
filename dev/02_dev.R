@@ -123,7 +123,7 @@ usethis::use_gitlab_ci()
 # pkgdown
 usethis::use_pkgdown_github_pages()
 
-# refresh page
+# refresh pkgdown page
 devtools::build_readme()
 pkgdown::build_site_github_pages()
 

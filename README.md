@@ -1,13 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# DISCOURSE
+# DISCOURSE <a href="https://sebastian-lortz.github.io/discourse/" style="float:right; margin-top:-0.4em; border:none;"><img src="man/figures/logo-comp.png" alt="DISCOURSE package logo" height="150" style="border:none; display:block;" /></a>
 
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-<a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" alt="DISCOURSE logo" height="150" style="display:inline-block; vertical-align: middle; margin-left: 1em; border: none;"/></a>
 <!-- badges: end -->
 
 I introduce the DISCOURSE framework – Data-simulation via Iterative
@@ -82,5 +81,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 16:14:45 CEST"
+#> [1] "2025-06-26 16:18:16 CEST"
 ```
