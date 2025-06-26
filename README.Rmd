@@ -13,11 +13,11 @@ output: github_document
 )
 ```
 
-# DISCOURSE <a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" align="right" height="100" alt="DISCOURSE package logo"/></a>
-
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
+
+# DISCOURSE <a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" align="right" height="100" alt="DISCOURSE package logo"/></a>
 
 I introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates. The primary scope of the algorithmic framework is to reconstruct complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication study decision‑making.
 
