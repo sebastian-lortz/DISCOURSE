@@ -1,12 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# DISCOURSE <a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo-comp.png' align="right" height="150" alt-text="DISCOURSE"/></a>
+# DISCOURSE
 
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" alt="DISCOURSE logo" height="150" style="display:inline-block; vertical-align: middle; margin-left: 1em; border: none;"/></a>
 <!-- badges: end -->
 
 I introduce the DISCOURSE framework – Data-simulation via Iterative
@@ -58,13 +59,15 @@ version 0.0.1.000, <https://sebastian-lortz.github.io/discourse/>,
 
 Or copy the reference information to your BibTeX file:
 
-\~\~~bibtex
-
-@Manual{, title = {discourse: Data-simulation via Iterative Stochastic
-Combinatorial Optimization Using Reported Summary Estimates}, author =
-{Sebastian A. J. Lortz}, year = {2025}, note = {R package version
-0.0.1.000, <https://sebastian-lortz.github.io/discourse/>}, url =
-{<https://github.com/sebastian-lortz/discourse>}, }
+``` bibtex
+@Manual{discourse,
+  title        = {discourse: Data‐simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates},
+  author       = {Sebastian A. J. Lortz},
+  year         = {2025},
+  note         = {R package version 0.0.1.000},
+  url          = {https://github.com/sebastian-lortz/discourse}
+}
+```
 
 ## Code of Conduct
 
@@ -79,5 +82,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 16:01:50 CEST"
+#> [1] "2025-06-26 16:14:45 CEST"
 ```
