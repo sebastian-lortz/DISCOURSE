@@ -78,11 +78,6 @@ Please mind the Contributor Code of Conduct.
 
 ## About
 
-You are reading the doc about version : `r golem::pkg_version()`
+You are reading the doc about version: `r golem::pkg_version()`
 
-This README has been compiled on the
-
-```{r}
-Sys.time()
-```
-
+This README has been compiled on `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`.

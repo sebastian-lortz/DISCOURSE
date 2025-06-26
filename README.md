@@ -74,11 +74,6 @@ Conduct.
 
 ## About
 
-You are reading the doc about version : 0.0.1.000
+You are reading the doc about version: 0.0.1.000
 
-This README has been compiled on the
-
-``` r
-Sys.time()
-#> [1] "2025-06-26 17:08:19 CEST"
-```
+This README has been compiled on 2025-06-26 17:16:06.

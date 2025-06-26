@@ -13,7 +13,7 @@ app_ui <- function(request) {
       lang = "en",
       navbarPage(
         title = tags$img(
-          src    = "www/logo.png",
+          src    = "www/logo-comp.png",
           alt    = "DISCOURSE",
           height = "30px",
           style  = "margin-top:-5px;"
