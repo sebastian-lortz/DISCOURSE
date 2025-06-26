@@ -13,12 +13,12 @@ output: github_document
 )
 ```
 
-# DISCOURSE <a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo.png' align="right" height="200" alt-text="DISCOURSE"/></a>
+# DISCOURSE
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Codecov test coverage](https://codecov.io/gh/sebastian-lortz/discourse/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/discourse)
 <!-- badges: end -->
+<a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo.png' align="right" height="200" alt-text="DISCOURSE"/></a>
 
 I introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates. The primary scope of the algorithmic framework is to reconstruct complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication study decision‑making.
 

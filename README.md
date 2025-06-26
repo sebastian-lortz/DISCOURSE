@@ -1,15 +1,14 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# DISCOURSE <a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo.png' align="right" height="200" alt-text="DISCOURSE"/></a>
+# DISCOURSE
 
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Codecov test
-coverage](https://codecov.io/gh/sebastian-lortz/discourse/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/discourse)
 <!-- badges: end -->
+<a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo.png' align="right" height="200" alt-text="DISCOURSE"/></a>
 
 I introduce the DISCOURSE framework – Data-simulation via Iterative
 Stochastic Combinatorial Optimization Using Reported Summary Estimates.
@@ -89,5 +88,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 15:32:46 CEST"
+#> [1] "2025-06-26 15:41:26 CEST"
 ```
