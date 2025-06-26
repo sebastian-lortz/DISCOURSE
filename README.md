@@ -1,9 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<a href="https://sebastian-lortz.github.io/discourse/" style="float: right; margin: 0;">
-<img src="man/figures/logo-comp.png" alt="DISCOURSE package logo" height="150" style="border: none; display: block;"/>
-</a> \# DISCOURSE
+<div style="float: right; margin: 0 0 1em 1em; border: none;">
+
+<a href="https://sebastian-lortz.github.io/discourse/">
+<img src="man/figures/logo-comp.png"
+         height="150"
+         alt="DISCOURSE package logo"
+         style="border: none; display: block;"/> </a>
+
+</div>
+
+# DISCOURSE
 
 <!-- badges: start -->
 
@@ -83,5 +91,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 16:21:24 CEST"
+#> [1] "2025-06-26 16:23:26 CEST"
 ```
