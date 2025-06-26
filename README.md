@@ -7,7 +7,7 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-<a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" align="right" height="150" alt="DISCOURSE package logo"/></a>
+<a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" align="right" height="100" alt="DISCOURSE package logo"/></a>
 <!-- badges: end -->
 
 I introduce the DISCOURSE framework – Data-simulation via Iterative
@@ -82,5 +82,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 16:28:55 CEST"
+#> [1] "2025-06-26 16:31:07 CEST"
 ```
