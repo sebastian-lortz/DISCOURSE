@@ -1,8 +1,8 @@
 url: https://sebastian-lortz.github.io/discourse/
 template:
   bootstrap: 5
-logo: man/figures/logo-comp.png
-favicon: man/figures/logo.png
+logo: man/figures/logo.png
+favicon: man/figures/logo-comp.png
 navbar:
   structure:
     left:
