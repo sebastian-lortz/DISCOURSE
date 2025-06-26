@@ -57,9 +57,9 @@ hill_climb <- function(current_candidate, error_function, N,
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs >= 1 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
   )) {
-    stop("`hill_climbs` must be NULL or a single positive integer for the number of hill climb iterations.")
+    stop("`hill_climbs` must be NULL or a single positive integer.")
   }
   if (!is.logical(LME) || length(LME) != 1) {
     stop("`LME` must be a single logical value indicating whether the data to be optimized is based on a mixed-effects design.")
@@ -84,7 +84,7 @@ hill_climb <- function(current_candidate, error_function, N,
 
   # progress bar setup
   if (progress_bar) {
-    pb_int <- max(floor(hill_climbs / 100), 1)
+    pb_interval <- max(floor(hill_climbs / 100), 1)
     pb <- utils::txtProgressBar(0, hill_climbs, style = 3)
     on.exit(close(pb), add = TRUE)
   }
@@ -119,7 +119,7 @@ hill_climb <- function(current_candidate, error_function, N,
       best_cand <- loc_cand; best_err <- loc_err
     }
     # update bar
-    if (progress_bar &&  !is.null(progressor) && (i %% pb_int == 0)) {
+    if (progress_bar &&  !is.null(progressor) && (i %% pb_interval == 0)) {
       utils::setTxtProgressBar(pb, i)
       progressor()
     }

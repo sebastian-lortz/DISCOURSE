@@ -125,9 +125,9 @@ parallel_lme <- function(
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
   )) {
-    stop("`hill_climbs` must be NULL or a single non-negative integer.")
+    stop("`hill_climbs` must be NULL or a single positive integer.")
   }
   required_moves <- c("residual", "k_cycle", "local", "tau")
   if (!is.list(move_prob) || !all(c("start", "end") %in% names(move_prob))) {

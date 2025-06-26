@@ -125,9 +125,9 @@ parallel_lm <- function(
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
   )) {
-    stop("`hill_climbs` must be NULL or a single non-negative integer.")
+    stop("`hill_climbs` must be NULL or a single positive integer.")
   }
   if (!is.numeric(min_decimals) || length(min_decimals) != 1 ||
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {

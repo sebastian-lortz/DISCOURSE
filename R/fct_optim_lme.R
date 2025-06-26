@@ -108,9 +108,9 @@ optim_lme <- function(sim_data,
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
   )) {
-    stop("`hill_climbs` must be NULL or a single non-negative integer.")
+    stop("`hill_climbs` must be NULL or a single positive integer.")
   }
   required_moves <- c("residual", "k_cycle", "local", "tau")
   if (!is.list(move_prob) || !all(c("start", "end") %in% names(move_prob))) {
@@ -366,7 +366,7 @@ if (is.null(tau)) {
   } else {
     handler <-list(progressr::handler_txtprogressbar())
   }
-  pb_interval_sa <- floor(max_iter / 100)
+  pb_interval_sa <- max(floor(hill_climbs / 100), 1)
   pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
   n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
     length(seq_len(max_iter)[seq_len(max_iter) %% pb_interval_sa == 0])

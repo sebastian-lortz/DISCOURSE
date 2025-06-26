@@ -122,9 +122,9 @@ optim_lm <- function(
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
   )) {
-    stop("`hill_climbs` must be NULL or a single non-negative integer.")
+    stop("`hill_climbs` must be NULL or a single positive integer.")
   }
   if (!is.numeric(min_decimals) || length(min_decimals) != 1 ||
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {
@@ -202,7 +202,7 @@ optim_lm <- function(
   } else {
     handler <-list(progressr::handler_txtprogressbar())
   }
-  pb_interval_sa <- floor(max_iter / 100)
+  pb_interval_sa <- max(floor(hill_climbs / 100), 1)
   pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
   n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
    length(seq_len(max_iter)[seq_len(max_iter) %% pb_interval_sa == 0])
