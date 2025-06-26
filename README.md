@@ -28,11 +28,10 @@ computation time compared to running the app locally.
 
 ### Installation
 
-You can install the latest version of the R package `discoursee` like
-so:
+You can install the latest version of the R package `discourse` like so:
 
 ``` r
-# install devtools if you don’t have it yet
+# install devtools if needed
 if (!requireNamespace("devtools")) {install.packages("devtools")}
 
 # install from GitHub
@@ -61,7 +60,7 @@ Or copy the reference information to your BibTeX file:
 ``` bibtex
 @Manual{discourse,
   title        = {discourse: Data‐simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates},
-  author       = {Sebastian A. J. Lortz},
+  author       = {S. A. J. Lortz},
   year         = {2025},
   note         = {R package version 0.0.1.000},
   url          = {https://github.com/sebastian-lortz/discourse}
@@ -81,5 +80,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 17:05:38 CEST"
+#> [1] "2025-06-26 17:08:19 CEST"
 ```

@@ -32,10 +32,10 @@ You can use the app at [https://sebastian-lortz.shinyapps.io/discourse/](https:/
 
 ### Installation
 
-You can install the latest version of the R package `discoursee` like so:
+You can install the latest version of the R package `discourse` like so:
 
 ```{r install-from-github, eval = FALSE, echo = TRUE}
-# install devtools if you don’t have it yet
+# install devtools if needed
 if (!requireNamespace("devtools")) {install.packages("devtools")}
 
 # install from GitHub
@@ -64,7 +64,7 @@ Or copy the reference information to your BibTeX file:
 ```bibtex
 @Manual{discourse,
   title        = {discourse: Data‐simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates},
-  author       = {Sebastian A. J. Lortz},
+  author       = {S. A. J. Lortz},
   year         = {2025},
   note         = {R package version 0.0.1.000},
   url          = {https://github.com/sebastian-lortz/discourse}

@@ -6,12 +6,15 @@
 \alias{discourse-package}
 \title{discourse: Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates}
 \description{
-We introduce DISCOURSE – this algorithmic framework is designed to reconstruct complete data sets solely from summary statistics. It provides researchers with a tool to follow-up analyses even when raw data are unavailable.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+I introduce DISCOURSE – this algorithmic framework is designed to reconstruct complete data sets solely from summary statistics. It provides researchers with a tool to follow-up analyses even when raw data are unavailable.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/sebastian-lortz/discourse}
+  \item \url{https://sebastian-lortz.github.io/discourse/}
   \item Report bugs at \url{https://github.com/sebastian-lortz/discourse/issues}
 }
 
