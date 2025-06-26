@@ -410,7 +410,7 @@ mod_optim_lme_server <- function(id, root_session){
     coef_df_reactive <- reactive({
       frm <- lme_formula_reactive()
       if (is.null(frm)) return(NULL)
-      term_labels <- attr(stats::terms(frm), "term.labels")
+      term_labels <- attr2(stats::terms(frm), "term.labels")
       all_terms   <- c("(Intercept)", term_labels)
       p           <- length(all_terms)
       mat <- matrix(
@@ -493,6 +493,17 @@ mod_optim_lme_server <- function(id, root_session){
       hill_climbs       <- input$hill_climbs
       parallel_start     <- input$parallel_start
       return_best_solution <- input$return_best
+      input.check <- check_lm_inputs(
+        tolerance = tolerance,
+        max_iter = max_iter,
+        init_temp = init_temp,
+        cooling_rate = cooling_rate,
+        hill_climbs = hill_climbs,
+        max_starts = max_starts,
+        parallel_start = parallel_start
+      )
+      input.check
+      if (!input.check) {return()}
       for (btn in c(
         "match_descr", "corr_table", "lme_outcome", "lme_predictors",
         "lme_interactions", "coef_table", "tolerance", "max_iter",
@@ -592,23 +603,6 @@ mod_optim_lme_server <- function(id, root_session){
       parallel_start     <- input$parallel_start
       return_best_solution <- input$return_best
       wdf <- hot_to_r(input$weight_table)
-      for (btn in c(
-        "match_descr", "corr_table", "lme_outcome", "lme_predictors",
-        "lme_interactions", "coef_table", "tolerance", "max_iter",
-        "init_temp", "cooling_rate", "hill_climbs", "max_starts",
-        "parallel_start", "return_best", "weight_table", "estimate_weights",
-        "run", "plot_error", "plot_error_ratio", "get_rmse",
-        "get_rmse_parallel", "plot_summary", "plot_rmse", "plot_cooling",
-        "display_data", "download", "dataset_selector"
-      )) {
-        shinyjs::disable(btn)
-      }
-      for (tbl in c("corr_table","coef_table","weight_table")) {
-        shinyjs::runjs(
-          sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
-                  ns(tbl))
-        )
-      }
       fn_args <- list(
         sim_data       = sim_data,
         target_cor     = target_cor,
@@ -626,6 +620,27 @@ mod_optim_lme_server <- function(id, root_session){
         return_best_solution = return_best_solution,
         progress_mode        = "shiny"
       )
+      check.args <- fn_args[names(fn_args) %in% names(formals(check_lm_inputs))]
+      input.check <- do.call(check_lm_inputs, check.args)
+      input.check
+      if (!input.check) {return()}
+      for (btn in c(
+        "match_descr", "corr_table", "lme_outcome", "lme_predictors",
+        "lme_interactions", "coef_table", "tolerance", "max_iter",
+        "init_temp", "cooling_rate", "hill_climbs", "max_starts",
+        "parallel_start", "return_best", "weight_table", "estimate_weights",
+        "run", "plot_error", "plot_error_ratio", "get_rmse",
+        "get_rmse_parallel", "plot_summary", "plot_rmse", "plot_cooling",
+        "display_data", "download", "dataset_selector"
+      )) {
+        shinyjs::disable(btn)
+      }
+      for (tbl in c("corr_table","coef_table","weight_table")) {
+        shinyjs::runjs(
+          sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
+                  ns(tbl))
+        )
+      }
       withProgress(message = "Running optimization...", value = 0, {
       if (parallel_start > 1) {
         rv$result <- do.call(parallel_lme, fn_args)

@@ -1,0 +1,29 @@
+---
+title: "about"
+output: html_document
+---
+
+<div style="float: right; margin: 0 0 1em 1em;">
+  <img src="logo.png"
+       alt="DISCOURSE"
+       height="110px"
+       style="margin-top:-5px;" />
+</div>
+
+### About the project
+
+We introduce **DISCOURSE** – this algorithmic framework is designed to reconstruct complete data sets solely from summary statistics.  It provides researchers with a tool to follow-up analyses even when raw data are unavailable. DISCOURSE is available as R package and shiny app via Github page: <https://github.com/sebastian-lortz/discourse/>
+
+### Publications
+
+The method is introduced in the research project titled 'Advancing Replication Study Decision-Making with DISCOURSE: Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates'.
+
+### Contributors
+
+-   Sebastian Lortz
+
+### Questions and comments
+
+If you have any questions or comments please write to Sebastian Lortz to the following email address: [s.a.j.lortz@gmail.com](mailto:s.a.j.lortz@gmail.com)
+
+Or submit an issue on the apps Github page: <https://github.com/sebastian-lortz/discourse/issues>

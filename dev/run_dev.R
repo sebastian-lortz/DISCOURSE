@@ -15,4 +15,3 @@ devtools::install(dependencies = FALSE)
 # rm -rf /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/00LOCK-discourse
 # Run the application
 run_app()
-

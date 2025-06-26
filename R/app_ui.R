@@ -21,7 +21,7 @@ app_ui <- function(request) {
         id = "main",
         windowTitle = "DISCOURSE",
 
-        # Home / Landing Page
+        # Home
         tabPanel(
           title = "Home",
           fluidRow(
@@ -80,7 +80,7 @@ app_ui <- function(request) {
             )
           )
         ),
-        # High Level Workflow Tab
+        # High Level Workflow
         tabPanel(
           title = "High Level Workflow",
           fluidRow(
@@ -114,15 +114,8 @@ app_ui <- function(request) {
           tabPanel(title = "Mixed-Effect Linear Regression", mod_optim_lme_ui("optim_lme"))
         ),
         # About
-        tabPanel(
-          title = "About",
-          fluidRow(
-            column(width = 12,
-                   h2("About this App"),
-                   uiOutput("pkg_desc")
-            )
-          )
-        )
+        tabPanel("About",
+                 shiny::includeMarkdown(app_sys("app/www/about.Rmd")))
       )
     )
   )

@@ -5,12 +5,12 @@ Version: 0.0.1.000
 Authors@R:
     person("Sebastian A. J.", "Lortz", , "s.a.j.lortz@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0007-0281-7996"))
-Description: We introduce the DISCOURSE framework – this algorithmic
+Description: We introduce DISCOURSE – this algorithmic
     framework is designed to reconstruct complete data sets solely from
     summary statistics.  It provides researchers with a tool to follow-up
     analyses even when raw data are unavailable.
 License: MIT + file LICENSE
-URL: https://github.com/sebastian-lortz/discourse
+URL: https://github.com/sebastian-lortz/discourse, https://sebastian-lortz.github.io/discourse/
 BugReports: https://github.com/sebastian-lortz/discourse/issues
 Remotes:
     github::sebastian-lortz/discourse

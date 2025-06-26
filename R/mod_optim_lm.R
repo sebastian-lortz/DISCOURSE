@@ -405,7 +405,7 @@ mod_optim_lm_server <- function(id, root_session){
     coef_df_reactive <- reactive({
       frm <- lm_formula_reactive()
       if (is.null(frm)) return(NULL)
-      term_labels <- attr(stats::terms(frm), "term.labels")
+      term_labels <- attr2(stats::terms(frm), "term.labels")
       all_terms   <- c("(Intercept)", term_labels)
       mat <- matrix(
         NA_real_,
@@ -480,6 +480,17 @@ mod_optim_lm_server <- function(id, root_session){
       hill_climbs       <- input$hill_climbs
       parallel_start     <- input$parallel_start
       return_best_solution <- input$return_best
+      input.check <- check_lm_inputs(
+        tolerance = tolerance,
+        max_iter = max_iter,
+        init_temp = init_temp,
+        cooling_rate = cooling_rate,
+        hill_climbs = hill_climbs,
+        max_starts = max_starts,
+        parallel_start = parallel_start
+      )
+      input.check
+      if (!input.check) {return()}
       for (btn in c(
         "match_descr", "corr_table", "lm_outcome", "lm_predictors", "lm_interactions",
         "coef_table_ht", "tolerance", "max_iter", "init_temp", "cooling_rate",
@@ -562,17 +573,6 @@ mod_optim_lm_server <- function(id, root_session){
     observeEvent(input$run, {
       shinyjs::show("processing_msg")
       on.exit(shinyjs::hide("processing_msg"), add = TRUE)
-      for (btn in c(
-        "match_descr", "corr_table", "lm_outcome", "lm_predictors", "lm_interactions",
-        "coef_table_ht", "tolerance", "max_iter", "init_temp", "cooling_rate",
-        "hill_climbs", "max_starts", "parallel_start", "return_best",
-        "weight_table", "estimate_weights", "run", "plot_error",
-        "plot_error_ratio", "get_rmse", "get_rmse_parallel", "plot_summary",
-        "plot_rmse", "plot_cooling", "display_data", "download", "dataset_selector"
-      )) {
-        shinyjs::disable(btn)
-      }
-      rv$status <- "running"
       sim_data <- simulated_data()
       df_corr <- hot_to_r(input$corr_table)
       mat_corr <- as.matrix(df_corr)
@@ -605,25 +605,34 @@ mod_optim_lm_server <- function(id, root_session){
         max_iter       = max_iter,
         init_temp      = init_temp,
         cooling_rate   = cooling_rate,
-        tolerance            = tolerance,
+        tolerance      = tolerance,
         max_starts     = max_starts,
         hill_climbs    = hill_climbs,
         parallel_start       = parallel_start,
         return_best_solution = return_best_solution,
         progress_mode = "shiny"
       )
-      cat(
-        paste(
-          unlist( fn_args[2:16] ),
-          collapse = ", "
-        ), "\n"
-      )
+      check.args <- fn_args[names(fn_args) %in% names(formals(check_lm_inputs))]
+      input.check <- do.call(check_lm_inputs, check.args)
+      input.check
+      if (!input.check) {return()}
       for (tbl in c("corr_table","coef_table","weight_table")) {
         shinyjs::runjs(
           sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
                   ns(tbl))
         )
       }
+      for (btn in c(
+        "match_descr", "corr_table", "lm_outcome", "lm_predictors", "lm_interactions",
+        "coef_table_ht", "tolerance", "max_iter", "init_temp", "cooling_rate",
+        "hill_climbs", "max_starts", "parallel_start", "return_best",
+        "weight_table", "estimate_weights", "run", "plot_error",
+        "plot_error_ratio", "get_rmse", "get_rmse_parallel", "plot_summary",
+        "plot_rmse", "plot_cooling", "display_data", "download", "dataset_selector"
+      )) {
+        shinyjs::disable(btn)
+      }
+      rv$status <- "running"
       withProgress(message = "Running optimization...", value = 0, {
         if (parallel_start > 1) {
         rv$result <- do.call(parallel_lm, fn_args)

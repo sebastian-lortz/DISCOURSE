@@ -495,12 +495,6 @@ mod_optim_aov_server <- function(id){
       checkGrim          <- TRUE
       parallel_start     <- input$parallel_start
       return_best_solution <- input$return_best
-      for (tbl in c("factor_table","subgroup_table","anova_table")) {
-        shinyjs::runjs(
-          sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
-                  ns(tbl))
-        )
-      }
       fn_args <- list(
         N                    = N,
         levels               = levels_int,
@@ -524,6 +518,9 @@ mod_optim_aov_server <- function(id){
         return_best_solution = return_best_solution,
         progress_mode        = "shiny"
       )
+      check.args <- fn_args[names(fn_args) %in% names(formals(check_aov_inputs))]
+      input.check <- do.call(check_aov_inputs, check.args)
+      if (!input.check) {return()}
       # cat(paste(unlist(fn_args), collapse = ", "), "\n")
       lapply(c(  "factor_table", "add_factor", "remove_factor",
                  "subgroup_table",
@@ -536,6 +533,12 @@ mod_optim_aov_server <- function(id){
                  "run","plot_error","get_rmse","get_rmse_parallel",
                  "plot_summary","plot_rmse","plot_cooling",
                  "display_data","download","dataset_selector"), shinyjs::disable)
+      for (tbl in c("factor_table","subgroup_table","anova_table")) {
+        shinyjs::runjs(
+          sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
+                  ns(tbl))
+        )
+      }
       rv$status <- "running"
       withProgress(message = "Running optimization...", value = 0, {
       if (parallel_start > 1) {

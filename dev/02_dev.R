@@ -120,6 +120,10 @@ usethis::use_jenkins()
 # GitLab CI
 usethis::use_gitlab_ci()
 
+# pkgdown
+usethis::use_pkgdown_github_pages()
+pkgdown::build_site_github_pages()
+
 # You're now set! ----
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")

@@ -108,7 +108,7 @@ optim_lme <- function(sim_data,
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
   )) {
     stop("`hill_climbs` must be NULL or a single positive integer.")
   }
@@ -177,7 +177,7 @@ optim_lme <- function(sim_data,
   # intput check cor and reg
   n.col <- length(long_candidate_cols)+1
   exp_cor <- (n.col*(n.col-1))/2
-  term_lbls <- attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
+  term_lbls <- attr2(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   names(target_reg) <- c("(Intercept)", term_lbls[-length(term_lbls)], "ID")
   if (length(target_cor) != exp_cor) {
@@ -366,7 +366,7 @@ if (is.null(tau)) {
   } else {
     handler <-list(progressr::handler_txtprogressbar())
   }
-  pb_interval_sa <- max(floor(hill_climbs / 100), 1)
+  pb_interval_sa <- max(floor(max_iter / 100), 1)
   pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
   n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
     length(seq_len(max_iter)[seq_len(max_iter) %% pb_interval_sa == 0])
@@ -469,7 +469,7 @@ if (is.null(tau)) {
       }
       if (progress_bar) {close(pb)}
       # hill climbing
-      if (!is.null(hill_climbs)) {
+      if (!is.null(hill_climbs) && hill_climbs>0) {
         local_opt <- hill_climb(
           current_candidate = current_candidate,
           error_function    = error_function,

@@ -322,34 +322,53 @@ mod_optim_vec_server <- function(id, root_session) {
       shinyjs::show("processing_msg")    # show the banner
       on.exit(shinyjs::hide("processing_msg"), add = TRUE)  # ensure it hides even on error
       rv$status <- "running"
-      shinyjs::disable("run")
-      lapply(c("N", "mod", "param_table", "add_row", "remove_row",
-               "tolerance", "max_iter", "init_temp", "cooling_rate",
-               "max_starts", "parallel", "weight_table", "estimate_weights",
-                "plot_error","get_rmse","plot_summary","plot_cooling",
-               "display_data","download", "proceed_lm","proceed_lme"),
-             shinyjs::disable
-      )
       df  <- rv$params
       wdf <- hot_to_r(input$weight_table)
+      N = input$N
+      tolerance = input$tolerance
+      max_iter = input$max_iter
+      init_temp = input$init_temp
+      cooling_rate = input$cooling_rate
+      max_starts = input$max_starts
+      target_mean  = stats::setNames(df$Mean, df$Variable)
+      range        = rbind(df$Min, df$Max)
+      input.check <- check_vec_inputs(
+        N = N,
+        target_mean = target_mean,
+        range = range,
+        tolerance = tolerance,
+        max_iter = max_iter,
+        init_temp = init_temp,
+        cooling_rate = cooling_rate,
+        max_starts = max_starts
+      )
+      if (!input.check) {return()}
       for (tbl in c("param_table","weight_table")) {
         shinyjs::runjs(
           sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
                   ns(tbl))
         )
       }
+      shinyjs::disable("run")
+      lapply(c("N", "mod", "param_table", "add_row", "remove_row",
+               "tolerance", "max_iter", "init_temp", "cooling_rate",
+               "max_starts", "parallel", "weight_table", "estimate_weights",
+               "plot_error","get_rmse","plot_summary","plot_cooling",
+               "display_data","download", "proceed_lm","proceed_lme"),
+             shinyjs::disable
+      )
       withProgress(message = "Running optimization...", value = 0, {
       rv$result <- optim_vec(
-        N            = input$N,
-        target_mean  = stats::setNames(df$Mean, df$Variable),
+        N            = N,
+        target_mean  = target_mean,
         target_sd    = stats::setNames(df$SD,   df$Variable),
-        range        = rbind(df$Min, df$Max),
-        tolerance    = input$tolerance,
+        range        = range,
+        tolerance    = tolerance,
         integer      = df$Integer,
-        max_iter     = input$max_iter,
-        init_temp    = input$init_temp,
-        cooling_rate = input$cooling_rate,
-        max_starts   = input$max_starts,
+        max_iter     = max_iter,
+        init_temp    = init_temp,
+        cooling_rate = cooling_rate,
+        max_starts   = max_starts,
         obj_weight   = lapply(seq_len(nrow(wdf)), function(i)
           c(wdf$WeightMean[i], wdf$WeightSD[i])),
         parallel     = input$parallel,

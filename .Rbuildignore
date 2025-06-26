@@ -19,3 +19,7 @@
 ^src/.*\.(o|so|dll)$
 ^inst/libs/.*\.(so|dll)$
 ^libs(/|$)
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$

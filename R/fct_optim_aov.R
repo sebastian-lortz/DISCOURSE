@@ -86,11 +86,18 @@ optim_aov <- function(
   if (!is.numeric(N) || length(N) != 1 || N <= 0 || N != as.integer(N)) {
     stop("`N` must be a single positive integer.")
   }
-  if (!is.numeric(levels) || length(levels) < 1) {
-    stop("`levels` must be a numeric vector of length > 0 specifying factor levels per factor.")
+  if (
+    !is.numeric(levels) ||
+    length(levels) < 1 ||
+    any(levels != as.integer(levels))
+  ) {
+    stop("`levels` must be a numeric vector of integers (e.g. 1, 2, 3) with length > 0, specifying the number of levels per factor.")
   }
   if (!is.numeric(target_group_means) || length(target_group_means) < 1) {
     stop("`target_group_means` must be a non-empty numeric vector of target means.")
+  }
+  if (any(target_group_means < range[1] | target_group_means > range[2])) {
+    stop("All `target_group_means` must be lie within the specified range.")
   }
   if (!is.list(target_f_list) ||
       !is.numeric(target_f_list$F) || length(target_f_list$F) < 1) {

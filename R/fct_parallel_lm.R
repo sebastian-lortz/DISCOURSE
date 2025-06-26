@@ -76,7 +76,7 @@ parallel_lm <- function(
   }
   pred       <- ncol(sim_data)
   exp_cor <- pred*(pred-1)/2
-  term_lbls<- attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
+  term_lbls<- attr2(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   if (length(target_cor) != exp_cor) {
     stop(sprintf("`target_cor` must be a numeric vector of length %d, not %d.",
@@ -125,7 +125,7 @@ parallel_lm <- function(
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
   )) {
     stop("`hill_climbs` must be NULL or a single positive integer.")
   }

@@ -70,7 +70,7 @@ optim_lm <- function(
   }
   pred       <- ncol(sim_data)
   exp_cor <- pred*(pred-1)/2
-  term_lbls<- attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
+  term_lbls<- attr2(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   if (length(target_cor) != exp_cor) {
     stop(sprintf("`target_cor` must be a numeric vector of length %d, not %d.",
@@ -122,7 +122,7 @@ optim_lm <- function(
   if (!(
     is.null(hill_climbs) ||
     (is.numeric(hill_climbs) && length(hill_climbs) == 1 &&
-     hill_climbs > 0 && hill_climbs == as.integer(hill_climbs))
+     hill_climbs >= 0 && hill_climbs == as.integer(hill_climbs))
   )) {
     stop("`hill_climbs` must be NULL or a single positive integer.")
   }
@@ -202,7 +202,7 @@ optim_lm <- function(
   } else {
     handler <-list(progressr::handler_txtprogressbar())
   }
-  pb_interval_sa <- max(floor(hill_climbs / 100), 1)
+  pb_interval_sa <- max(floor(max_iter / 100), 1)
   pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
   n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
    length(seq_len(max_iter)[seq_len(max_iter) %% pb_interval_sa == 0])
@@ -269,7 +269,7 @@ optim_lm <- function(
       }
       if (progress_bar) {close(pb)}
       # hill climbing optimization
-      if (!is.null(hill_climbs)) {
+      if (!is.null(hill_climbs) && hill_climbs>0) {
         local_opt <- hill_climb(
           current_candidate = current_candidate,
           outcome = outcome,
