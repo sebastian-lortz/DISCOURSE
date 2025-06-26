@@ -13,33 +13,65 @@ output: github_document
 )
 ```
 
-# `{discourse}`
+# DISCOURSE <a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo.png' align="right" height="200" alt-text="DISCOURSE"/></a>
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![Codecov test coverage](https://codecov.io/gh/sebastian-lortz/discourse/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/discourse)
 <!-- badges: end -->
 
-## Installation
+I introduce the DISCOURSE framework – Data-simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates. The primary scope of the algorithmic framework is to reconstruct complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication study decision‑making.
 
-You can install the development version of `{discourse}` like so:
+## Usage
+
+The method is available as R package discourse and comprehensive ShinyApp. The corresponding research article can be found [HERE] (https://example.com/research_article.pdf) soon.
+
+### Web App
+
+You can use the app at [https://sebastian-lortz.shinyapps.io/discourse/](https://sebastian-lortz.shinyapps.io/discourse/). Expect longer computation time compared to running the app locally.
+
+
+### Installation
+
+You can install the latest version of the R package `{discourse}` like so:
 
 ```{r install-from-github, eval = FALSE, echo = TRUE}
 # install devtools if you don’t have it yet
 if (!requireNamespace("devtools")) {install.packages("devtools")}
 
-# install the latest version from GitHub
+# install from GitHub
 devtools::install_github("sebastian-lortz/discourse")
 
 ```
 
-## Run
+### Run
 
-You can launch the application by running:
+You can launch the ShinyApp locally by running:
 
 ```{r, eval = FALSE}
 discourse::run_app()
 ```
+
+## Citation
+
+Please cite `discourse` if you use it. To cite the software, use: 
+
+```{r echo = FALSE, results = "asis"}
+print(citation("discourse"), style = "text")
+```
+
+Or copy the reference information to your BibTeX file:
+
+~~~bibtex
+
+```{r echo = FALSE, results = "asis"}
+print(citation("discourse"), style = "Bibtex")
+```
+
+## Code of Conduct
+
+I am open to feedback and new ideas.
+Please mind the Contributor Code of Conduct.
 
 ## About
 
@@ -51,8 +83,3 @@ This README has been compiled on the
 Sys.time()
 ```
 
-Here is the Namespace:
-
-```{r echo = FALSE}
-unloadNamespace("discourse")
-```

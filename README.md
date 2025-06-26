@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `{discourse}`
+# DISCOURSE <a href='https://sebastian-lortz.github.io/discourse/'><img src='man/figures/logo.png' align="right" height="200" alt-text="DISCOURSE"/></a>
 
 <!-- badges: start -->
 
@@ -11,25 +11,75 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 coverage](https://codecov.io/gh/sebastian-lortz/discourse/graph/badge.svg)](https://app.codecov.io/gh/sebastian-lortz/discourse)
 <!-- badges: end -->
 
-## Installation
+I introduce the DISCOURSE framework – Data-simulation via Iterative
+Stochastic Combinatorial Optimization Using Reported Summary Estimates.
+The primary scope of the algorithmic framework is to reconstruct
+complete datasets using only summary statistics, giving researchers a
+way - when raw data are unavailable - to inform replication study
+decision‑making.
 
-You can install the development version of `{discourse}` like so:
+## Usage
+
+The method is available as R package discourse and comprehensive
+ShinyApp. The corresponding research article can be found \[HERE\]
+(<https://example.com/research_article.pdf>) soon.
+
+### Web App
+
+You can use the app at
+<https://sebastian-lortz.shinyapps.io/discourse/>. Expect longer
+computation time compared to running the app locally.
+
+### Installation
+
+You can install the latest version of the R package `{discourse}` like
+so:
 
 ``` r
 # install devtools if you don’t have it yet
 if (!requireNamespace("devtools")) {install.packages("devtools")}
 
-# install the latest version from GitHub
+# install from GitHub
 devtools::install_github("sebastian-lortz/discourse")
 ```
 
-## Run
+### Run
 
-You can launch the application by running:
+You can launch the ShinyApp locally by running:
 
 ``` r
 discourse::run_app()
 ```
+
+## Citation
+
+Please cite `discourse` if you use it. To cite the software, use:
+
+    #> Warning in citation("discourse"): could not determine year for 'discourse' from
+    #> package DESCRIPTION file
+
+Lortz S (????). *discourse: Data-simulation via Iterative Stochastic
+Combinatorial Optimization Using Reported Summary Estimates*. R package
+version 0.0.1.000, <https://sebastian-lortz.github.io/discourse/>,
+<https://github.com/sebastian-lortz/discourse>.
+
+Or copy the reference information to your BibTeX file:
+
+\~\~~bibtex
+
+    #> Warning in citation("discourse"): could not determine year for 'discourse' from
+    #> package DESCRIPTION file
+
+@Manual{, title = {discourse: Data-simulation via Iterative Stochastic
+Combinatorial Optimization Using Reported Summary Estimates}, author =
+{Sebastian A. J. Lortz}, note = {R package version 0.0.1.000,
+<https://sebastian-lortz.github.io/discourse/>}, url =
+{<https://github.com/sebastian-lortz/discourse>}, }
+
+## Code of Conduct
+
+I am open to feedback and new ideas. Please mind the Contributor Code of
+Conduct.
 
 ## About
 
@@ -39,7 +89,5 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-26 14:41:15 CEST"
+#> [1] "2025-06-26 15:32:46 CEST"
 ```
-
-Here is the Namespace:

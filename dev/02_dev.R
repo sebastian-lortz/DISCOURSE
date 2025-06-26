@@ -124,17 +124,6 @@ usethis::use_gitlab_ci()
 usethis::use_pkgdown_github_pages()
 pkgdown::build_site_github_pages()
 
-files <- list.files("R", recursive = TRUE, full.names = TRUE)
-for (f in files) {
-  hits <- grep("attr\\(", readLines(f), value = TRUE)
-  if (length(hits)) {
-    cat(basename(f), ":\n")
-    cat(paste0("  ", hits), sep = "\n")
-    cat("\n")
-  }
-}
-
-
 
 
 # You're now set! ----

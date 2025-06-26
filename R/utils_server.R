@@ -26,6 +26,7 @@ if (getRversion() >= "2.15.1") utils::globalVariables(".")
 #'
 #' @return TRUE if all inputs are valid; otherwise shows an error notification
 #'   and returns FALSE.
+#' @noRd
 check_vec_inputs <- function(
     N,
     target_mean,
@@ -113,6 +114,7 @@ check_vec_inputs <- function(
 #'
 #' @return TRUE if all inputs are valid; otherwise shows an error notification
 #'   and returns FALSE.
+#' @noRd
 check_aov_inputs <- function(
     N,
     levels,
@@ -217,6 +219,7 @@ check_aov_inputs <- function(
 #'
 #' @return TRUE if all inputs are valid; otherwise shows an error notification
 #'   and returns FALSE.
+#' @noRd
 check_lm_inputs <- function(
     tolerance,
     max_iter,
@@ -297,6 +300,7 @@ check_lm_inputs <- function(
 #'
 #' @return TRUE if all inputs are valid; otherwise shows an error notification
 #'   and returns FALSE.
+#' @noRd
 check_lme_inputs <- function(
     tolerance,
     max_iter,
