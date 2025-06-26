@@ -13,16 +13,7 @@ output: github_document
 )
 ```
 
-<div style="float: right; margin: 0 0 1em 1em; border: none;">
-  <a href="https://sebastian-lortz.github.io/discourse/">
-    <img src="man/figures/logo-comp.png"
-         height="150"
-         alt="DISCOURSE package logo"
-         style="border: none; display: block;"/>
-  </a>
-</div>
-
-# DISCOURSE
+# DISCOURSE <a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" align="right" height="150" alt="DISCOURSE package logo"/></a>
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
