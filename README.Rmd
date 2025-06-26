@@ -26,10 +26,10 @@ You can install the development version of `{discourse}` like so:
 
 ```{r install-from-github, eval = FALSE, echo = TRUE}
 # install devtools if you don’t have it yet
-if (!requireNamespace("devtools", quietly = TRUE)) {install.packages("devtools")}
+if (!requireNamespace("devtools")) {install.packages("devtools")}
 
 # install the latest version from GitHub
-devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
+devtools::install_github("sebastian-lortz/discourse")
 
 ```
 

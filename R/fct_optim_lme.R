@@ -177,7 +177,7 @@ optim_lme <- function(sim_data,
   # intput check cor and reg
   n.col <- length(long_candidate_cols)+1
   exp_cor <- (n.col*(n.col-1))/2
-  term_lbls <- attr2(stats::terms(stats::as.formula(reg_equation)), "term.labels")
+  term_lbls <- base::attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   names(target_reg) <- c("(Intercept)", term_lbls[-length(term_lbls)], "ID")
   if (length(target_cor) != exp_cor) {

@@ -70,7 +70,7 @@ optim_lm <- function(
   }
   pred       <- ncol(sim_data)
   exp_cor <- pred*(pred-1)/2
-  term_lbls<- attr2(stats::terms(stats::as.formula(reg_equation)), "term.labels")
+  term_lbls<- base::attr(stats::terms(stats::as.formula(reg_equation)), "term.labels")
   exp_reg  <- length(term_lbls) + 1
   if (length(target_cor) != exp_cor) {
     stop(sprintf("`target_cor` must be a numeric vector of length %d, not %d.",

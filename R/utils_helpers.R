@@ -288,8 +288,8 @@ mixed_factor_matrix <- function(sample_size, levels, factor_type, subgroup_sizes
     colnames(final_df)[-1] <- paste0("Factor", seq_len(n_factor_cols))
   }
   final_df[-1] <- lapply(final_df[-1], function(x) as.factor(x))
-  attr2(final_df, "factor_type") <- factor_type
-  attr2(final_df, "sample_size") <- sample_size
+  base::attr(final_df, "factor_type") <- factor_type
+  base::attr(final_df, "sample_size") <- sample_size
 
   return(final_df)
 }
@@ -443,7 +443,7 @@ plot_partial_regression <- function(model) {
   df_orig    <- as.data.frame(model.frame(model))
   fm         <- stats::formula(model)
   resp_name  <- as.character(fm)[2]
-  term_labels<- attr2(stats::terms(model), "term.labels")
+  term_labels<- base::attr(stats::terms(model), "term.labels")
   safe_labels <- make.names(term_labels, unique = TRUE)
 
   df <- df_orig

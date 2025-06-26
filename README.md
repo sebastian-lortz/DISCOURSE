@@ -17,10 +17,10 @@ You can install the development version of `{discourse}` like so:
 
 ``` r
 # install devtools if you don’t have it yet
-if (!requireNamespace("devtools", quietly = TRUE)) {install.packages("devtools")}
+if (!requireNamespace("devtools")) {install.packages("devtools")}
 
 # install the latest version from GitHub
-devtools::install_github("sebastian-lortz/discourse", quiet = TRUE)
+devtools::install_github("sebastian-lortz/discourse")
 ```
 
 ## Run
@@ -39,7 +39,7 @@ This README has been compiled on the
 
 ``` r
 Sys.time()
-#> [1] "2025-06-25 14:59:58 CEST"
+#> [1] "2025-06-26 14:41:15 CEST"
 ```
 
 Here is the Namespace:
