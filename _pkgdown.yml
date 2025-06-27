@@ -9,3 +9,7 @@ navbar:
       - home
       - reference
       - articles
+articles:
+  - title: "Application in R"
+    contents:
+      - "discourse_application"

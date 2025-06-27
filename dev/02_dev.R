@@ -83,7 +83,7 @@ spelling::update_wordlist()
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("discourse.application")
+usethis::use_vignette("discourse_application")
 devtools::build_vignettes()
 
 ## Code Coverage----
@@ -124,7 +124,7 @@ usethis::use_gitlab_ci()
 usethis::use_pkgdown_github_pages()
 
 # refresh pkgdown page
-devtools::build_readme()
+# devtools::build_readme()
 pkgdown::build_site_github_pages()
 
 # render about doc

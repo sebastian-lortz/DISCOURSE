@@ -12,14 +12,14 @@
 #' @param max_iter Integer. Maximum iterations for simulated annealing per start. Default `1e5`.
 #' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
 #' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
-#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-12`.
+#' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-8`.
 #' @param int.probs List of numeric vectors, one per variable. Sampling probabilities for integer moves; NULL for uniform.
 #' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
 #' @param obj_weight List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `list(c(1,1))`.
 #' @param maxit_pso Integer. Maximum PSO iterations for continuous variables. Default `2000`.
 #' @param eps Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.
 #' @param max_starts Integer. Number of annealing restarts. Default `3`.
-#' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.
+#' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_mean`. Default is FALSE.
 #' @param prob_heuristic Numeric. Probability of heuristic move vs. random swap in integer mode. Default `0.1`.
 #' @param parallel Logical. If TRUE, optimize each variable in parallel. Default `FALSE`.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
@@ -53,8 +53,8 @@ optim_vec <- function(
     target_mean,
     target_sd,
     range,
-    tolerance,
     integer,
+    tolerance       = 1e-8,
     max_iter        = 1e5,
     init_temp       = 1,
     cooling_rate    = NULL,

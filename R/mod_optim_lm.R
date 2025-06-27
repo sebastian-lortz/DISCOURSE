@@ -405,7 +405,7 @@ mod_optim_lm_server <- function(id, root_session){
     coef_df_reactive <- reactive({
       frm <- lm_formula_reactive()
       if (is.null(frm)) return(NULL)
-      term_labels <- attr2(stats::terms(frm), "term.labels")
+      term_labels <- attr(stats::terms(frm), "term.labels")
       all_terms   <- c("(Intercept)", term_labels)
       mat <- matrix(
         NA_real_,

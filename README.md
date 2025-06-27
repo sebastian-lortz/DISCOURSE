@@ -13,8 +13,8 @@ I introduce the DISCOURSE framework – Data-simulation via Iterative
 Stochastic Combinatorial Optimization Using Reported Summary Estimates.
 The primary scope of the algorithmic framework is to reconstruct
 complete datasets using only summary statistics, giving researchers a
-way - when raw data are unavailable - to inform replication study
-decision‑making.
+way - when raw data are unavailable - to conduct follow-up analyses and
+inform replication study decision‑making.
 
 ## Usage
 
@@ -76,4 +76,4 @@ Conduct.
 
 You are reading the doc about version: 0.0.1.000
 
-This README has been compiled on 2025-06-26 17:16:06.
+This README has been compiled on 2025-06-27 14:10:12.

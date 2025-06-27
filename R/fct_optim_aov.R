@@ -17,7 +17,7 @@
 #' @param formula Formula or character. Model formula used to compute F-values (e.g., `y ~ A + B + A*B`).
 #' @param factor_type Character vector. Type of each factor (`"between"` or `"within"`) matching length of `levels`.
 #' @param range Numeric vector of length 2. Lower and upper bounds for candidate means.
-#' @param integer Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continous values.
+#' @param integer Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continuous values.
 #' @param typeSS Integer. Type of sums-of-squares for ANOVA (2 or 3). Default is 3.
 #' @param df_effects Numeric vector. Degrees of freedom of the model effects. Default is `NULL`.
 #' @param max_iter Integer. Maximum iterations per restart. Default is 1e3.

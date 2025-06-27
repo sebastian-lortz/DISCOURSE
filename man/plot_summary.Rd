@@ -13,7 +13,7 @@ containing both simulated data/results and `inputs$target_*` values.}
 \item{standardised}{Logical; if `TRUE`, differences are divided by target values
 (except when targets are near zero); default `TRUE`.}
 
-\item{eps}{Numeric; threshold below which a target is treated as zero for standardisation;
+\item{eps}{Numeric; threshold below which a target is treated as zero for standardization;
 default `1e-12`.}
 }
 \value{

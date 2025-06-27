@@ -143,3 +143,95 @@ plot_partial_regression <- function(model) {
   names(plots) <- term_labels
   plots
 }
+
+
+#' Reshape Data from Long to Wide Format
+#'
+#' Converts a data.frame in long format (with an \code{ID} column, optional between-subject
+#' grouping columns, a \code{time} column, and one or more measurement columns) into
+#' wide format.  Column names in the result follow the pattern \code{<measure>_<time>}.
+#'
+#' @param data A \code{data.frame} in long format.  The first column is taken as the
+#'   subject identifier (\code{ID}); the next columns before \code{time} are treated as
+#'   between‐subject factors; the \code{time} column must be named \code{"time"}; remaining
+#'   columns are the measurements.
+#'
+#' @return A \code{data.frame} in wide format, with one row per subject (and between‐subject
+#'   factor combination) and one column per measure–time combination.
+#'
+#' @importFrom tidyr pivot_wider
+#' @importFrom tidyselect all_of
+#' @export
+long_to_wide <- function(data) {
+  if (!is.data.frame(data)) stop("Input must be a data.frame.")
+  if (ncol(data) < 3) stop("Need: ID + time + at least 1 measure.")
+
+  participant_col <- names(data)[1]
+  time_col <- "time"
+  if (!time_col %in% names(data)) stop("'time' column not found")
+
+  time_index <- which(names(data) == time_col)
+  if (time_index > 2) {
+    between_cols <- names(data)[2:(time_index - 1)]
+  } else {
+    between_cols <- character(0)
+  }
+
+  value_cols <- setdiff(names(data), c(participant_col, between_cols, time_col))
+
+  wide_data <- tidyr::pivot_wider(
+    data,
+    id_cols     = tidyselect::all_of(c(participant_col, between_cols)),
+    names_from  = tidyselect::all_of(time_col),
+    values_from = tidyselect::all_of(value_cols),
+    names_glue  = "{.value}_{time}"
+  )
+
+  as.data.frame(wide_data)
+}
+
+
+#' Reshape Data from Wide to Long Format
+#'
+#' Converts a data.frame or matrix in wide format (with an \code{ID} column and
+#' repeated‐measure columns named \code{<variable>_<time>}, e.g. \code{V1_1, V1_2})
+#' into long format.  The resulting data has columns \code{ID}, any between‐subject
+#' factors, \code{time}, and one column per measure.
+#'
+#' @param data A \code{data.frame} or \code{matrix} in wide format.  If a matrix is
+#'   provided, it will be coerced to a data.frame.  Must have at least two columns
+#'   matching the regex \code{"<var>_<time>"}.
+#'
+#' @return A \code{data.frame} in long format with columns \code{ID}, any between‐subject
+#'   factors (if present), \code{time} (integer), and one column per measure.
+#'
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr mutate
+#' @importFrom tidyselect all_of
+#' @export
+wide_to_long <- function(data) {
+  if (!is.data.frame(data) && !is.matrix(data)) stop("Input must be a data.frame or matrix.")
+  if (ncol(data) < 3) stop("Need the data in wide format.")
+  if (is.matrix(data)) data <- as.data.frame(data)
+
+  if (!"ID" %in% names(data)) {
+    data <- cbind(1:nrow(data),data)
+    names(data)[1] <- "ID"
+  }
+
+  id_cols <- names(data)[!grepl("_", names(data))]
+  if (is.null(id_cols)) stop("The data in wide format have to contain at least two repeated measures with columns named [var]_[time.index]; e.g. V1_1, V2_2")
+
+  vt <- grep("^[^_]+_[0-9]+$", names(data), value = TRUE)
+  if (length(vt) < 2) {
+    stop("Need at least two repeated-measure columns named like V1_1, V1_2.")
+  }
+  data %>%
+    tidyr::pivot_longer(
+      cols       = -tidyselect::all_of(id_cols),
+      names_to   = c(".value", "time"),
+      names_sep  = "_"
+    ) %>%
+    dplyr::mutate(time = as.integer(.data$time)) %>%
+    as.data.frame()
+}

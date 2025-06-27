@@ -9,8 +9,8 @@ optim_vec(
   target_mean,
   target_sd,
   range,
-  tolerance,
   integer,
+  tolerance = 1e-08,
   max_iter = 1e+05,
   init_temp = 1,
   cooling_rate = NULL,
@@ -37,9 +37,9 @@ optim_vec(
 \item{range}{Numeric vector of length 2 or numeric matrix. Allowed value range for all variables (vector),
 or per-variable bounds as a two-row matrix matching `target_mean`.}
 
-\item{tolerance}{Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-12`.}
-
 \item{integer}{Logical or logical vector. If TRUE, optimize integer values; length 1 or same length as `target_mean`.}
+
+\item{tolerance}{Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-8`.}
 
 \item{max_iter}{Integer. Maximum iterations for simulated annealing per start. Default `1e5`.}
 
@@ -59,7 +59,7 @@ or per-variable bounds as a two-row matrix matching `target_mean`.}
 
 \item{max_starts}{Integer. Number of annealing restarts. Default `3`.}
 
-\item{checkGrim}{Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.}
+\item{checkGrim}{Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_mean`. Default is FALSE.}
 
 \item{prob_heuristic}{Numeric. Probability of heuristic move vs. random swap in integer mode. Default `0.1`.}
 

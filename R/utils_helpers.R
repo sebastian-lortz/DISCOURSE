@@ -65,67 +65,10 @@ get_design <- function(candidate, reg_equation, terms_obj) {
   ))
 }
 
+
+# check integer
 is_integer_vector <- function(vec, tol = .Machine$double.eps^0.5) {
   all(abs(vec - round(vec)) < tol)
-}
-
-
-# reshape data format from long to wide
-long_to_wide <- function(data) {
-  if (!is.data.frame(data)) stop("Input must be a data.frame.")
-  if (ncol(data) < 3) stop("Need: ID + time + at least 1 measure.")
-
-  participant_col <- names(data)[1]
-  time_col <- "time"
-  if (!time_col %in% names(data)) stop("'time' column not found")
-
-  time_index <- which(names(data) == time_col)
-  if (time_index > 2) {
-    between_cols <- names(data)[2:(time_index - 1)]
-  } else {
-    between_cols <- character(0)
-  }
-
-  value_cols <- setdiff(names(data), c(participant_col, between_cols, time_col))
-
-  wide_data <- tidyr::pivot_wider(
-    data,
-    id_cols     = tidyselect::all_of(c(participant_col, between_cols)),
-    names_from  = tidyselect::all_of(time_col),
-    values_from = tidyselect::all_of(value_cols),
-    names_glue  = "{.value}_{time}"
-  )
-
-  as.data.frame(wide_data)
-}
-
-
-# reshape data format from wide to long
-wide_to_long <- function(data) {
-  if (!is.data.frame(data) && !is.matrix(data)) stop("Input must be a data.frame or matrix.")
-  if (ncol(data) < 3) stop("Need the data in wide format.")
-  if (is.matrix(data)) data <- as.data.frame(data)
-
-  if (!"ID" %in% names(data)) {
-    data <- cbind(1:nrow(data),data)
-    names(data)[1] <- "ID"
-  }
-
-  id_cols <- names(data)[!grepl("_", names(data))]
-  if (is.null(id_cols)) stop("The data in wide format have to contain at least two repeated measures with columns named [var]_[time.index]; e.g. V1_1, V2_2")
-
-  vt <- grep("^[^_]+_[0-9]+$", names(data), value = TRUE)
-  if (length(vt) < 2) {
-    stop("Need at least two repeated-measure columns named like V1_1, V1_2.")
-  }
-  data %>%
-    tidyr::pivot_longer(
-      cols       = -tidyselect::all_of(id_cols),
-      names_to   = c(".value", "time"),
-      names_sep  = "_"
-    ) %>%
-    dplyr::mutate(time = as.integer(.data$time)) %>%
-    as.data.frame()
 }
 
 
