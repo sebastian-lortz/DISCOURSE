@@ -131,6 +131,11 @@ parallel_aov <- function(
        length(subgroup_sizes) != n_between)) {
     stop("`subgroup_sizes`, if provided, must be a numeric vector matching the number of between-subject groups.")
   }
+  if (!is.null(subgroup_sizes)) {
+    if (N != sum(subgroup_sizes)) {
+      stop("`N` must equal the sum of `subgroup_sizes` and thus, the number of subjects (not observations).")
+    }
+  }
   if (!is.null(df_effects) &&
       (!is.numeric(df_effects) ||
        length(df_effects) != length(target_f_list$F))) {

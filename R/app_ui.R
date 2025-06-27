@@ -13,7 +13,7 @@ app_ui <- function(request) {
       lang = "en",
       navbarPage(
         title = tags$img(
-          src    = "www/logo-comp.png",
+          src    = "www/logo.png",
           alt    = "DISCOURSE",
           height = "30px",
           style  = "margin-top:-5px;"
@@ -115,7 +115,8 @@ app_ui <- function(request) {
         ),
         # About
         tabPanel("About",
-                 shiny::includeMarkdown(app_sys("app/www/about.Rmd")))
+                 includeMarkdown(app_sys("app/www/about.md"))
+        )
       )
     )
   )

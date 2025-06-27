@@ -464,7 +464,11 @@ mod_optim_aov_server <- function(id){
       target_group_means <- rv$subgroups$Mean
       subgroup_sizes     <- rv$subgroups$Size[rv$factors$type == "between"]
       N                  <- input$N
-      total_subgroups <- sum(subgroup_sizes)
+      if (length(subgroup_sizes) == 0) {
+        total_subgroups <- N
+      } else {
+        total_subgroups <- sum(subgroup_sizes)
+      }
       if (N != total_subgroups) {
         showNotification(
           sprintf("Total N (%d) must equal sum of subgroup sizes (%d).", N, total_subgroups),

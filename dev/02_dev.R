@@ -83,7 +83,7 @@ spelling::update_wordlist()
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("discourse")
+usethis::use_vignette("discourse.application")
 devtools::build_vignettes()
 
 ## Code Coverage----
@@ -127,6 +127,10 @@ usethis::use_pkgdown_github_pages()
 devtools::build_readme()
 pkgdown::build_site_github_pages()
 
+# render about doc
+rmarkdown::render("~/Desktop/Research Master/DISCOURSE/inst/app/www/about.Rmd",
+                  output_format = "github_document",
+                  output_file   = "~/Desktop/Research Master/DISCOURSE/inst/app/www/about.md")
 
 
 # You're now set! ----

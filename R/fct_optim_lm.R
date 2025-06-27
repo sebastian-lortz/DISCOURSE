@@ -144,9 +144,16 @@ optim_lm <- function(
   all_vars   <- all.vars(frm)
   dv_name    <- all_vars[1]
   pred_names <- all_vars[-1]
-  col_names <- c(pred_names,dv_name)
+  missing_vars <- setdiff(all_vars, colnames(sim_data))
+  if (length(missing_vars) > 0) {
+    stop(
+      "The following variables in `reg_equation` are not present in `sim_data`: ",
+      paste(missing_vars, collapse = ", ")
+    )
+  }
 
-  # Build matrices
+  # Build
+  col_names <- c(pred_names,dv_name)
   predictors <- as.matrix(sim_data[, pred_names, drop = FALSE])
   outcome    <- sim_data[[dv_name]]
   num_preds  <- ncol(predictors)

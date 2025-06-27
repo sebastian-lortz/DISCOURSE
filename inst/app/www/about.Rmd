@@ -1,5 +1,4 @@
 ---
-title: "about"
 output: html_document
 ---
 
@@ -10,7 +9,7 @@ output: html_document
        style="margin-top:-5px;" />
 </div>
 
-### About the project
+## About the Project
 
 I introduce **DISCOURSE** – this algorithmic framework is designed to reconstruct complete data sets solely from summary statistics.  It provides researchers with a tool to follow-up analyses even when raw data are unavailable. DISCOURSE is available as R package and shiny app via Github page: <https://sebastian-lortz.github.io/discourse/>
 
@@ -22,14 +21,16 @@ The method is introduced in the research project titled 'Advancing Replication S
 
 -   Sebastian A. J. Lortz
 
-### Questions and comments
+### Questions and Comments
 
 If you have any questions or comments please write to Sebastian Lortz to the following email address: [s.a.j.lortz@gmail.com](mailto:s.a.j.lortz@gmail.com)
 
 Or submit an issue on the apps Github page: <https://github.com/sebastian-lortz/discourse/issues>
 
-## Version
+### Version
 
-You are using the latest version: `r golem::pkg_version()`
+You are using version: `r read.dcf(
+  file = system.file("DESCRIPTION", package = "discourse"),
+  fields = "Version"
+)[1]`
 
-This README has been compiled on `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`.

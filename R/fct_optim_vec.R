@@ -196,7 +196,7 @@ optim_vec <- function(
       if (range[1] != range[2]) {
       for (start in seq_len(max_starts)) {
         if (progress_bar) {
-          pb_interval <- max(floor(hill_climbs / 100), 1)
+          pb_interval <- max(floor(max_iter / 100), 1)
           pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
           on.exit(close(pb), add = TRUE)
         }
