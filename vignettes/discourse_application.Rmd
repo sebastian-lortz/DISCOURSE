@@ -283,7 +283,7 @@ get_stats(result.lm)
 
 
 extracted the simulated dataset and inspected its partial regression plots.
-```{r data lm, fig.width=8, fig.height=8, fig.alt="Plot Partial Regressions for LM."}
+```{r data lm, fig.width=11, fig.height=8, fig.alt="Plot Partial Regressions for LM."}
 data.lm <- result.lm$data
 head(data.lm)
 partial.plots <- plot_partial_regression(lm(reg_equation, data.lm))
