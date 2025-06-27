@@ -3,7 +3,7 @@
 <url><loc>https://sebastian-lortz.github.io/discourse/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/LICENSE-text.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/LICENSE.html</loc></url>
-<url><loc>https://sebastian-lortz.github.io/discourse/articles/DISCOURSE.html</loc></url>
+<url><loc>https://sebastian-lortz.github.io/discourse/articles/discourse_application.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/articles/index.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/authors.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/index.html</loc></url>
@@ -16,6 +16,7 @@
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/get_stats_parallel.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/hill_climb.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/index.html</loc></url>
+<url><loc>https://sebastian-lortz.github.io/discourse/reference/long_to_wide.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/optim_aov.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/optim_lm.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/optim_lme.html</loc></url>
@@ -26,6 +27,8 @@
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_cooling.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_error.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_error_ratio.html</loc></url>
+<url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_histogram.html</loc></url>
+<url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_partial_regression.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_rmse.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/plot_summary.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/print.summary.discourse.object.html</loc></url>
@@ -33,5 +36,6 @@
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/summary.discourse.object.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/weights_est.html</loc></url>
 <url><loc>https://sebastian-lortz.github.io/discourse/reference/weights_vec.html</loc></url>
+<url><loc>https://sebastian-lortz.github.io/discourse/reference/wide_to_long.html</loc></url>
 </urlset>
 
