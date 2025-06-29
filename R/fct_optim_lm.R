@@ -221,7 +221,7 @@ optim_lm <- function(
 
  # Optimization process
  progressr::with_progress({
-    p <- progressr::progressor(steps = total_calls)
+    if (progress_bar) {p <- progressr::progressor(steps = total_calls)}
       for (start in seq_len(max_starts)) {
         if (progress_bar) {
           pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
