@@ -20,7 +20,6 @@ match specified targets under a given mixed-effects regression model and input p
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/sebastian-lortz/discourse/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -135,8 +134,12 @@ match specified targets under a given mixed-effects regression model and input p
 
 
 <dt id="arg-progress-mode">progress_mode<a class="anchor" aria-label="anchor" href="#arg-progress-mode"></a></dt>
-<dd><p>Character. Either "console" or "shiny" for progress handler. Default `console`.</p>
-<p>@return A `discourse.object` list containing:</p><dl><dt>best_error</dt>
+<dd><p>Character. Either "console" or "shiny" for progress handler. Default `console`.</p></dd>
+
+</dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>A `discourse.object` list containing:</p><dl><dt>best_error</dt>
 <dd><p>Numeric. Minimum objective error achieved.</p></dd>
 
   <dt>data</dt>
@@ -157,8 +160,6 @@ match specified targets under a given mixed-effects regression model and input p
   <dt>track_move_acc</dt>
 <dd><p>Character vector. Move types accepted per iteration.</p></dd>
 
-
-</dl></dd>
 
 </dl></div>
 
