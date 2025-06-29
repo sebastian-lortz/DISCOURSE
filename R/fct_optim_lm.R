@@ -369,7 +369,7 @@ optim_lm <- function(
      best_candidate <- local_opt$best_candidate
    }
  }
-}
+
   # combine results
   best_solution <- cbind(best_candidate, outcome)
   colnames(best_solution) <- col_names
