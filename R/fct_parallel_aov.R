@@ -178,6 +178,13 @@ parallel_aov <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+
   # set up backend
   old_plan <- future::plan()
   on.exit( future::plan(old_plan), add = TRUE )
@@ -194,13 +201,6 @@ parallel_aov <- function(
   pkgs <- c("discourse", "Rcpp")
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
-
-  # set progressr
-  if(progress_mode == "shiny") {
-    handler <- list(progressr::handler_shiny())
-  } else {
-    handler <-list(progressr::handler_txtprogressbar())
-  }
 
   # Optimization process
   values <- progressr::with_progress({
