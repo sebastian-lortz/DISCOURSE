@@ -48,7 +48,7 @@ parallel_aov(
   \item{contrast_method}{Optional character specifying contrast method.}
 }}
 
-\item{integer}{Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continous values.}
+\item{integer}{Logical. If TRUE, candidate values are treated as integers, if FALSE treated as continuous values.}
 
 \item{range}{Numeric vector of length 2. Lower and upper bounds for candidate means.}
 
