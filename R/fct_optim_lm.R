@@ -362,7 +362,7 @@ optim_lm <- function(
        LME = FALSE,
        num_preds = num_preds,
        progress_bar = progress_bar,
-       progressor = p,
+       progressor = NULL,
        pb_interval       = pb_interval_hc
      )
      best_error     <- local_opt$best_error
