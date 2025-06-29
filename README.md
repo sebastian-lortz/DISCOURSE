@@ -28,7 +28,7 @@ computation time compared to running the app locally.
 
 ### System Requirements
 
-The ‘discourse’ package was build under R Version 4.4.2 using Apple
+The `discourse` package was build under R Version 4.4.2 using Apple
 clang version 16.0.0 (clang-1600.0.26.6) and GNU Fortran (GCC) 14.2.0.
 To compile R from source, install the appropriate toolchain  
 - macOS: see <https://mac.r-project.org/tools/>  
@@ -84,4 +84,4 @@ Conduct.
 
 You are reading the doc about version: 0.0.1.000
 
-This README has been compiled on 2025-06-30 00:28:30.
+This README has been compiled on 2025-06-30 00:32:01.
