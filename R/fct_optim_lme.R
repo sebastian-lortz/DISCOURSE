@@ -22,7 +22,7 @@
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#'  @return A `discourse.object` list containing:
+#' @return A `discourse.object` list containing:
 #' \describe{
 #'   \item{best_error}{Numeric. Minimum objective error achieved.}
 #'   \item{data}{Data.frame. Optimized wide-format longitudinal data.}

@@ -58,9 +58,10 @@ optim_lme(
 
 \item{eps}{Numeric. Small constant to stabilize scaling (prevent division by zero). Default `1e-5`.}
 
-\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.
-
- @return A `discourse.object` list containing:
+\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
+}
+\value{
+A `discourse.object` list containing:
 \describe{
   \item{best_error}{Numeric. Minimum objective error achieved.}
   \item{data}{Data.frame. Optimized wide-format longitudinal data.}
@@ -69,7 +70,7 @@ optim_lme(
   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration.}
   \item{track_move_best}{Character vector. Move types that produced best improvements.}
   \item{track_move_acc}{Character vector. Move types accepted per iteration.}
-}}
+}
 }
 \description{
 Uses the DISCOURSE algorithmic framework to simulate

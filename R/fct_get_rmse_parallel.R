@@ -4,6 +4,7 @@
 #' from specified target values across one or more `discourse.object` results.
 #'
 #' @param object_list A `discourse.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`, `parallel_lme()`.
+#'
 #' @return A list with components:
 #' \describe{
 #'   \item{between_rmse}{A `data.frame` summarizing RMSE metrics (Mean_RMSE, SD_RMSE, Min_RMSE, Max_RMSE) for between-run differences (not taking into account targets).}
@@ -15,6 +16,7 @@
 #'     }
 #'   }
 #' }
+#'
 #' @examples
 #'  \dontrun{
 #' # Multiple-run RMSE comparison

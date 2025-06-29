@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_parallel_aov.R
 \name{parallel_aov}
 \alias{parallel_aov}
-\title{#' Optimize multiple data sets to match ANOVA F-values}
+\title{Optimize multiple data sets to match ANOVA F-values}
 \usage{
 parallel_aov(
   parallel_start = 3,

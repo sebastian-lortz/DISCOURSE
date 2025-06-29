@@ -1,15 +1,22 @@
 url: https://sebastian-lortz.github.io/discourse/
+
 template:
   bootstrap: 5
+
 logo: man/figures/logo-comp.png
 favicon: man/figures/logo-comp.png
+
 navbar:
   structure:
     left:
       - home
       - reference
-      - articles
+      - tutorials
+  tutorials:
+    text: "Tutorials"
+    href: articles/discourse_application.html
+
 articles:
   - title: "Application in R"
     contents:
-      - "discourse_application"
+      - discourse_application

@@ -7,17 +7,22 @@
 #' @param target_mean Numeric. Reported mean to be tested for plausibility.
 #' @param decimals Integer. Number of decimal places in the reported mean.
 #' @param tol.r Numeric. Tolerance for rounding errors; a non-negative value. Default is the square root of machine double precision epsilon.
+#'
 #' @return A list with components:
 #' \describe{
 #'   \item{test}{Logical. TRUE if the reported mean is plausible.}
 #'   \item{grim_mean}{Numeric. The adjusted mean that is numerically plausible (rounded to `decimals`).}
 #' }
+#'
 #' @examples
 #' \dontrun{
 #' check_grim(10, 3.7, 1)
 #' }
 #' @export
-check_grim <- function(n, target_mean, decimals, tol.r = .Machine$double.eps^0.5) {
+check_grim <- function(n,
+                       target_mean,
+                       decimals,
+                       tol.r = .Machine$double.eps^0.5) {
   # input check
   if (!is.numeric(n) || length(n) != 1 || n <= 0 || n != as.integer(n)) {
     stop("`n` must be a single positive integer.")
