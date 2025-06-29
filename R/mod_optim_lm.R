@@ -4,10 +4,10 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd
 #'
-#' @importFrom shiny NS tagList
+#' @import shiny
 #' @importFrom rhandsontable rHandsontableOutput renderRHandsontable hot_to_r hot_col hot_table hot_cell
+#' @noRd
 mod_optim_lm_ui <- function(id) {
   ns <- NS(id)
   tagList(

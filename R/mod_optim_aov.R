@@ -1,11 +1,15 @@
-#' @noRd
+#' optim_aov UI Function
 #'
-#' @importFrom shiny NS tagList div tags p fluidRow column actionButton numericInput checkboxInput
-#'   selectInput checkboxGroupInput textOutput tableOutput uiOutput
+#' @description A shiny Module.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @import shiny
 #' @importFrom shinyjs useShinyjs disable enable
 #' @importFrom shinyWidgets numericRangeInput
 #' @importFrom rhandsontable rHandsontableOutput renderRHandsontable hot_to_r hot_col hot_table
 #' @importFrom htmltools HTML
+#' @noRd
 NULL
 mod_optim_aov_ui <- function(id) {
   ns <- NS(id)

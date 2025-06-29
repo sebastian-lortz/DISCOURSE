@@ -1,6 +1,13 @@
+#' optim_vec UI Function
+#'
+#' @description A shiny Module.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
 #' @import shiny
 #' @importFrom shinyjs useShinyjs disable enable
 #' @importFrom rhandsontable rhandsontable rHandsontableOutput renderRHandsontable hot_to_r hot_col hot_table
+#' @noRd
 NULL
 
 mod_optim_vec_ui <- function(id) {

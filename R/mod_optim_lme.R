@@ -4,9 +4,8 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
+#' @import shiny
 #' @noRd
-#'
-#' @importFrom shiny NS tagList
 mod_optim_lme_ui <- function(id) {
   ns <- NS(id)
   tagList(
