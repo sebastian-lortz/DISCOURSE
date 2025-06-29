@@ -11,12 +11,11 @@ navbar:
     left:
       - home
       - reference
-      - tutorials
-  tutorials:
+      - articles
+  articles:
     text: "Tutorials"
-    href: articles/discourse_application.html
 
 articles:
   - title: "Application in R"
     contents:
-      - discourse_application
+      - "discourse_application"
