@@ -12,7 +12,7 @@ weights_vec(
   obj_weight = c(1, 1),
   integer,
   int.probs = NULL,
-  est_iter = 1000,
+  est_iter = 5000,
   eps = 0.001,
   max_weight = 10000,
   metric = "mean"

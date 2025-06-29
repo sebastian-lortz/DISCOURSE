@@ -520,6 +520,7 @@ mod_optim_lme_server <- function(id, root_session){
                   ns(tbl))
         )
       }
+      withProgress(message = "Running optimization...", value = 0, {
       w_list <- weights_est(
         module = "lme",
         sim_runs = 1,
@@ -535,7 +536,9 @@ mod_optim_lme_server <- function(id, root_session){
         tolerance            = tolerance,
         max_starts     = max_starts,
         parallel_start = parallel_start,
+        progress_mode = "shiny"
       )
+      })
       w_mat <- w_list$weights
       weight_df(data.frame(
         Correlation = w_mat[1],

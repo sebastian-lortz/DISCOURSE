@@ -143,7 +143,7 @@ parallel_lm <- function(
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
   } else {
-    future::plan(future::sequential)
+    future::plan(future::multisession, workers = 1)
   }
   cat("Running with", n_workers, "worker(s). \n")
   pkgs <- c("discourse", "Rcpp")
@@ -178,7 +178,7 @@ parallel_lm <- function(
               prob_global_move = prob_global_move,
               max_starts       = max_starts,
               hill_climbs      = hill_climbs,
-              progress_bar     = TRUE,
+              progress_bar     = FALSE,
               min_decimals     = min_decimals
             )
             p()

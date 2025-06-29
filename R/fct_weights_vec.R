@@ -37,7 +37,7 @@ weights_vec <- function(N, target_mean, target_sd, range,
                         obj_weight = c(1, 1),
                         integer,
                         int.probs = NULL,
-                        est_iter = 1000,
+                        est_iter = 5000,
                         eps = .001,
                         max_weight = 10000,
                         metric = "mean") {
