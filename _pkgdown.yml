@@ -12,8 +12,6 @@ navbar:
       - home
       - reference
       - articles
-  articles:
-    text: "Tutorials"
 
 articles:
   - title: "Application in R"
