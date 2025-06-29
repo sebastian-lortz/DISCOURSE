@@ -20,7 +20,7 @@
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
-#' @param seq_backend Logical. Internal if seq backend is used `FALSE`.
+#' @param seq_backend Logical. Internal if seq backend is used. Default `FALSE`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{

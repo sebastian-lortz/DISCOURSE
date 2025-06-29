@@ -21,6 +21,7 @@
 #' @param eps Numeric. Small constant to stabilize scaling (prevent division by zero). Default `1e-5`.
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#' @param seq_backend Logical. Internal if seq backend is used. Default `FALSE`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{
@@ -71,7 +72,8 @@ optim_lme <- function(sim_data,
                       ),
                       min_decimals = 1,
                       eps = 1e-5,
-                      progress_mode = "console"
+                      progress_mode = "console",
+                      seq_backend = FALSE
 ) {
 
   # input checks
@@ -377,6 +379,7 @@ if (is.null(tau)) {
   total_calls <- n_sa_calls + n_hc_calls
 
   # Optimization process
+  if (!seq_backend) {
   progressr::with_progress({
     p <- progressr::progressor(steps = total_calls)
       for (start in seq_len(max_starts)) {
@@ -487,7 +490,112 @@ if (is.null(tau)) {
       },
   handlers = handler
 )
+  } else {
+    for (start in seq_len(max_starts)) {
+      if (progress_bar) {
+        pb <- utils::txtProgressBar(min=0, max=max_iter, style=3)
+        on.exit(base::close(pb), add=TRUE)
+      }
+      track_error       <- numeric(max_iter)
+      track_error_ratio <- numeric(max_iter)
+      track.move.best <- rep(NA,max_iter)
+      track.move.acc <- rep(NA,max_iter)
+      if (start==1) {
+        current_candidate <- data.frame(
+          ID = long_data$ID,
+          time    = long_data$time,
+          long_data[, pred_names],
+          V4 = outcome
+        )
+        time_indices      <- split(seq_len(nrow(current_candidate)),current_candidate$time)
+        within_names      <- pred_names
+        p_indices         <- split(seq_len(nrow(long_data)),long_data$ID)
+        if (any(!is.na(between_cols))) {
+          between_names    <- names(long_data)[between_cols]
+          within_names     <- setdiff(pred_names, between_names)
+          current_candidate<- data.frame(
+            long_ID,
+            long_data[,between_names],
+            time=times,
+            long_data[,within_names],
+            V4 = outcome
+          )
+          colnames(current_candidate) <- col_names
+        }
+      }
+      current_error <- error_function(current_candidate)$total_error
+      best_candidate<- current_candidate
+      best_error    <- current_error
+      best_error_ratio <- error_function(current_candidate)$error_ratio
 
+      for (i in seq_len(max_iter)) {
+        w.candidate <- long_to_wide(current_candidate)
+        probs <- get_move_probs(i)
+        move <- sample(names(probs), size = 1, prob = probs)
+        move.name <- move
+        if (move == "tau") {
+          w.candidate <- tau_order(w.candidate)
+        } else if (move == "local") {
+          col <- sample(1:w.length,1)
+          idx <- sample(N,2)
+          w.candidate[idx,col] <- w.candidate[rev(idx),col]
+        } else if (move == "k_cycle") {
+          w.candidate <- k_permute(w.candidate)
+        } else if (move == "residual") {
+          w.candidate <- residual_swap(w.candidate)
+        }
+        candidate <- wide_to_long(w.candidate)
+        best <- NA
+        acc <- NA
+        err_list      <- error_function(candidate)
+        candidate_err <- err_list$total_error
+        if (candidate_err < current_error ||
+            stats::runif(1) < exp((current_error-candidate_err)/temp)) {
+          current_candidate <- candidate
+          current_error     <- candidate_err
+          acc <- move.name
+          if (current_error < best_error) {
+            best_candidate <- current_candidate
+            best_error     <- current_error
+            best_error_ratio<- err_list$error_ratio
+            best <- move.name
+          }
+        }
+        temp             <- temp * cooling_rate
+        track_error[i]   <- best_error
+        track_error_ratio[i] <- best_error_ratio
+        track.move.best[i] <- best
+        track.move.acc[i] <- acc
+        if (progress_bar && (i%%pb_interval_sa==0)) {
+          utils::setTxtProgressBar(pb, i)
+        }
+        if (best_error < tolerance) {
+          cat("\nconverged!\n")
+          break
+        }
+      }
+      cat("\nBest error in start", start, "is", best_error, "\n")
+      current_candidate <- best_candidate
+      temp              <- init_temp
+    }
+    if (progress_bar) {close(pb)}
+    # hill climbing
+    if (!is.null(hill_climbs) && hill_climbs>0) {
+      local_opt <- hill_climb(
+        current_candidate = current_candidate,
+        error_function    = error_function,
+        N = N,
+        hill_climbs       = hill_climbs,
+        LME               = TRUE,
+        w.length          = w.length,
+        progress_bar      = progress_bar,
+        progressor        = NULL,
+        pb_interval       = pb_interval_hc
+      )
+      best_error     <- local_opt$best_error
+      best_candidate <- local_opt$best_candidate
+    }
+}
   # combine results
   target_reg[length(target_reg)] <- round((sqrt(target_reg[length(target_reg)])), reg_dec)
   best_solution <- best_candidate

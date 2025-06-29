@@ -30,6 +30,7 @@
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_bar Logical. Show text progress bar during optimization. Default is TRUE.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#' @param seq_backend Logical. Internal if seq backend is used. Default `FALSE`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{
@@ -79,7 +80,8 @@ optim_aov <- function(
     checkGrim = FALSE,
     min_decimals = 1,
     progress_bar = TRUE,
-    progress_mode = "console"
+    progress_mode = "console",
+    seq_backend = FALSE
 ) {
 
   # input checks
@@ -338,6 +340,7 @@ optim_aov <- function(
   pb_interval <- max(floor(max_iter / 100), 1)
 
   # Optimization Process
+  if (!seq_backend) {
   progressr::with_progress({
     p <- progressr::progressor(steps = (max_iter*max_starts)/pb_interval)
       for (s in seq_len(max_starts)) {
@@ -376,6 +379,40 @@ optim_aov <- function(
       },
   handlers = handler
   )
+} else {
+  for (s in seq_len(max_starts)) {
+    if (progress_bar) {
+      pb_interval <- floor(max_iter / 100)
+      pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
+      on.exit(close(pb), add = TRUE)
+    }
+    track_error       <- numeric(max_iter)
+    for (i in seq_len(max_iter)) {
+      candidate <- current_candidate
+      candidate <- move_fun(candidate)
+      current_error   <- objective(candidate)
+      prob  <- exp((best_error - current_error) / temp)
+      if (current_error < best_error || stats::runif(1) < prob) {
+        current_candidate    <- candidate
+        if (current_error < best_error) {
+          best_error <- current_error
+          best_candidate <- current_candidate
+        }
+      }
+      temp <- temp * cooling_rate
+      track_error[i]       <- best_error
+      if (progress_bar && (i %% pb_interval == 0)) {
+        utils::setTxtProgressBar(pb, i)
+      }
+      if (best_error < tolerance) break
+    }
+    if (progress_bar) {close(pb)}
+    current_candidate <- best_candidate
+    if (best_error < tolerance) break
+    cat("\nBest error in start", s, "is", best_error, "\n")
+    temp <- init_temp / (2 ^ s)
+  }
+}
 
   # combine results
   out_data <- if (!all(factor_type == "between")) {

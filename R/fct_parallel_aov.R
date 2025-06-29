@@ -186,8 +186,10 @@ parallel_aov <- function(
   n_workers  <- min(parallel_start, max(real_cores-1,1))
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
+    seq_backend <- FALSE
   } else {
     future::plan(future::sequential)
+    seq_backend <- TRUE
   }
   cat("Running with", n_workers, "worker(s). \n")
   pkgs <- c("discourse", "Rcpp")
@@ -226,7 +228,9 @@ parallel_aov <- function(
                                   integer           = integer,
                                   max_starts        = max_starts,
                                   checkGrim         = checkGrim,
-                                  max_step          = max_step
+                                  max_step          = max_step,
+                                  progress_mode    = progress_mode,
+                                  seq_backend       = seq_backend
                                 )
                                 p()
                                 res
