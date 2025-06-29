@@ -20,6 +20,7 @@
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
+#' @param seq_backend Logical. Internal if seq backend is used `FALSE`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{
@@ -59,7 +60,8 @@ optim_lm <- function(
     max_starts = 1,
     hill_climbs = NULL,
     min_decimals = 1,
-    progress_mode = "console"
+    progress_mode = "console",
+    seq_backend = FALSE
 ) {
 # input checks
   if (!is.data.frame(sim_data) || ncol(sim_data) < 2) {
@@ -130,7 +132,11 @@ optim_lm <- function(
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {
     stop("`min_decimals` must be a single non-negative integer.")
   }
-
+  if (!is.character(progress_mode) ||
+      length(progress_mode) != 1 ||
+      !progress_mode %in% c("console", "shiny")) {
+    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\".")
+  }
   # get decimals
   cor_dec <- max(count_decimals(target_cor, min_decimals = min_decimals))
   reg_dec <- max(count_decimals(target_reg, min_decimals = min_decimals))
@@ -200,6 +206,11 @@ optim_lm <- function(
   temp <- init_temp
 
   # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
   pb_interval_sa <- max(floor(max_iter / 100), 1)
   pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
   n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
@@ -209,17 +220,10 @@ optim_lm <- function(
     length(seq_len(hill_climbs)[seq_len(hill_climbs) %% pb_interval_hc == 0])
   } else 0
   total_calls <- n_sa_calls + n_hc_calls
-  if(progress_mode == "shiny") {
-    handler <- list(progressr::handler_shiny())
-  } else if (progress_mode == "console") {
-    handler <-list(progressr::handler_txtprogressbar())
-  } else {
-    handler <- list(progressr::handler_shiny())
-    total_calls <- progress_mode
-  }
 
  # Optimization process
- progressr::with_progress({
+ if (!seq_backend) {
+   progressr::with_progress({
     p <- progressr::progressor(steps = total_calls)
       for (start in seq_len(max_starts)) {
         if (progress_bar) {
@@ -294,7 +298,78 @@ optim_lm <- function(
      },
  handlers = handler
  )
-
+ } else {
+   for (start in seq_len(max_starts)) {
+     if (progress_bar) {
+       pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
+       on.exit(close(pb), add = TRUE)
+     }
+     track_error       <- numeric(max_iter)
+     track_error_ratio <- numeric(max_iter)
+     if (start == 1) {
+       current_candidate <- predictors
+     }
+     initial <- error_function(current_candidate)
+     current_error <- initial$total_error
+     best_candidate <- current_candidate
+     best_error     <- current_error
+     best_ratio     <- initial$error_ratio
+     for (iter in seq_len(max_iter)) {
+       candidate <- current_candidate
+       if (stats::runif(1) < prob_global_move) {
+         perm      <- sample(N)
+         candidate <- candidate[perm, ]
+       } else {
+         col_idx <- sample(num_preds, 1)
+         idx     <- sample(N, 2)
+         candidate[idx, col_idx] <- candidate[rev(idx), col_idx]
+       }
+       err <- error_function(candidate)
+       if (err$total_error < current_error ||
+           stats::runif(1) < exp((current_error - err$total_error) / temp)) {
+         current_candidate <- candidate
+         current_error     <- err$total_error
+         if (current_error < best_error) {
+           best_candidate <- current_candidate
+           best_error     <- current_error
+           best_ratio     <- err$error_ratio
+         }
+       }
+       temp <- temp * cooling_rate
+       track_error[iter]       <- best_error
+       track_error_ratio[iter] <- best_ratio
+       if (progress_bar && (iter %% pb_interval_sa == 0)) {
+         utils::setTxtProgressBar(pb, iter)
+       }
+       if (best_error < tolerance) {
+         cat("\nconverged!\n")
+         break
+       }
+     }
+     cat("\nBest error in start", start, "is", best_error, "\n")
+     current_candidate <- best_candidate
+     temp <- init_temp / (2 ^ start)
+   }
+   if (progress_bar) {close(pb)}
+   # hill climbing optimization
+   if (!is.null(hill_climbs) && hill_climbs>0) {
+     local_opt <- hill_climb(
+       current_candidate = current_candidate,
+       outcome = outcome,
+       N = N,
+       error_function = error_function,
+       hill_climbs = hill_climbs,
+       LME = FALSE,
+       num_preds = num_preds,
+       progress_bar = progress_bar,
+       progressor = p,
+       pb_interval       = pb_interval_hc
+     )
+     best_error     <- local_opt$best_error
+     best_candidate <- local_opt$best_candidate
+   }
+ }
+}
   # combine results
   best_solution <- cbind(best_candidate, outcome)
   colnames(best_solution) <- col_names
