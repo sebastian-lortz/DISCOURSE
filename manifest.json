@@ -1276,7 +1276,7 @@
         "License": "MIT + file LICENSE",
         "URL": "https://github.com/sebastian-lortz/discourse, https://sebastian-lortz.github.io/discourse/",
         "BugReports": "https://github.com/sebastian-lortz/discourse/issues",
-        "Imports": "afex,\ncar,\nconfig,\ndplyr,\nemmeans,\nfuture,\nfuture.apply,\nggplot2,\ngolem,\nhtmltools,\nlme4,\npso,\nprogressr,\nRcpp,\nrhandsontable,\nrlang,\nshiny,\nshinyjs,\nshinyWidgets,\nstats,\ntidyr,\ntidyselect,\nutils",
+        "Imports": "afex,\ncar,\nconfig,\ndplyr,\nemmeans,\nfuture,\nfuture.apply,\nggplot2,\ngolem,\nhtmltools,\nlme4,\nmarkdown,\npso,\nprogressr,\nRcpp,\nrhandsontable,\nrlang,\nshiny,\nshinyjs,\nshinyWidgets,\nstats,\ntidyr,\ntidyselect,\nutils",
         "Suggests": "knitr,\nrmarkdown,\nspelling,\ntestthat (>= 3.0.0),\ngridExtra",
         "LinkingTo": "Rcpp,\nRcppArmadillo",
         "SystemRequirements": "BLAS, LAPACK",
@@ -1288,18 +1288,18 @@
         "RoxygenNote": "7.3.2",
         "Author": "Sebastian A. J. Lortz [aut, cre]\n    (<https://orcid.org/0009-0007-0281-7996>)",
         "Maintainer": "Sebastian A. J. Lortz <s.a.j.lortz@gmail.com>",
-        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-29 08:23:00 UTC; unix",
+        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-29 09:55:47 UTC; unix",
         "RemoteType": "github",
         "RemoteHost": "api.github.com",
         "RemoteUsername": "sebastian-lortz",
         "RemoteRepo": "discourse",
         "RemoteRef": "main",
-        "RemoteSha": "0e59e00390839a7e51b40d56057da75e9701c971",
+        "RemoteSha": "dc0e82deffb63e0a303ef61aa4a815a87cd0044c",
         "GithubHost": "api.github.com",
         "GithubRepo": "discourse",
         "GithubUsername": "sebastian-lortz",
         "GithubRef": "main",
-        "GithubSHA1": "0e59e00390839a7e51b40d56057da75e9701c971",
+        "GithubSHA1": "dc0e82deffb63e0a303ef61aa4a815a87cd0044c",
         "Remotes": "github::sebastian-lortz/discourse"
       }
     },
@@ -2509,6 +2509,34 @@
         "Built": "R 4.4.0; ; 2024-04-05 15:16:19 UTC; unix"
       }
     },
+    "litedown": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "litedown",
+        "Type": "Package",
+        "Title": "A Lightweight Version of R Markdown",
+        "Version": "0.7",
+        "Authors@R": "c(\n    person(\"Yihui\", \"Xie\", role = c(\"aut\", \"cre\"), email = \"xie@yihui.name\", comment = c(ORCID = \"0000-0003-0645-5666\", URL = \"https://yihui.org\")),\n    person(\"Tim\", \"Taylor\", role = \"ctb\", comment = c(ORCID = \"0000-0002-8587-7113\")),\n    person()\n    )",
+        "Description": "Render R Markdown to Markdown (without using 'knitr'), and Markdown\n    to lightweight HTML or 'LaTeX' documents with the 'commonmark' package (instead\n    of 'Pandoc'). Some missing Markdown features in 'commonmark' are also\n    supported, such as raw HTML or 'LaTeX' blocks, 'LaTeX' math, superscripts,\n    subscripts, footnotes, element attributes, and appendices,\n    but not all 'Pandoc' Markdown features are (or will be) supported. With\n    additional JavaScript and CSS, you can also create HTML slides and articles.\n    This package can be viewed as a trimmed-down version of R Markdown and\n    'knitr'. It does not aim at rich Markdown features or a large variety of\n    output formats (the primary formats are HTML and 'LaTeX'). Book and website\n    projects of multiple input documents are also supported.",
+        "Depends": "R (>= 3.2.0)",
+        "Imports": "utils, commonmark (>= 1.9.5), xfun (>= 0.52)",
+        "Suggests": "rbibutils, rstudioapi, tinytex",
+        "License": "MIT + file LICENSE",
+        "URL": "https://github.com/yihui/litedown",
+        "BugReports": "https://github.com/yihui/litedown/issues",
+        "VignetteBuilder": "litedown",
+        "RoxygenNote": "7.3.2",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2025-04-08 05:16:55 UTC; runner",
+        "Author": "Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>,\n    https://yihui.org),\n  Tim Taylor [ctb] (<https://orcid.org/0000-0002-8587-7113>)",
+        "Maintainer": "Yihui Xie <xie@yihui.name>",
+        "Repository": "CRAN",
+        "Date/Publication": "2025-04-08 05:40:02 UTC",
+        "Built": "R 4.4.1; ; 2025-04-08 05:45:09 UTC; unix"
+      }
+    },
     "lme4": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -2595,6 +2623,33 @@
         "Date/Publication": "2022-03-30 07:30:09 UTC",
         "Built": "R 4.4.0; aarch64-apple-darwin20; 2024-04-05 15:00:02 UTC; unix",
         "Archs": "magrittr.so.dSYM"
+      }
+    },
+    "markdown": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "markdown",
+        "Type": "Package",
+        "Title": "Render Markdown with 'commonmark'",
+        "Version": "2.0",
+        "Authors@R": "c(\n   person(\"Yihui\", \"Xie\", role = c(\"aut\", \"cre\"), email = \"xie@yihui.name\", comment = c(ORCID = \"0000-0003-0645-5666\")),\n   person(\"JJ\", \"Allaire\", role = \"aut\"),\n   person(\"Jeffrey\", \"Horner\", role = \"aut\"),\n   person(\"Henrik\", \"Bengtsson\", role = \"ctb\"),\n   person(\"Jim\", \"Hester\", role = \"ctb\"),\n   person(\"Yixuan\", \"Qiu\", role = \"ctb\"),\n   person(\"Kohske\", \"Takahashi\", role = \"ctb\"),\n   person(\"Adam\", \"November\", role = \"ctb\"),\n   person(\"Nacho\", \"Caballero\", role = \"ctb\"),\n   person(\"Jeroen\", \"Ooms\", role = \"ctb\"),\n   person(\"Thomas\", \"Leeper\", role = \"ctb\"),\n   person(\"Joe\", \"Cheng\", role = \"ctb\"),\n   person(\"Andrzej\", \"Oles\", role = \"ctb\"),\n   person(given = \"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n   )",
+        "Description": "Render Markdown to full and lightweight HTML/LaTeX documents with\n    the 'commonmark' package. This package has been superseded by 'litedown'.",
+        "Depends": "R (>= 2.11.1)",
+        "Imports": "utils, xfun, litedown (>= 0.6)",
+        "Suggests": "knitr, rmarkdown (>= 2.18), yaml, RCurl",
+        "License": "MIT + file LICENSE",
+        "URL": "https://github.com/rstudio/markdown",
+        "BugReports": "https://github.com/rstudio/markdown/issues",
+        "RoxygenNote": "7.3.2",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2025-03-23 17:06:26 UTC; runner",
+        "Author": "Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>),\n  JJ Allaire [aut],\n  Jeffrey Horner [aut],\n  Henrik Bengtsson [ctb],\n  Jim Hester [ctb],\n  Yixuan Qiu [ctb],\n  Kohske Takahashi [ctb],\n  Adam November [ctb],\n  Nacho Caballero [ctb],\n  Jeroen Ooms [ctb],\n  Thomas Leeper [ctb],\n  Joe Cheng [ctb],\n  Andrzej Oles [ctb],\n  Posit Software, PBC [cph, fnd]",
+        "Maintainer": "Yihui Xie <xie@yihui.name>",
+        "Repository": "CRAN",
+        "Date/Publication": "2025-03-23 19:30:03 UTC",
+        "Built": "R 4.4.1; ; 2025-03-23 20:08:27 UTC; unix"
       }
     },
     "memoise": {
@@ -5036,7 +5091,7 @@
   },
   "files": {
     "_pkgdown.yml": {
-      "checksum": "dc87adee270a0a1029d5498bf1c26da1"
+      "checksum": "1e681ff65b3c08bb62d56fa86792e00f"
     },
     ".gitattributes": {
       "checksum": "1171112d22b17b94223cdda4d0a9d8fe"
@@ -5066,22 +5121,22 @@
       "checksum": "e8b00d8bb98ecf116ac147e89b265813"
     },
     "DESCRIPTION": {
-      "checksum": "a303fd1f5525e947963aa3f66129fa91"
+      "checksum": "e452c9a4d3b1490541ed153bac850b37"
     },
     "doc/discourse_application.html": {
-      "checksum": "126b0331ec62da6f321945374ff6bc44"
+      "checksum": "82e741222a30dc5864a7e19e57bb2541"
     },
     "doc/discourse_application.R": {
-      "checksum": "fe8fa914160f5888c987908c412659e8"
+      "checksum": "2bfe49cde34924f0fe247f6543ae656d"
     },
     "doc/discourse_application.Rmd": {
-      "checksum": "b707e1159b26f6f115504bffa6d71100"
+      "checksum": "7336f6c822e5ddeb6d052fe1f92be2d4"
     },
     "docs/.nojekyll": {
       "checksum": "68b329da9893e34099c7d8ad5cb9c940"
     },
     "docs/404.html": {
-      "checksum": "5fb11a5bfc1c4ecf9959ab72f0181b16"
+      "checksum": "034aadc70e6003ecac9784a995f81b89"
     },
     "docs/apple-touch-icon.png": {
       "checksum": "78e59a360037f3f1bf2cf3e15fa49c5b"
@@ -5123,16 +5178,16 @@
       "checksum": "4f11cc5120f7ba621be98f6136230926"
     },
     "docs/articles/discourse_application.html": {
-      "checksum": "e5ebec76203584ad72034f7160ddc5b0"
+      "checksum": "8bc8660b4246c7cbcd75099c2d98cde8"
     },
     "docs/articles/index.html": {
-      "checksum": "353f0db39f8dab2dcc6f6dd7cf22880f"
+      "checksum": "3ff0554cd4bee84e0e5b44fa2a1fe856"
     },
     "docs/authors.html": {
-      "checksum": "5966ba7d7f3a3ec320b4bd9b0c94af1d"
+      "checksum": "7f8aafb30484e52d540084b989c99538"
     },
     "docs/CODE_OF_CONDUCT.html": {
-      "checksum": "9bce1d6887ac013f62057517bf9d0982"
+      "checksum": "947c7bee1a45db5d0010d269edb5c5b3"
     },
     "docs/deps/bootstrap-5.3.1/bootstrap.bundle.min.js": {
       "checksum": "e2b09c06f0e714b6144a6788a28e3950"
@@ -5222,16 +5277,16 @@
       "checksum": "cc1ab8edd9400831ad178b126f11e8b5"
     },
     "docs/index.html": {
-      "checksum": "77bb01f32ad9dbc031f01df8a671d47d"
+      "checksum": "e02cd263e4b35a84f866faaefbc612c9"
     },
     "docs/katex-auto.js": {
       "checksum": "b6babfc10247cf9190b9fa172dde62b8"
     },
     "docs/LICENSE-text.html": {
-      "checksum": "0cf735e77c2631c648f98ddf54e8e5c1"
+      "checksum": "d256f765556166c0f4a356371f0a3629"
     },
     "docs/LICENSE.html": {
-      "checksum": "850b15a783da1f2bfe4e781870f9bec0"
+      "checksum": "30cc89a36b8bc163a4b9c4f0837631c8"
     },
     "docs/lightswitch.js": {
       "checksum": "5806fcea81ccc70e1ffc453a7d9e12b5"
@@ -5243,19 +5298,19 @@
       "checksum": "97c40907ae4a4adb5e7c13929d831a15"
     },
     "docs/news/index.html": {
-      "checksum": "766b6993c760c13f4b3c11fd629abc26"
+      "checksum": "f5c7ec983fef7a05c29e1b69be19eddb"
     },
     "docs/pkgdown.js": {
       "checksum": "dca708c90eee1f2352a32f4754901a6a"
     },
     "docs/pkgdown.yml": {
-      "checksum": "f1cdedfa1e8ea1b6cdbb3f018435f571"
+      "checksum": "e0e0a658ef9fcdda98eead2c5de59e78"
     },
     "docs/reference/check_grim.html": {
-      "checksum": "d85b895588f253acc31d4707f810e666"
+      "checksum": "2f5bca0a85df52a6e444ed139bb41743"
     },
     "docs/reference/discourse-package.html": {
-      "checksum": "8288181d2e1f05c894ff98e9603db4ac"
+      "checksum": "2b428bb5531891a55a8f7554d4d8fbc4"
     },
     "docs/reference/discourse.html": {
       "checksum": "4c48f7425c74321713fe5d3d161c1aa9"
@@ -5267,85 +5322,85 @@
       "checksum": "97c40907ae4a4adb5e7c13929d831a15"
     },
     "docs/reference/get_rmse_parallel.html": {
-      "checksum": "56d1d4c2dc5e3ce08c2a16dd4971b794"
+      "checksum": "4d4dc51e24f521cd564908f14263999f"
     },
     "docs/reference/get_rmse.html": {
-      "checksum": "58de7ead98ac29490a886838d71a8f43"
+      "checksum": "395f5a6486315602284f9f479afdee9f"
     },
     "docs/reference/get_stats_parallel.html": {
-      "checksum": "079638b0993c442e8d8b53ff13a9fb19"
+      "checksum": "5bf5f553152b59ed535c18cdfbf9c9ab"
     },
     "docs/reference/get_stats.html": {
-      "checksum": "39f0694a3107d70ad4f3462342dfc010"
+      "checksum": "bbb4d55952ea08afb7428c4045dccc17"
     },
     "docs/reference/hill_climb.html": {
-      "checksum": "f79e1f469223e37c3e9f1f343035546a"
+      "checksum": "aa0ccb056b21e091fda75f9c4008fca5"
     },
     "docs/reference/index.html": {
-      "checksum": "f2493a1599d6e559bde9540da8d49521"
+      "checksum": "45622703819aec04fa51e4a9f6ccaba6"
     },
     "docs/reference/long_to_wide.html": {
-      "checksum": "7bde29cd463716777f41f4bb9507b9c5"
+      "checksum": "244bf354623533c1f359bd8cb237df3f"
     },
     "docs/reference/optim_aov.html": {
-      "checksum": "2ad434f805080ce7bfdf728484389b51"
+      "checksum": "dc90f7237261b4538d778686e6450745"
     },
     "docs/reference/optim_lm.html": {
-      "checksum": "ef66bae0f28638d81ec4bc4a7fd691fe"
+      "checksum": "b50f828cd3807b2f1551c590768a4890"
     },
     "docs/reference/optim_lme.html": {
-      "checksum": "78700b95bb33281ccd08d289b0d77a46"
+      "checksum": "d277aa810b99eb93f89c2291b60c8f4b"
     },
     "docs/reference/optim_vec.html": {
-      "checksum": "13327611d7728119e632cbdd14326c64"
+      "checksum": "a87fa6167bb14c589d325b37465b5a8b"
     },
     "docs/reference/parallel_aov.html": {
-      "checksum": "436a60ae081b8f90bfb4579525c14a0c"
+      "checksum": "379b0f212fa432a608cdb503b0851159"
     },
     "docs/reference/parallel_lm.html": {
-      "checksum": "1998c37796cb16023bcfc1ac3e2fc2b1"
+      "checksum": "2f0eed128eac8bbe011d63937ea5103a"
     },
     "docs/reference/parallel_lme.html": {
-      "checksum": "c6cc188defbe5209ece309684552f2cd"
+      "checksum": "5ab7cfa8e3016995c01bf059adeb8e3d"
     },
     "docs/reference/plot_cooling.html": {
-      "checksum": "b43c1fb2d137ff117243cd20cf475572"
+      "checksum": "92b78077f2a5a9eccc322d1219a168cb"
     },
     "docs/reference/plot_error_ratio.html": {
-      "checksum": "f9cf3b3f8aaa5567571aa93f02789d3f"
+      "checksum": "39b55f667c00a73e1ef1b27ddee30917"
     },
     "docs/reference/plot_error.html": {
-      "checksum": "d574a398cd5eea9812fe73e9fcab3646"
+      "checksum": "98f938dc2131f42d2ec14944095de2c2"
     },
     "docs/reference/plot_histogram.html": {
-      "checksum": "cbc029c3c96732bd4685c7060b56fea3"
+      "checksum": "83123a966cc2693ea7380946babaf6f6"
     },
     "docs/reference/plot_partial_regression.html": {
-      "checksum": "4ea464abb102ebd0cbe88bdbac05858c"
+      "checksum": "e847a99a90130627c5300a2d15293bc6"
     },
     "docs/reference/plot_rmse.html": {
-      "checksum": "f7190e4fdaf4963aea44e405fea1e136"
+      "checksum": "fed230bd68e1662d9992b561b778f4d5"
     },
     "docs/reference/plot_summary.html": {
-      "checksum": "07ae3bd1469fe9f7c83d417737a45444"
+      "checksum": "29c6806cea994802ca496612426d270b"
     },
     "docs/reference/print.summary.discourse.object.html": {
-      "checksum": "dd26b73241f367313d33561691f729f3"
+      "checksum": "b84a87eaa300795b164dfe55525bd11d"
     },
     "docs/reference/run_app.html": {
-      "checksum": "ebed0d979b4e82e8b8b77228cc33ef5f"
+      "checksum": "d6fa856a3a0b8c4f4fa9155423f0d2ee"
     },
     "docs/reference/summary.discourse.object.html": {
-      "checksum": "5afca7fee15c1a857cd1e178e5960614"
+      "checksum": "7ffe957403d3a90cc81edf6d095dd001"
     },
     "docs/reference/weights_est.html": {
-      "checksum": "e47e0bee66d50a601b8675799f67cab2"
+      "checksum": "f607bd55fbb7eabdafa0dd9cd734071d"
     },
     "docs/reference/weights_vec.html": {
-      "checksum": "08bcae79b25408b32a3c844e77499fe1"
+      "checksum": "7ab35d857ceb985126e066c5f9b3131d"
     },
     "docs/reference/wide_to_long.html": {
-      "checksum": "bfd539f0e41ea731f9d729337e5450bb"
+      "checksum": "6e887f8494b343cacd19f95994eaa9ba"
     },
     "docs/search.json": {
       "checksum": "033f0ee4f0d89fd2166e3b446aee5fd3"
@@ -5393,7 +5448,7 @@
       "checksum": "b336ef6622954102694ab40d4efcbe11"
     },
     "NAMESPACE": {
-      "checksum": "23d93f1a2e5c2ca752eb4115f90440f5"
+      "checksum": "50b9dc1a1a913b14529b8026c36dd3c5"
     },
     "pkgdown/favicon/apple-touch-icon.png": {
       "checksum": "78e59a360037f3f1bf2cf3e15fa49c5b"
@@ -5420,13 +5475,13 @@
       "checksum": "1178c335d6c11555fd1c4ec6098dfee6"
     },
     "R/app_config.R": {
-      "checksum": "1841469456da370110e06960078f6508"
+      "checksum": "a8d7081300fec96eb75f14114befa783"
     },
     "R/app_server.R": {
       "checksum": "8c2fb361d18b7a2296f1ee7b943328e6"
     },
     "R/app_ui.R": {
-      "checksum": "964539cbe412f4b88a4e76c5ebe7ac32"
+      "checksum": "46451b24652f9be9fe8616f7ae4f06d5"
     },
     "R/fct_check_grim.R": {
       "checksum": "cbb2ab084724542337d3eb1127e0956d"
@@ -5501,16 +5556,16 @@
       "checksum": "1694775e681b1a4cf1ce4d2dda7e0316"
     },
     "R/mod_optim_aov.R": {
-      "checksum": "041c497f2939b6a5406f81ff7a1c8167"
+      "checksum": "6186f946ac8b707575b4c9cde41453fc"
     },
     "R/mod_optim_lm.R": {
-      "checksum": "1fa21bbb5c3fdc7a971dcfd4a1193b4b"
+      "checksum": "2cb8a67dfeb215b78b50c4a0ebc52be5"
     },
     "R/mod_optim_lme.R": {
-      "checksum": "dbbbe596fde4ea5588135464ffeef502"
+      "checksum": "5b9f6598314749b9d3fd88a078f7b6c3"
     },
     "R/mod_optim_vec.R": {
-      "checksum": "118125a7fabf4bb212711ef6fb960dfe"
+      "checksum": "7ad27276bd279a11a91bd55bfea16f60"
     },
     "R/package.R": {
       "checksum": "223376280053cb39acdf0c30cfe9adc5"
@@ -5531,7 +5586,7 @@
       "checksum": "84725c3343f30177e2fa8185275f0985"
     },
     "renv.lock": {
-      "checksum": "df93e0893002b495eac8f3ac4285f819"
+      "checksum": "6cf1285685fe88285cf9509bb22ab49e"
     },
     "src/helpers.cpp": {
       "checksum": "14a251d6e23dff47705e09fad87bf184"
