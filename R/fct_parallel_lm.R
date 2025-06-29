@@ -142,10 +142,10 @@ parallel_lm <- function(
   n_workers  <- min(parallel_start, max(real_cores-1,1))
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
-    progress.max <- progress_mode
+    seq_backend = FALSE
   } else {
     future::plan(future::sequential)
-    progress.max <- parallel_start
+    seq_backend <- TRUE
   }
   cat("Running with", n_workers, "worker(s). \n")
   pkgs <- c("discourse", "Rcpp")
@@ -182,7 +182,8 @@ parallel_lm <- function(
               hill_climbs      = hill_climbs,
               progress_bar     = FALSE,
               min_decimals     = min_decimals,
-              progress_mode    = progress.max
+              progress_mode    = progress_mode,
+              seq_backend      = seq_backend
             )
             p()
             res
