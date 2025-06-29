@@ -178,7 +178,8 @@ parallel_lm <- function(
           max_starts       = max_starts,
           hill_climbs      = hill_climbs,
           progress_bar     = FALSE,
-          min_decimals     = min_decimals
+          min_decimals     = min_decimals,
+          progress_mode = "shiny"
         )
         p()
         Sys.sleep(0)
@@ -203,7 +204,8 @@ parallel_lm <- function(
               max_starts       = max_starts,
               hill_climbs      = hill_climbs,
               progress_bar     = FALSE,
-              min_decimals     = min_decimals
+              min_decimals     = min_decimals,
+              progress_mode = "shiny"
             )
             p()
             res
