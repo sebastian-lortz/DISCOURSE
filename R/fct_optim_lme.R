@@ -20,8 +20,7 @@
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param eps Numeric. Small constant to stabilize scaling (prevent division by zero). Default `1e-5`.
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
-#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
-#' @param seq_backend Logical. Internal if seq backend is used. Default `FALSE`.
+#' @param progress_mode Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{
@@ -72,8 +71,7 @@ optim_lme <- function(sim_data,
                       ),
                       min_decimals = 1,
                       eps = 1e-5,
-                      progress_mode = "console",
-                      seq_backend = FALSE
+                      progress_mode = "console"
 ) {
 
   # input checks
@@ -131,6 +129,11 @@ optim_lme <- function(sim_data,
   if (!is.numeric(min_decimals) || length(min_decimals) != 1 ||
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {
     stop("`min_decimals` must be a single non-negative integer.")
+  }
+  if (!is.character(progress_mode) ||
+      length(progress_mode) != 1 ||
+      !progress_mode %in% c("console", "shiny", "off")) {
+    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\" or \"off\".")
   }
 
   # get data info
@@ -365,7 +368,7 @@ if (is.null(tau)) {
   # set progressr
   if(progress_mode == "shiny") {
     handler <- list(progressr::handler_shiny())
-  } else {
+  } else if (progress_mode == "console") {
     handler <-list(progressr::handler_txtprogressbar())
   }
   pb_interval_sa <- max(floor(max_iter / 100), 1)
@@ -379,7 +382,7 @@ if (is.null(tau)) {
   total_calls <- n_sa_calls + n_hc_calls
 
   # Optimization process
-  if (!seq_backend) {
+  if (progress_mode == "shiny" || progress_mode == "console") {
   progressr::with_progress({
     p <- progressr::progressor(steps = total_calls)
       for (start in seq_len(max_starts)) {

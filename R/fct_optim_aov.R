@@ -29,8 +29,7 @@
 #' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_group_means`. Default is FALSE.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_bar Logical. Show text progress bar during optimization. Default is TRUE.
-#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
-#' @param seq_backend Logical. Internal if seq backend is used. Default `FALSE`.
+#' @param progress_mode Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{
@@ -80,8 +79,7 @@ optim_aov <- function(
     checkGrim = FALSE,
     min_decimals = 1,
     progress_bar = TRUE,
-    progress_mode = "console",
-    seq_backend = FALSE
+    progress_mode = "console"
 ) {
 
   # input checks
@@ -173,6 +171,11 @@ optim_aov <- function(
   if (!is.numeric(min_decimals) || length(min_decimals) != 1 ||
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {
     stop("`min_decimals` must be a single non-negative integer.")
+  }
+  if (!is.character(progress_mode) ||
+      length(progress_mode) != 1 ||
+      !progress_mode %in% c("console", "shiny", "off")) {
+    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\" or \"off\".")
   }
 
   # configure contrasts
@@ -334,13 +337,13 @@ optim_aov <- function(
   # set progressr
   if(progress_mode == "shiny") {
     handler <- list(progressr::handler_shiny())
-  } else {
+  } else if (progress_mode == "console") {
     handler <-list(progressr::handler_txtprogressbar())
   }
   pb_interval <- max(floor(max_iter / 100), 1)
 
   # Optimization Process
-  if (!seq_backend) {
+  if (progress_mode == "shiny" || progress_mode == "console") {
   progressr::with_progress({
     p <- progressr::progressor(steps = (max_iter*max_starts)/pb_interval)
       for (s in seq_len(max_starts)) {

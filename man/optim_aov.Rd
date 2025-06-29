@@ -75,7 +75,7 @@ optim_aov(
 
 \item{progress_bar}{Logical. Show text progress bar during optimization. Default is TRUE.}
 
-\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
+\item{progress_mode}{Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.}
 }
 \value{
 A `discourse.object` list containing:

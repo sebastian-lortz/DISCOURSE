@@ -58,7 +58,7 @@ optim_lme(
 
 \item{eps}{Numeric. Small constant to stabilize scaling (prevent division by zero). Default `1e-5`.}
 
-\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
+\item{progress_mode}{Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.}
 }
 \value{
 A `discourse.object` list containing:

@@ -54,7 +54,7 @@ optim_lm(
 
 \item{min_decimals}{Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.}
 
-\item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
+\item{progress_mode}{Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.}
 }
 \value{
 A `discourse.object` list containing:
