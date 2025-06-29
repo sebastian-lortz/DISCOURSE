@@ -214,6 +214,7 @@ optim_lm <- function(
   } else if (progress_mode == "console") {
     handler <-list(progressr::handler_txtprogressbar())
   } else {
+    handler <- list(progressr::handler_shiny())
     total_calls <- progress_mode
   }
 
