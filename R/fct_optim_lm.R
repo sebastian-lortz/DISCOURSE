@@ -19,8 +19,7 @@
 #' @param max_starts Integer. Number of annealing restarts. Default `1`.
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
-#' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
-#' @param seq_backend Logical. Internal if seq backend is used. Default `FALSE`.
+#' @param progress_mode Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.
 #'
 #' @return A `discourse.object` list containing:
 #' \describe{
@@ -60,8 +59,7 @@ optim_lm <- function(
     max_starts = 1,
     hill_climbs = NULL,
     min_decimals = 1,
-    progress_mode = "console",
-    seq_backend = FALSE
+    progress_mode = "console"
 ) {
 # input checks
   if (!is.data.frame(sim_data) || ncol(sim_data) < 2) {
@@ -134,8 +132,8 @@ optim_lm <- function(
   }
   if (!is.character(progress_mode) ||
       length(progress_mode) != 1 ||
-      !progress_mode %in% c("console", "shiny")) {
-    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\".")
+      !progress_mode %in% c("console", "shiny", "off")) {
+    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\" or \"off\".")
   }
   # get decimals
   cor_dec <- max(count_decimals(target_cor, min_decimals = min_decimals))
@@ -208,7 +206,7 @@ optim_lm <- function(
   # set progressr
   if(progress_mode == "shiny") {
     handler <- list(progressr::handler_shiny())
-  } else {
+  } else if (progress_mode == "console") {
     handler <-list(progressr::handler_txtprogressbar())
   }
   pb_interval_sa <- max(floor(max_iter / 100), 1)
@@ -222,7 +220,7 @@ optim_lm <- function(
   total_calls <- n_sa_calls + n_hc_calls
 
  # Optimization process
- if (!seq_backend) {
+ if (progress_mode == "shiny" || progress_mode == "console") {
    progressr::with_progress({
     p <- progressr::progressor(steps = total_calls)
       for (start in seq_len(max_starts)) {
