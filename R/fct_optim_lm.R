@@ -130,11 +130,7 @@ optim_lm <- function(
       min_decimals < 0 || min_decimals != as.integer(min_decimals)) {
     stop("`min_decimals` must be a single non-negative integer.")
   }
-  if (!is.character(progress_mode) ||
-      length(progress_mode) != 1 ||
-      !progress_mode %in% c("console", "shiny")) {
-    stop("`progress_mode` must be a single string, either \"console\" or \"shiny\".")
-  }
+
   # get decimals
   cor_dec <- max(count_decimals(target_cor, min_decimals = min_decimals))
   reg_dec <- max(count_decimals(target_reg, min_decimals = min_decimals))
@@ -204,11 +200,6 @@ optim_lm <- function(
   temp <- init_temp
 
   # set progressr
-  if(progress_mode == "shiny") {
-    handler <- list(progressr::handler_shiny())
-  } else {
-    handler <-list(progressr::handler_txtprogressbar())
-  }
   pb_interval_sa <- max(floor(max_iter / 100), 1)
   pb_interval_hc <- if (!is.null(hill_climbs)) max(floor(hill_climbs / 100), 1) else 1
   n_sa_calls <- sum(vapply(seq_len(max_starts), function(i) {
@@ -218,6 +209,13 @@ optim_lm <- function(
     length(seq_len(hill_climbs)[seq_len(hill_climbs) %% pb_interval_hc == 0])
   } else 0
   total_calls <- n_sa_calls + n_hc_calls
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else if (progress_mode == "console") {
+    handler <-list(progressr::handler_txtprogressbar())
+  } else {
+    total_calls <- progress_mode
+  }
 
  # Optimization process
  progressr::with_progress({

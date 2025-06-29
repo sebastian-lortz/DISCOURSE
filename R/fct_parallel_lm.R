@@ -134,13 +134,6 @@ parallel_lm <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
-  # set progressr
-  if(progress_mode == "shiny") {
-    handler <- list(progressr::handler_shiny())
-  } else {
-    handler <-list(progressr::handler_txtprogressbar())
-  }
-
   # set up backend
   old_plan <- future::plan()
   on.exit( future::plan(old_plan), add = TRUE )
@@ -149,8 +142,10 @@ parallel_lm <- function(
   n_workers  <- min(parallel_start, max(real_cores-1,1))
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
+    progress.max <- progress_mode
   } else {
     future::plan(future::sequential)
+    progress.max <- parallel_start
   }
   cat("Running with", n_workers, "worker(s). \n")
   pkgs <- c("discourse", "Rcpp")
@@ -158,34 +153,16 @@ parallel_lm <- function(
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
 
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+
   # Optimization process
   values <- progressr::with_progress({
       p <- progressr::progressor(steps = parallel_start)
-      if (n_workers < 2L) {
-        lapply(seq_len(parallel_start), function(i) {
-        res <- optim_lm(
-          sim_data         = sim_data,
-          target_cor       = target_cor,
-          target_reg       = target_reg,
-          reg_equation     = reg_equation,
-          target_se        = target_se,
-          weight           = weight,
-          max_iter         = max_iter,
-          init_temp        = init_temp,
-          cooling_rate     = cooling_rate,
-          tolerance         = tolerance,
-          prob_global_move = prob_global_move,
-          max_starts       = max_starts,
-          hill_climbs      = hill_climbs,
-          progress_bar     = FALSE,
-          min_decimals     = min_decimals,
-          progress_mode = "shiny"
-        )
-        p()
-        Sys.sleep(0)
-        res
-        })
-      } else {
         future.apply::future_lapply(
           X           = seq_len(parallel_start),
           FUN         = function(i) {
@@ -205,14 +182,13 @@ parallel_lm <- function(
               hill_climbs      = hill_climbs,
               progress_bar     = FALSE,
               min_decimals     = min_decimals,
-              progress_mode = "shiny"
+              progress_mode    = progress.max
             )
             p()
             res
           },
           future.seed = TRUE
         )
-      }
       },
 handlers = handler)
 
