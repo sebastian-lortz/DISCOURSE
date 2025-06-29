@@ -1288,18 +1288,18 @@
         "RoxygenNote": "7.3.2",
         "Author": "Sebastian A. J. Lortz [aut, cre]\n    (<https://orcid.org/0009-0007-0281-7996>)",
         "Maintainer": "Sebastian A. J. Lortz <s.a.j.lortz@gmail.com>",
-        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-29 09:55:47 UTC; unix",
+        "Built": "R 4.4.2; aarch64-apple-darwin20; 2025-06-29 15:11:18 UTC; unix",
         "RemoteType": "github",
         "RemoteHost": "api.github.com",
         "RemoteUsername": "sebastian-lortz",
         "RemoteRepo": "discourse",
         "RemoteRef": "main",
-        "RemoteSha": "dc0e82deffb63e0a303ef61aa4a815a87cd0044c",
+        "RemoteSha": "4669aa1580311d50cb23fb6b609f9c5fcb2acc86",
         "GithubHost": "api.github.com",
         "GithubRepo": "discourse",
         "GithubUsername": "sebastian-lortz",
         "GithubRef": "main",
-        "GithubSHA1": "dc0e82deffb63e0a303ef61aa4a815a87cd0044c",
+        "GithubSHA1": "4669aa1580311d50cb23fb6b609f9c5fcb2acc86",
         "Remotes": "github::sebastian-lortz/discourse"
       }
     },
@@ -5502,25 +5502,25 @@
       "checksum": "82fa64f07a924322dbcf5f44a95c8cc7"
     },
     "R/fct_optim_aov.R": {
-      "checksum": "b406da6f205de3f55b23627a7ddc3d05"
+      "checksum": "6801a65a0d2c5ed9f38aa3297ab42a5a"
     },
     "R/fct_optim_lm.R": {
-      "checksum": "1d417625e900d9eb830ca474ff143bad"
+      "checksum": "50cc803d3776d65a1ca5acce39e2c69f"
     },
     "R/fct_optim_lme.R": {
-      "checksum": "939fffa6b2b844ce4a550401266186da"
+      "checksum": "ea1f9fbc444ced53de143a238f43a741"
     },
     "R/fct_optim_vec.R": {
       "checksum": "b548a8ad12fbc7f449f43b236a6e985d"
     },
     "R/fct_parallel_aov.R": {
-      "checksum": "b3b37b6fe7af89a6f12f1582796c89ec"
+      "checksum": "b4b5154e5b7ae7823bd37f01cde379fd"
     },
     "R/fct_parallel_lm.R": {
-      "checksum": "aac80db2feb29d9d5651f57b31139f02"
+      "checksum": "f7fdce722c0765872c16d9990db38044"
     },
     "R/fct_parallel_lme.R": {
-      "checksum": "89e7b8a447ddcb1860e4a37c18ed2d6a"
+      "checksum": "f47b0207be76bf2955d42f9065b34dc4"
     },
     "R/fct_plot_cooling.R": {
       "checksum": "8d287897ddcc136e2037d6d56f064558"
@@ -5544,10 +5544,10 @@
       "checksum": "d0d1445878ca828d31ca7894be3185ae"
     },
     "R/fct_weights_est.R": {
-      "checksum": "0b62dce6da117f20b3f73d9545ce7408"
+      "checksum": "4588ebddff825bf8385f890c8abc2d11"
     },
     "R/fct_weights_vec.R": {
-      "checksum": "cdce09dc71a114596980e25c55cd9d4a"
+      "checksum": "09b27511d99ac680ec6b6e6f6918402a"
     },
     "R/golem_utils_server.R": {
       "checksum": "c2998ee5dbb57c9af79904bc79133f74"
@@ -5562,7 +5562,7 @@
       "checksum": "2cb8a67dfeb215b78b50c4a0ebc52be5"
     },
     "R/mod_optim_lme.R": {
-      "checksum": "5b9f6598314749b9d3fd88a078f7b6c3"
+      "checksum": "c2f9e588a0503a772bd3d4b57b0965bb"
     },
     "R/mod_optim_vec.R": {
       "checksum": "7ad27276bd279a11a91bd55bfea16f60"
@@ -5586,7 +5586,7 @@
       "checksum": "84725c3343f30177e2fa8185275f0985"
     },
     "renv.lock": {
-      "checksum": "6cf1285685fe88285cf9509bb22ab49e"
+      "checksum": "e09d4d5dd74fbb27e90f690b23b454a9"
     },
     "src/helpers.cpp": {
       "checksum": "14a251d6e23dff47705e09fad87bf184"
