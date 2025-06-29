@@ -134,6 +134,13 @@ parallel_lm <- function(
     stop("`min_decimals` must be a single non-negative integer.")
   }
 
+  # set progressr
+  if(progress_mode == "shiny") {
+    handler <- list(progressr::handler_shiny())
+  } else {
+    handler <-list(progressr::handler_txtprogressbar())
+  }
+
   # set up backend
   old_plan <- future::plan()
   on.exit( future::plan(old_plan), add = TRUE )
@@ -142,23 +149,15 @@ parallel_lm <- function(
   n_workers  <- min(parallel_start, max(real_cores-1,1))
   if (n_workers > 1L) {
     future::plan(future::multisession, workers = n_workers)
-    seq_backend = FALSE
   } else {
     future::plan(future::sequential)
-    seq_backend <- TRUE
+    progress_mode <- "off"
   }
   cat("Running with", n_workers, "worker(s). \n")
   pkgs <- c("discourse", "Rcpp")
 
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
-
-  # set progressr
-  if(progress_mode == "shiny") {
-    handler <- list(progressr::handler_shiny())
-  } else {
-    handler <-list(progressr::handler_txtprogressbar())
-  }
 
   # Optimization process
   values <- progressr::with_progress({
@@ -182,8 +181,7 @@ parallel_lm <- function(
               hill_climbs      = hill_climbs,
               progress_bar     = FALSE,
               min_decimals     = min_decimals,
-              progress_mode    = progress_mode,
-              seq_backend      = seq_backend
+              progress_mode    = progress_mode
             )
             p()
             res
