@@ -3,7 +3,6 @@
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
 #' @import shiny
-#' @import markdown includeMarkdown
 #' @noRd
 app_ui <- function(request) {
   tagList(
@@ -116,7 +115,7 @@ app_ui <- function(request) {
         ),
         # About
         tabPanel("About",
-                 includeMarkdown(app_sys("app/www/about.md"))
+                includeMarkdown(app_sys("app/www/about.md"))
         )
       )
     )
