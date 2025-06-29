@@ -125,6 +125,7 @@ usethis::use_pkgdown_github_pages()
 
 # refresh pkgdown page
 # devtools::build_readme()
+options(rmarkdown.html_vignette.check_title = FALSE)
 pkgdown::build_site_github_pages()
 
 # render about doc
