@@ -133,7 +133,6 @@ rmarkdown::render("~/Desktop/Research Master/DISCOURSE/inst/app/www/about.Rmd",
                   output_format = "github_document",
                   output_file   = "~/Desktop/Research Master/DISCOURSE/inst/app/www/about.md")
 
-
 # You're now set! ----
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")
